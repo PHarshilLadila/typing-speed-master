@@ -1,0 +1,456 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:typing_speed_master/utils/constants.dart';
+import '../providers/typing_provider.dart';
+import '../widgets/text_display_widget.dart';
+import '../widgets/stats_card.dart';
+import '../models/typing_result.dart';
+import 'results_screen.dart';
+
+class TypingTestScreen extends StatefulWidget {
+  const TypingTestScreen({Key? key}) : super(key: key);
+
+  @override
+  _TypingTestScreenState createState() => _TypingTestScreenState();
+}
+
+class _TypingTestScreenState extends State<TypingTestScreen> {
+  final TextEditingController _textController = TextEditingController();
+  String _userInput = '';
+  DateTime? _startTime;
+  bool _testStarted = false;
+  bool _testCompleted = false;
+  Duration _remainingTime = Duration.zero;
+  late Duration _testDuration;
+
+  @override
+  void initState() {
+    super.initState();
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    _testDuration = provider.selectedDuration;
+    _remainingTime = _testDuration;
+  }
+
+  @override
+  void dispose() {
+    _textController.dispose();
+    super.dispose();
+  }
+
+  void _startTest() {
+    setState(() {
+      _testStarted = true;
+      _startTime = DateTime.now();
+      _userInput = '';
+      _textController.clear();
+      _remainingTime = _testDuration;
+    });
+
+    _startTimer();
+  }
+
+  void _startTimer() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (_testStarted && !_testCompleted && mounted) {
+        setState(() {
+          _remainingTime = _remainingTime - const Duration(seconds: 1);
+        });
+
+        if (_remainingTime.inSeconds <= 0) {
+          _completeTest();
+        } else {
+          _startTimer();
+        }
+      }
+    });
+  }
+
+  void _completeTest() {
+    if (_startTime == null) return;
+
+    final endTime = DateTime.now();
+    final duration = endTime.difference(_startTime!);
+    final words = _userInput.split(' ').where((word) => word.isNotEmpty).length;
+
+    // Calculate WPM
+    final wpm = (words / (duration.inSeconds / 60)).round();
+
+    // Calculate accuracy
+    int correctChars = 0;
+    final sampleText =
+        Provider.of<TypingProvider>(context, listen: false).getCurrentText();
+
+    for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
+      if (_userInput[i] == sampleText[i]) correctChars++;
+    }
+
+    final accuracy = (correctChars / sampleText.length) * 100;
+
+    final result = TypingResult(
+      wpm: wpm,
+      accuracy: accuracy,
+      correctChars: correctChars,
+      incorrectChars: _userInput.length - correctChars,
+      totalChars: _userInput.length,
+      duration: duration,
+      timestamp: DateTime.now(),
+      difficulty:
+          Provider.of<TypingProvider>(
+            context,
+            listen: false,
+          ).selectedDifficulty,
+    );
+
+    setState(() {
+      _testCompleted = true;
+      _testStarted = false;
+    });
+
+    // Save result and navigate to results screen
+    Provider.of<TypingProvider>(context, listen: false).saveResult(result);
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => ResultsScreen(result: result)),
+    );
+  }
+
+  void _onTextChanged(String value) {
+    if (!_testStarted && value.isNotEmpty) {
+      _startTest();
+    }
+
+    setState(() {
+      _userInput = value;
+    });
+
+    final sampleText =
+        Provider.of<TypingProvider>(context, listen: false).getCurrentText();
+    if (value.length >= sampleText.length) {
+      _completeTest();
+    }
+  }
+
+  void _resetTest() {
+    setState(() {
+      _testStarted = false;
+      _testCompleted = false;
+      _userInput = '';
+      _textController.clear();
+      _remainingTime = _testDuration;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final provider = Provider.of<TypingProvider>(context);
+    final sampleText = provider.getCurrentText();
+
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      appBar: AppBar(
+        title: const Text('Typing Test'),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            // Test Configuration
+            _buildTestConfig(provider),
+            const SizedBox(height: 20),
+
+            // Timer and Stats
+            _buildTimerAndStats(),
+            const SizedBox(height: 20),
+
+            // Text Display
+            Expanded(
+              flex: 2,
+              child: TextDisplayWidget(
+                sampleText: sampleText,
+                userInput: _userInput,
+                isTestActive: _testStarted && !_testCompleted,
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Input Field
+            _buildInputField(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTestConfig(TypingProvider provider) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Difficulty',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<String>(
+                  value: provider.selectedDifficulty,
+                  onChanged:
+                      _testStarted
+                          ? null
+                          : (value) {
+                            if (value != null) {
+                              provider.setDifficulty(value);
+                              _resetTest();
+                            }
+                          },
+                  items:
+                      AppConstants.difficultyLevels.map((level) {
+                        return DropdownMenuItem(
+                          value: level,
+                          child: Text(level),
+                        );
+                      }).toList(),
+                  isExpanded: true,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 20),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Duration',
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                DropdownButton<Duration>(
+                  value: provider.selectedDuration,
+                  onChanged:
+                      _testStarted
+                          ? null
+                          : (value) {
+                            if (value != null) {
+                              provider.setDuration(value);
+                              _testDuration = value;
+                              _remainingTime = value;
+                              _resetTest();
+                            }
+                          },
+                  items:
+                      AppConstants.testDurations.map((duration) {
+                        return DropdownMenuItem(
+                          value: duration,
+                          child: Text('${duration.inSeconds} seconds'),
+                        );
+                      }).toList(),
+                  isExpanded: true,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimerAndStats() {
+    final words = _userInput.split(' ').where((word) => word.isNotEmpty).length;
+
+    double wpm = 0;
+    if (_startTime != null && _testStarted) {
+      final elapsedSeconds = DateTime.now().difference(_startTime!).inSeconds;
+      if (elapsedSeconds > 0) {
+        wpm = (words / (elapsedSeconds / 60));
+      }
+    }
+
+    return Row(
+      children: [
+        // Timer
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color:
+                  _remainingTime.inSeconds <= 10
+                      ? Colors.red.withOpacity(0.1)
+                      : Colors.blue.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Time Remaining',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '${_remainingTime.inSeconds}s',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        _remainingTime.inSeconds <= 10
+                            ? Colors.red
+                            : Colors.blue,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        // WPM
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Current WPM',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  wpm.toStringAsFixed(2),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        // Words
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Words',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$words',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildInputField() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[300]!),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Start typing here...',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextField(
+            controller: _textController,
+            enabled: !_testCompleted,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              border: OutlineInputBorder(),
+              hintText: 'Type the text shown above...',
+            ),
+            onChanged: _onTextChanged,
+            autofocus: true,
+          ),
+          const SizedBox(height: 16),
+          if (_testStarted || _testCompleted)
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _resetTest,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.grey[200],
+                      foregroundColor: Colors.grey[800],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Restart Test'),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _testStarted ? _completeTest : null,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Complete Test'),
+                  ),
+                ),
+              ],
+            ),
+        ],
+      ),
+    );
+  }
+}
