@@ -2,7 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/screens/typing_test_screen.dart';
 import '../models/typing_result.dart';
 import '../widgets/stats_card.dart';
@@ -175,6 +177,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
   }
 
   Widget _buildStatsGrid(int crossAxisCount) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return GridView(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -191,6 +195,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           unit: 'WPM',
           color: Colors.blue,
           icon: Icons.speed,
+          isDarkMode: themeProvider.isDarkMode,
         ),
         StatsCard(
           title: 'Accuracy',
@@ -198,6 +203,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           unit: '%',
           color: Colors.green,
           icon: Icons.flag,
+          isDarkMode: themeProvider.isDarkMode,
         ),
         StatsCard(
           title: 'Duration',
@@ -205,6 +211,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           unit: 'seconds',
           color: Colors.orange,
           icon: Icons.timer,
+          isDarkMode: themeProvider.isDarkMode,
         ),
         StatsCard(
           title: 'Difficulty',
@@ -212,6 +219,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           unit: '',
           color: Colors.purple,
           icon: Icons.leaderboard,
+          isDarkMode: themeProvider.isDarkMode,
         ),
       ],
     );
@@ -435,6 +443,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => const TypingTestScreen(),
+                      // builder: (context) => const TypingTestScreen(),
                     ),
                   );
                 },
