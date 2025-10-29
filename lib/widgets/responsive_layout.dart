@@ -18,17 +18,18 @@ class ResponsiveLayout extends StatelessWidget {
     required this.bigDesktop,
   });
 
-  static const double smallMobileMax = 400;
+  static const double smallMobileMax = 300;
   static const double bigMobileMax = 600;
   static const double smallTabletMax = 900;
   static const double bigTabletMax = 1200;
   static const double smallDesktopMax = 1600;
 
   static bool isSmallMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width <= smallMobileMax;
+      MediaQuery.of(context).size.width >= 300 ||
+      MediaQuery.of(context).size.width <= 472;
 
   static bool isBigMobile(BuildContext context) =>
-      MediaQuery.of(context).size.width > smallMobileMax &&
+      MediaQuery.of(context).size.width > 472 &&
       MediaQuery.of(context).size.width <= bigMobileMax;
 
   static bool isSmallTablet(BuildContext context) =>
@@ -60,7 +61,7 @@ class ResponsiveLayout extends StatelessWidget {
           return bigTablet;
         } else if (width > bigMobileMax) {
           return smallTablet;
-        } else if (width > smallMobileMax) {
+        } else if (width > 400) {
           return bigMobile;
         } else {
           return smallMobile;

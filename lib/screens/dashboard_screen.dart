@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
+import 'package:typing_speed_master/widgets/responsive_layout.dart';
 import '../providers/typing_provider.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/accuracy_chart.dart';
@@ -11,76 +12,82 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isDesktop = constraints.maxWidth > 1000;
-        final isTablet =
-            constraints.maxWidth > 600 && constraints.maxWidth <= 1000;
-        final isMobile = constraints.maxWidth <= 600;
+    return ResponsiveLayout(
+      smallMobile: _buildDashboard(
+        context: context,
+        horizontalPadding: 12,
+        titleFontSize: 22,
+        subtitleFontSize: 14,
+      ),
+      bigMobile: _buildDashboard(
+        context: context,
+        horizontalPadding: 24,
+        titleFontSize: 24,
+        subtitleFontSize: 14,
+      ),
+      smallTablet: _buildDashboard(
+        context: context,
+        horizontalPadding: 40,
+        titleFontSize: 26,
+        subtitleFontSize: 16,
+      ),
+      bigTablet: _buildDashboard(
+        context: context,
+        horizontalPadding: 60,
+        titleFontSize: 28,
+        subtitleFontSize: 16,
+      ),
+      smallDesktop: _buildDashboard(
+        context: context,
+        horizontalPadding: 80,
+        titleFontSize: 30,
+        subtitleFontSize: 18,
+      ),
+      bigDesktop: _buildDashboard(
+        context: context,
+        horizontalPadding: 100,
+        titleFontSize: 32,
+        subtitleFontSize: 18,
+      ),
+    );
+  }
 
-        final horizontalPadding =
-            isDesktop
-                ? 100.0
-                : isTablet
-                ? 40.0
-                : 20.0;
+  Widget _buildDashboard({
+    required BuildContext context,
+    required double horizontalPadding,
+    required double titleFontSize,
+    required double subtitleFontSize,
+  }) {
+    final isMobile = MediaQuery.of(context).size.width <= 600;
 
-        final titleFontSize =
-            isDesktop
-                ? 32.0
-                : isTablet
-                ? 26.0
-                : 22.0;
+    return Scaffold(
+      backgroundColor: Colors.grey[50],
+      body: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: horizontalPadding,
+          vertical: 20,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildHeader(context, titleFontSize, subtitleFontSize, isMobile),
+            const SizedBox(height: 20),
+            Expanded(
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    const SizedBox(height: 40),
 
-        final subtitleFontSize =
-            isDesktop
-                ? 18.0
-                : isTablet
-                ? 16.0
-                : 14.0;
-
-        final gridCrossAxisCount =
-            isDesktop
-                ? 4
-                : isTablet
-                ? 2
-                : 1;
-
-        return Scaffold(
-          backgroundColor: Colors.grey[50],
-          body: SafeArea(
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: horizontalPadding,
-                vertical: 20,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildHeader(
-                    context,
-                    titleFontSize,
-                    subtitleFontSize,
-                    isMobile,
-                  ),
-                  const SizedBox(height: 20),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildStatsGrid(context, gridCrossAxisCount),
-                          const SizedBox(height: 20),
-                          _buildRecentResults(context, subtitleFontSize),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
+                    _buildStatsLayout(context),
+                    const SizedBox(height: 20),
+                    _buildRecentResults(context, subtitleFontSize),
+                  ],
+                ),
               ),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -180,55 +187,222 @@ class DashboardScreen extends StatelessWidget {
         );
   }
 
-  Widget _buildStatsGrid(BuildContext context, int crossAxisCount) {
+  Widget _buildStatsLayout(BuildContext context) {
     final provider = Provider.of<TypingProvider>(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth <= 600;
 
-    return GridView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 8,
-        mainAxisSpacing: 8,
-        childAspectRatio: crossAxisCount == 1 ? 3 : 2,
-      ),
-      children: [
-        StatsCard(
-          title: 'Average WPM',
-          value: provider.averageWPM.toStringAsFixed(1),
-          unit: 'WPM',
-          color: Colors.blue,
-          icon: Icons.speed,
-        ),
-        StatsCard(
-          title: 'Average Accuracy',
-          value: provider.averageAccuracy.toStringAsFixed(1),
-          unit: '%',
-          color: Colors.green,
-          icon: Icons.flag,
-        ),
-        StatsCard(
-          title: 'Total Tests',
-          value: provider.totalTests.toString(),
-          unit: 'Tests',
-          color: Colors.orange,
-          icon: Icons.assignment,
-        ),
-        StatsCard(
-          title: 'Best WPM',
-          value:
-              provider.results.isNotEmpty
-                  ? provider.results
-                      .map((r) => r.wpm)
-                      .reduce((a, b) => a > b ? a : b)
-                      .toString()
-                  : '0',
-          unit: 'WPM',
-          color: Colors.purple,
-          icon: Icons.emoji_events,
-        ),
-      ],
-    );
+    if (isMobile) {
+      return Column(
+        children: [
+          StatsCard(
+            title: 'Average WPM',
+            value: provider.averageWPM.toStringAsFixed(1),
+            unit: 'WPM',
+            color: Colors.blue,
+            icon: Icons.speed,
+          ),
+          const SizedBox(height: 16),
+          StatsCard(
+            title: 'Average Accuracy',
+            value: provider.averageAccuracy.toStringAsFixed(1),
+            unit: '%',
+            color: Colors.green,
+            icon: Icons.flag,
+          ),
+          const SizedBox(height: 16),
+          StatsCard(
+            title: 'Total Tests',
+            value: provider.totalTests.toString(),
+            unit: 'Tests',
+            color: Colors.orange,
+            icon: Icons.assignment,
+          ),
+          const SizedBox(height: 16),
+          StatsCard(
+            title: 'Best WPM',
+            value:
+                provider.results.isNotEmpty
+                    ? provider.results
+                        .map((r) => r.wpm)
+                        .reduce((a, b) => a > b ? a : b)
+                        .toString()
+                    : '0',
+            unit: 'WPM',
+            color: Colors.purple,
+            icon: Icons.emoji_events,
+          ),
+        ],
+      );
+    } else if (screenWidth <= 900) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Average WPM',
+                  value: provider.averageWPM.toStringAsFixed(1),
+                  unit: 'WPM',
+                  color: Colors.blue,
+                  icon: Icons.speed,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Average Accuracy',
+                  value: provider.averageAccuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Total Tests',
+                  value: provider.totalTests.toString(),
+                  unit: 'Tests',
+                  color: Colors.orange,
+                  icon: Icons.assignment,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Best WPM',
+                  value:
+                      provider.results.isNotEmpty
+                          ? provider.results
+                              .map((r) => r.wpm)
+                              .reduce((a, b) => a > b ? a : b)
+                              .toString()
+                          : '0',
+                  unit: 'WPM',
+                  color: Colors.purple,
+                  icon: Icons.emoji_events,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else if (screenWidth <= 1200) {
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Average WPM',
+                  value: provider.averageWPM.toStringAsFixed(1),
+                  unit: 'WPM',
+                  color: Colors.blue,
+                  icon: Icons.speed,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Average Accuracy',
+                  value: provider.averageAccuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Total Tests',
+                  value: provider.totalTests.toString(),
+                  unit: 'Tests',
+                  color: Colors.orange,
+                  icon: Icons.assignment,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              SizedBox(
+                width: 300,
+                child: StatsCard(
+                  title: 'Best WPM',
+                  value:
+                      provider.results.isNotEmpty
+                          ? provider.results
+                              .map((r) => r.wpm)
+                              .reduce((a, b) => a > b ? a : b)
+                              .toString()
+                          : '0',
+                  unit: 'WPM',
+                  color: Colors.purple,
+                  icon: Icons.emoji_events,
+                ),
+              ),
+              const Spacer(flex: 1),
+            ],
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Expanded(
+            child: StatsCard(
+              title: 'Average WPM',
+              value: provider.averageWPM.toStringAsFixed(1),
+              unit: 'WPM',
+              color: Colors.blue,
+              icon: Icons.speed,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Average Accuracy',
+              value: provider.averageAccuracy.toStringAsFixed(1),
+              unit: '%',
+              color: Colors.green,
+              icon: Icons.flag,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Total Tests',
+              value: provider.totalTests.toString(),
+              unit: 'Tests',
+              color: Colors.orange,
+              icon: Icons.assignment,
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Best WPM',
+              value:
+                  provider.results.isNotEmpty
+                      ? provider.results
+                          .map((r) => r.wpm)
+                          .reduce((a, b) => a > b ? a : b)
+                          .toString()
+                      : '0',
+              unit: 'WPM',
+              color: Colors.purple,
+              icon: Icons.emoji_events,
+            ),
+          ),
+        ],
+      );
+    }
   }
 
   Widget _buildRecentResults(BuildContext context, double subtitleFontSize) {
@@ -305,55 +479,274 @@ class DashboardScreen extends StatelessWidget {
   }
 
   Widget _buildResultCard(TypingResult result, double subtitleFontSize) {
+    Color getDifficultyColor(String difficulty) {
+      switch (difficulty.toLowerCase()) {
+        case 'hard':
+          return Color(0xFFFF6B6B);
+        case 'medium':
+          return Color(0xFFFFA726);
+        case 'easy':
+          return Color(0xFF66BB6A);
+        default:
+          return Color(0xFF42A5F5);
+      }
+    }
+
+    Color getDifficultyGradientColor(String difficulty) {
+      switch (difficulty.toLowerCase()) {
+        case 'hard':
+          return Color(0xFFFF5252);
+        case 'medium':
+          return Color(0xFFFF9800);
+        case 'easy':
+          return Color(0xFF4CAF50);
+        default:
+          return Color(0xFF2196F3);
+      }
+    }
+
+    IconData getDifficultyIcon(String difficulty) {
+      switch (difficulty.toLowerCase()) {
+        case 'hard':
+          return Icons.whatshot;
+        case 'medium':
+          return Icons.trending_up;
+        case 'easy':
+          return Icons.flag;
+        default:
+          return Icons.star;
+      }
+    }
+
+    final difficultyColor = getDifficultyColor(result.difficulty);
+    final difficultyGradientColor = getDifficultyGradientColor(
+      result.difficulty,
+    );
+    final difficultyIcon = getDifficultyIcon(result.difficulty);
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.grey[200]!),
-      ),
-      child: Row(
+      child: Stack(
         children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '${result.wpm} WPM',
-                style: TextStyle(
-                  fontSize: subtitleFontSize + 2,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
+          Container(
+            height: 100,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Colors.white, Colors.grey[50]!],
               ),
-              Text(
-                '${result.accuracy.toStringAsFixed(1)}% Accuracy',
-                style: TextStyle(
-                  fontSize: subtitleFontSize - 2,
-                  color: Colors.grey[600],
-                ),
-              ),
-            ],
+              borderRadius: BorderRadius.circular(20),
+            ),
           ),
-          const Spacer(),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${result.duration.inSeconds}s',
-                style: TextStyle(
-                  fontSize: subtitleFontSize - 2,
-                  color: Colors.grey[600],
+
+          Container(
+            height: 100,
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: Colors.grey[100]!),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  Colors.white.withOpacity(0.9),
+                  Colors.grey[50]!.withOpacity(0.9),
+                ],
+              ),
+            ),
+            child: Row(
+              children: [
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: CircularProgressIndicator(
+                        value: result.wpm / 100,
+                        strokeWidth: 5,
+                        backgroundColor: Colors.grey[200],
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
+                      ),
+                    ),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${result.wpm}',
+                          style: TextStyle(
+                            fontSize: subtitleFontSize + 1,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        Text(
+                          'WPM',
+                          style: TextStyle(
+                            fontSize: subtitleFontSize - 7,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(width: 20),
+
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Color(0xFF66BB6A).withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Image.asset(
+                              "assets/images/png/accuracy.png",
+                              color: Color(0xFF66BB6A),
+                              width: subtitleFontSize,
+                              height: subtitleFontSize,
+                            ),
+                          ),
+
+                          const SizedBox(width: 8),
+                          Text(
+                            '${result.accuracy.toStringAsFixed(1)}%',
+                            style: TextStyle(
+                              fontSize: subtitleFontSize + 0,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Accuracy',
+                            style: TextStyle(
+                              fontSize: subtitleFontSize - 1,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 6),
+
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.grey.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(
+                              Icons.access_time,
+                              size: subtitleFontSize - 1,
+                              color: Colors.grey,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Row(
+                            children: [
+                              Text(
+                                '${result.duration.inSeconds}s',
+                                style: TextStyle(
+                                  fontSize: subtitleFontSize - 2,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey[700],
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                'Duration',
+                                style: TextStyle(
+                                  fontSize: subtitleFontSize - 2,
+                                  color: Colors.grey[500],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+
+                const SizedBox(width: 20),
+
+                Container(
+                  width: 60,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [difficultyColor, difficultyGradientColor],
+                    ),
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: difficultyColor.withOpacity(0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        difficultyIcon,
+                        size: subtitleFontSize + 2,
+                        color: Colors.white,
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        result.difficulty,
+                        style: TextStyle(
+                          fontSize: subtitleFontSize - 5,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          Positioned(
+            top: 0,
+            right: 0,
+            child: Container(
+              padding: EdgeInsets.only(
+                top: 80,
+                right: 80,
+                left: 30,
+                bottom: 20,
+              ),
+              decoration: BoxDecoration(
+                color: difficultyColor.withOpacity(0.1),
+                shape: BoxShape.rectangle,
+                borderRadius: BorderRadius.only(
+                  bottomRight: Radius.circular(0),
+                  bottomLeft: Radius.circular(30),
+                  topRight: Radius.circular(20),
+                  topLeft: Radius.circular(0),
                 ),
               ),
-              Text(
-                result.difficulty,
-                style: TextStyle(
-                  fontSize: subtitleFontSize - 4,
-                  color: Colors.grey[500],
-                ),
-              ),
-            ],
+            ),
           ),
         ],
       ),

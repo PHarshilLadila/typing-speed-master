@@ -89,7 +89,6 @@ class TextDisplayWidget extends StatelessWidget {
           fontSize: 18,
           fontWeight: FontWeight.w400,
           color: color,
-          height: 1.4,
         ),
       ),
     );

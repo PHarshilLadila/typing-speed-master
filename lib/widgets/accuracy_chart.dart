@@ -77,8 +77,8 @@ class AccuracyChart extends StatelessWidget {
                   dataSource: recentResults,
                   xValueMapper: (TypingResult result, int index) => index,
                   yValueMapper: (TypingResult result, _) => result.accuracy,
-                  color: Colors.blue.withOpacity(0.2),
-                  borderColor: Colors.blue,
+                  color: Colors.amber.withOpacity(0.2),
+                  borderColor: Colors.amber,
                   borderWidth: 2,
                   markerSettings: const MarkerSettings(
                     isVisible: true,

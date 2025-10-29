@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'providers/typing_provider.dart';
 import 'screens/dashboard_screen.dart';
 
@@ -8,7 +9,7 @@ void main() {
 }
 
 class TypingSpeedTesterApp extends StatelessWidget {
-  const TypingSpeedTesterApp({Key? key}) : super(key: key);
+  const TypingSpeedTesterApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,16 +18,16 @@ class TypingSpeedTesterApp extends StatelessWidget {
       child: MaterialApp(
         title: 'Typing Speed Tester',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.amber,
           useMaterial3: false,
-          fontFamily: 'Inter',
+          textTheme: GoogleFonts.mulishTextTheme(),
           scaffoldBackgroundColor: Colors.grey[50],
           appBarTheme: AppBarTheme(
             backgroundColor: Colors.white,
             foregroundColor: Colors.black87,
             elevation: 0,
             centerTitle: false,
-            titleTextStyle: const TextStyle(
+            titleTextStyle: GoogleFonts.mulish(
               fontSize: 18,
               fontWeight: FontWeight.w600,
               color: Colors.black87,
