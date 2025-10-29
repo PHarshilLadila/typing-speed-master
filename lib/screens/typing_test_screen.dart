@@ -1,14 +1,15 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/utils/constants.dart';
 import '../providers/typing_provider.dart';
 import '../widgets/text_display_widget.dart';
-import '../widgets/stats_card.dart';
 import '../models/typing_result.dart';
 import 'results_screen.dart';
 
 class TypingTestScreen extends StatefulWidget {
-  const TypingTestScreen({Key? key}) : super(key: key);
+  const TypingTestScreen({super.key});
 
   @override
   _TypingTestScreenState createState() => _TypingTestScreenState();
@@ -164,15 +165,12 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-            // Test Configuration
             _buildTestConfig(provider),
             const SizedBox(height: 20),
 
-            // Timer and Stats
             _buildTimerAndStats(),
             const SizedBox(height: 20),
 
-            // Text Display
             Expanded(
               flex: 2,
               child: TextDisplayWidget(
@@ -183,7 +181,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
             ),
             const SizedBox(height: 20),
 
-            // Input Field
             _buildInputField(),
           ],
         ),
@@ -294,7 +291,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     return Row(
       children: [
-        // Timer
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -329,7 +325,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         ),
         const SizedBox(width: 16),
 
-        // WPM
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(16),
@@ -358,7 +353,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         ),
         const SizedBox(width: 16),
 
-        // Words
         Expanded(
           child: Container(
             padding: const EdgeInsets.all(16),

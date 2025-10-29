@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 
 class TextDisplayWidget extends StatelessWidget {
@@ -6,11 +8,11 @@ class TextDisplayWidget extends StatelessWidget {
   final bool isTestActive;
 
   const TextDisplayWidget({
-    Key? key,
+    super.key,
     required this.sampleText,
     required this.userInput,
     required this.isTestActive,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

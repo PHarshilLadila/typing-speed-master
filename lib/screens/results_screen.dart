@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
@@ -9,7 +11,7 @@ import 'dashboard_screen.dart';
 class ResultsScreen extends StatefulWidget {
   final TypingResult result;
 
-  const ResultsScreen({Key? key, required this.result}) : super(key: key);
+  const ResultsScreen({super.key, required this.result});
 
   @override
   _ResultsScreenState createState() => _ResultsScreenState();
@@ -31,7 +33,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
       _confettiController.play();
     }
 
-    // Data for second chart (Correct, Incorrect, Total)
     _chartData = [
       TypingStatData('Correct', widget.result.correctChars.toDouble()),
       TypingStatData('Incorrect', widget.result.incorrectChars.toDouble()),
@@ -264,7 +265,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           const SizedBox(height: 24),
 
-          // ---------- First Graph (WPM, Accuracy, Duration, Difficulty) ----------
           Text(
             'Performance Overview',
             style: TextStyle(
@@ -329,7 +329,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
           const SizedBox(height: 24),
 
-          // ---------- Second Graph (Correct, Incorrect, Total Characters) ----------
           Text(
             'Character Analysis',
             style: TextStyle(
