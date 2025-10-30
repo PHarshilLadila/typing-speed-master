@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-class TextDisplayWidget extends StatelessWidget {
+class TextDisplayWidget extends StatefulWidget {
   final String sampleText;
   final String userInput;
   final bool isTestActive;
@@ -17,83 +17,83 @@ class TextDisplayWidget extends StatelessWidget {
   });
 
   @override
+  State<TextDisplayWidget> createState() => _TextDisplayWidgetState();
+}
+
+class _TextDisplayWidgetState extends State<TextDisplayWidget> {
+  @override
   Widget build(BuildContext context) {
-    // final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[50];
-    // final borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
-    // final titleColor = isDarkMode ? Colors.grey[300] : Colors.grey[700];
     final containerColor =
-        isDarkMode
+        widget.isDarkMode
             ? Colors.white.withOpacity(0.04)
             : Colors.black.withOpacity(0.04);
-    final defaultTextColor = isDarkMode ? Colors.grey[300] : Colors.grey[800];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: containerColor,
-            borderRadius: BorderRadius.circular(8),
-            // border: Border.all(color: borderColor),
-          ),
-          child: _buildTextWithHighlighting(defaultTextColor ?? Colors.grey),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildTextWithHighlighting(Color defaultTextColor) {
-    return Wrap(
-      spacing: 2,
-      children: [
-        for (int i = 0; i < sampleText.length; i++) ...[
-          _buildCharacterWidget(i, defaultTextColor),
-        ],
-      ],
-    );
-  }
-
-  Widget _buildCharacterWidget(int index, Color defaultTextColor) {
-    Color color = defaultTextColor;
-    Color backgroundColor = Colors.transparent;
-    String char = sampleText[index];
-
-    if (index < userInput.length) {
-      if (userInput[index] == sampleText[index]) {
-        color = Colors.green;
-        backgroundColor = Colors.green.withOpacity(isDarkMode ? 0.2 : 0.1);
-      } else {
-        color = Colors.red;
-        backgroundColor = Colors.red.withOpacity(isDarkMode ? 0.2 : 0.1);
-      }
-    } else if (index == userInput.length && isTestActive) {
-      backgroundColor = Colors.blue.withOpacity(isDarkMode ? 0.3 : 0.2);
-      color = isDarkMode ? Colors.blue[100]! : Colors.blue[800]!;
-    }
 
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 1),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: BorderRadius.circular(3),
+        color: containerColor,
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        children: [
-          const SizedBox(height: 8),
-          SizedBox(
-            child: Text(
-              char,
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w400,
-                color: color,
-                height: 0,
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-        ],
+      child: _buildOptimizedText(),
+    );
+  }
+
+  Widget _buildOptimizedText() {
+    return SelectableText.rich(
+      TextSpan(children: _buildTextSpans()),
+      style: TextStyle(
+        fontSize: 24,
+        fontWeight: FontWeight.w400,
+        height: 1.5,
+        fontFamily: 'Monospace',
+      ),
+    );
+  }
+
+  List<TextSpan> _buildTextSpans() {
+    final List<TextSpan> spans = [];
+    final defaultTextColor =
+        widget.isDarkMode ? Colors.grey[300] : Colors.grey[800];
+
+    for (int i = 0; i < widget.sampleText.length; i++) {
+      final char = widget.sampleText[i];
+      final textSpan = _buildTextSpanForChar(i, char, defaultTextColor!);
+      spans.add(textSpan);
+    }
+
+    return spans;
+  }
+
+  TextSpan _buildTextSpanForChar(
+    int index,
+    String char,
+    Color defaultTextColor,
+  ) {
+    Color color = defaultTextColor;
+    Color backgroundColor = Colors.transparent;
+
+    if (index < widget.userInput.length) {
+      if (widget.userInput[index] == char) {
+        color = Colors.green;
+        backgroundColor = Colors.green.withOpacity(
+          widget.isDarkMode ? 0.2 : 0.1,
+        );
+      } else {
+        color = Colors.red;
+        backgroundColor = Colors.red.withOpacity(widget.isDarkMode ? 0.2 : 0.1);
+      }
+    } else if (index == widget.userInput.length && widget.isTestActive) {
+      backgroundColor = Colors.blue.withOpacity(widget.isDarkMode ? 0.3 : 0.2);
+      color = widget.isDarkMode ? Colors.blue[100]! : Colors.blue[800]!;
+    }
+
+    return TextSpan(
+      text: char,
+      style: TextStyle(
+        color: color,
+        backgroundColor: backgroundColor,
+        fontWeight: FontWeight.w400,
+        wordSpacing: 4,
       ),
     );
   }

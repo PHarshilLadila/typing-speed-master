@@ -19,6 +19,7 @@ class TypingTestScreen extends StatefulWidget {
 
 class _TypingTestScreenState extends State<TypingTestScreen> {
   final TextEditingController _textController = TextEditingController();
+  final FocusNode _textFocusNode = FocusNode();
   String _userInput = '';
   DateTime? _startTime;
   bool _testStarted = false;
@@ -28,17 +29,27 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   int _wordsTyped = 0;
   bool get _isWordBasedTest => _testDuration.inSeconds == 0;
 
+  int _lastProcessedLength = 0;
+  bool _isProcessingInput = false;
+
+  bool _isFullScreen = false;
+
   @override
   void initState() {
     super.initState();
     final provider = Provider.of<TypingProvider>(context, listen: false);
     _testDuration = provider.selectedDuration;
     _remainingTime = _testDuration;
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _textFocusNode.requestFocus();
+    });
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _textFocusNode.dispose();
     super.dispose();
   }
 
@@ -48,6 +59,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _startTime = DateTime.now();
       _userInput = '';
       _wordsTyped = 0;
+      _lastProcessedLength = 0;
       _textController.clear();
       _remainingTime = _testDuration;
     });
@@ -129,29 +141,42 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   }
 
   void _onTextChanged(String value) {
-    if (!_testStarted && value.isNotEmpty) {
-      _startTest();
-    }
+    if (_isProcessingInput) return;
 
-    // Update words typed for word-based test
-    final words = value.split(' ').where((word) => word.isNotEmpty).length;
-    setState(() {
-      _userInput = value;
-      _wordsTyped = words;
-    });
+    _isProcessingInput = true;
 
-    final sampleText = _getTargetText();
-
-    // For timed test: complete when text is fully typed
-    // For word-based test: complete when target words are reached
-    if (_isWordBasedTest) {
-      if (words >= AppConstants.wordBasedTestWordCount) {
-        _completeTest();
+    try {
+      if (!_testStarted && value.isNotEmpty) {
+        _startTest();
       }
-    } else {
-      if (value.length >= sampleText.length) {
-        _completeTest();
+
+      if (value != _userInput) {
+        final words = value.split(' ').where((word) => word.isNotEmpty).length;
+
+        if (words != _wordsTyped || value.length != _lastProcessedLength) {
+          setState(() {
+            _userInput = value;
+            _wordsTyped = words;
+            _lastProcessedLength = value.length;
+          });
+        } else {
+          _userInput = value;
+        }
+
+        final sampleText = _getTargetText();
+
+        if (_isWordBasedTest) {
+          if (words >= AppConstants.wordBasedTestWordCount) {
+            _completeTest();
+          }
+        } else {
+          if (value.length >= sampleText.length) {
+            _completeTest();
+          }
+        }
       }
+    } finally {
+      _isProcessingInput = false;
     }
   }
 
@@ -161,9 +186,12 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testCompleted = false;
       _userInput = '';
       _wordsTyped = 0;
+      _lastProcessedLength = 0;
       _textController.clear();
       _remainingTime = _testDuration;
     });
+
+    _textFocusNode.requestFocus();
   }
 
   void _changeText() {
@@ -171,7 +199,13 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     _resetTest();
   }
 
-  String _getDurationDisplay() {
+  void _toggleFullScreen() {
+    setState(() {
+      _isFullScreen = !_isFullScreen;
+    });
+  }
+
+  String getDurationDisplay() {
     if (_isWordBasedTest) {
       return '${AppConstants.wordBasedTestWordCount} Words';
     }
@@ -203,6 +237,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isFullScreen) {
+      return _buildFullScreenContent();
+    }
+
+    return _buildNormalContent();
+  }
+
+  Widget _buildNormalContent() {
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final sampleText = provider.getCurrentText();
@@ -264,6 +306,12 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                             tooltip: 'Change Text',
                           ),
                           const SizedBox(width: 8),
+                          IconButton.filled(
+                            onPressed: _toggleFullScreen,
+                            icon: const Icon(FontAwesomeIcons.maximize),
+                            tooltip: 'Full Screen',
+                          ),
+                          const SizedBox(width: 8),
                           TextButton(
                             onPressed: _resetTest,
                             style: const ButtonStyle(
@@ -294,6 +342,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: _textController,
+                    focusNode: _textFocusNode,
                     enabled: !_testCompleted,
                     maxLines: 8,
                     decoration: InputDecoration(
@@ -340,6 +389,298 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _buildFullScreenContent() {
+    final provider = Provider.of<TypingProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final sampleText = provider.getCurrentText();
+
+    final backgroundColor =
+        themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[50];
+    final borderColor =
+        themeProvider.isDarkMode ? Colors.grey[500]! : Colors.grey[500]!;
+    final titleColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+
+    return Scaffold(
+      backgroundColor: backgroundColor,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    _isWordBasedTest
+                        ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words)'
+                        : 'Type the text below',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w500,
+                      color: titleColor,
+                    ),
+                  ),
+                  Row(
+                    children: [
+                      IconButton.filled(
+                        onPressed: _changeText,
+                        icon: const Icon(FontAwesomeIcons.syncAlt),
+                        tooltip: 'Change Text',
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton.filled(
+                        onPressed: _toggleFullScreen,
+                        icon: const Icon(FontAwesomeIcons.minimize),
+                        tooltip: 'Minimize',
+                      ),
+                      const SizedBox(width: 8),
+                      TextButton(
+                        onPressed: _resetTest,
+                        style: const ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                        ),
+                        child: Text(
+                          'Reset',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              _buildTimerAndStatsFullScreen(themeProvider),
+              const SizedBox(height: 20),
+
+              Expanded(
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.grey[800]
+                            : Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        TextDisplayWidget(
+                          sampleText: sampleText,
+                          userInput: _userInput,
+                          isTestActive: _testStarted && !_testCompleted,
+                          isDarkMode: themeProvider.isDarkMode,
+                        ),
+                        const SizedBox(height: 20),
+                        TextField(
+                          controller: _textController,
+                          focusNode: _textFocusNode,
+                          enabled: !_testCompleted,
+                          maxLines: 10,
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderSide: BorderSide(color: borderColor),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: borderColor),
+                            ),
+                            enabled: true,
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: borderColor),
+                            ),
+                            hintText: 'Type the text shown above...',
+                            hintStyle: TextStyle(
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey[500]
+                                      : Colors.grey[600],
+                            ),
+                            fillColor: Colors.white,
+                            filled: false,
+                          ),
+                          onChanged: _onTextChanged,
+                          autofocus: true,
+                          style: TextStyle(
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              _buildInputField(
+                themeProvider,
+                themeProvider.isDarkMode ? Colors.grey[800]! : Colors.white,
+                borderColor,
+                themeProvider.isDarkMode
+                    ? Colors.grey[400]!
+                    : Colors.grey[600]!,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTimerAndStatsFullScreen(ThemeProvider themeProvider) {
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    final currentDifficulty = provider.selectedDifficulty;
+
+    final words = _userInput.split(' ').where((word) => word.isNotEmpty).length;
+
+    double wpm = 0;
+    if (_startTime != null && _testStarted) {
+      final elapsedSeconds = DateTime.now().difference(_startTime!).inSeconds;
+      if (elapsedSeconds > 0) {
+        wpm = (words / (elapsedSeconds / 60));
+      }
+    }
+
+    final timerColor = _getTimerColor(themeProvider);
+    final subtitleColor =
+        themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
+
+    return Row(
+      children: [
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: timerColor.withOpacity(
+                themeProvider.isDarkMode ? 0.2 : 0.1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: timerColor.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  _isWordBasedTest ? 'Words Progress' : 'Time Remaining',
+                  style: TextStyle(fontSize: 14, color: subtitleColor),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  _getTimerDisplay(),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: timerColor,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.green.withOpacity(
+                themeProvider.isDarkMode ? 0.2 : 0.1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.green.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Current WPM',
+                  style: TextStyle(fontSize: 14, color: subtitleColor),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  wpm.toStringAsFixed(2),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.orange.withOpacity(
+                themeProvider.isDarkMode ? 0.2 : 0.1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Words Typed',
+                  style: TextStyle(fontSize: 14, color: subtitleColor),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  '$words',
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(width: 16),
+
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+            decoration: BoxDecoration(
+              color: Colors.purple.withOpacity(
+                themeProvider.isDarkMode ? 0.2 : 0.1,
+              ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.purple.withOpacity(0.3)),
+            ),
+            child: Column(
+              children: [
+                Text(
+                  'Difficulty',
+                  style: TextStyle(fontSize: 14, color: subtitleColor),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  currentDifficulty,
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.purple,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 
