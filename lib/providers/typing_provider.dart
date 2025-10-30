@@ -128,4 +128,8 @@ class TypingProvider with ChangeNotifier {
   List<TypingResult> getRecentResults(int count) {
     return _results.take(count).toList();
   }
+
+  List<TypingResult> getAllRecentResults() {
+    return _results.toList();
+  }
 }

@@ -809,15 +809,16 @@
 // }
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/responsive_layout.dart';
+import 'package:typing_speed_master/widgets/typing_result_class.dart';
 import '../providers/typing_provider.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/accuracy_chart.dart';
-import 'typing_test_screen.dart';
 
 class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
@@ -870,7 +871,6 @@ class DashboardScreen extends StatelessWidget {
     required double titleFontSize,
     required double subtitleFontSize,
   }) {
-    final isMobile = MediaQuery.of(context).size.width <= 600;
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
@@ -1376,305 +1376,18 @@ class DashboardScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ...recentResults.map(
-                (result) => _buildResultCard(
-                  result,
-                  subtitleFontSize,
-                  themeProvider.isDarkMode,
+                (result) => TypingResultCard(
+                  result: result,
+                  subtitleFontSize: 16,
+                  isDarkMode: themeProvider.isDarkMode,
+                  onViewDetails: () {
+                    log('View details for ${result.difficulty}');
+                  },
                 ),
               ),
             ],
           ),
       ],
-    );
-  }
-
-  Widget _buildResultCard(
-    TypingResult result,
-    double subtitleFontSize,
-    bool isDarkMode,
-  ) {
-    Color getDifficultyColor(String difficulty) {
-      switch (difficulty.toLowerCase()) {
-        case 'hard':
-          return Color(0xFFFF6B6B);
-        case 'medium':
-          return Color(0xFFFFA726);
-        case 'easy':
-          return Color(0xFF66BB6A);
-        default:
-          return Color(0xFF42A5F5);
-      }
-    }
-
-    Color getDifficultyGradientColor(String difficulty) {
-      switch (difficulty.toLowerCase()) {
-        case 'hard':
-          return Color(0xFFFF5252);
-        case 'medium':
-          return Color(0xFFFF9800);
-        case 'easy':
-          return Color(0xFF4CAF50);
-        default:
-          return Color(0xFF2196F3);
-      }
-    }
-
-    IconData getDifficultyIcon(String difficulty) {
-      switch (difficulty.toLowerCase()) {
-        case 'hard':
-          return Icons.whatshot;
-        case 'medium':
-          return Icons.trending_up;
-        case 'easy':
-          return Icons.flag;
-        default:
-          return Icons.star;
-      }
-    }
-
-    final difficultyColor = getDifficultyColor(result.difficulty);
-    final difficultyGradientColor = getDifficultyGradientColor(
-      result.difficulty,
-    );
-    final difficultyIcon = getDifficultyIcon(result.difficulty);
-
-    final backgroundColor1 = isDarkMode ? Colors.grey[800]! : Colors.white;
-    final backgroundColor2 = isDarkMode ? Colors.grey[900]! : Colors.grey[50]!;
-    final borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[100]!;
-    final textColor = isDarkMode ? Colors.white : Colors.black;
-    final subtitleTextColor = isDarkMode ? Colors.grey[400] : Colors.grey[600];
-    final progressBackgroundColor =
-        isDarkMode ? Colors.grey[700] : Colors.grey[200];
-    final iconBackgroundColor =
-        isDarkMode ? Colors.grey[600] : Colors.grey.withOpacity(0.1);
-    final iconColor = isDarkMode ? Colors.grey[300] : Colors.grey;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Stack(
-        children: [
-          Container(
-            height: 100,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [backgroundColor1, backgroundColor2],
-              ),
-              borderRadius: BorderRadius.circular(20),
-            ),
-          ),
-
-          Container(
-            height: 100,
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: borderColor),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  backgroundColor1.withOpacity(0.9),
-                  backgroundColor2.withOpacity(0.9),
-                ],
-              ),
-            ),
-            child: Row(
-              children: [
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: CircularProgressIndicator(
-                        value: result.wpm / 100,
-                        strokeWidth: 5,
-                        backgroundColor: progressBackgroundColor,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.amber),
-                      ),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${result.wpm}',
-                          style: TextStyle(
-                            fontSize: subtitleFontSize + 1,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                        Text(
-                          'WPM',
-                          style: TextStyle(
-                            fontSize: subtitleFontSize - 7,
-                            fontWeight: FontWeight.w500,
-                            color: subtitleTextColor,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-
-                const SizedBox(width: 20),
-
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Color(0xFF66BB6A).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Image.asset(
-                              "assets/images/png/accuracy.png",
-                              color: Color(0xFF66BB6A),
-                              width: subtitleFontSize,
-                              height: subtitleFontSize,
-                            ),
-                          ),
-
-                          const SizedBox(width: 8),
-                          Text(
-                            '${result.accuracy.toStringAsFixed(1)}%',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize + 0,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            'Accuracy',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize - 1,
-                              color: subtitleTextColor,
-                            ),
-                          ),
-                        ],
-                      ),
-
-                      const SizedBox(height: 6),
-
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: iconBackgroundColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Icon(
-                              Icons.access_time,
-                              size: subtitleFontSize - 1,
-                              color: iconColor,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Row(
-                            children: [
-                              Text(
-                                '${result.duration.inSeconds}s',
-                                style: TextStyle(
-                                  fontSize: subtitleFontSize - 2,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                'Duration',
-                                style: TextStyle(
-                                  fontSize: subtitleFontSize - 2,
-                                  color: subtitleTextColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-
-                const SizedBox(width: 20),
-
-                Container(
-                  width: 60,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [difficultyColor, difficultyGradientColor],
-                    ),
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: difficultyColor.withOpacity(0.3),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        difficultyIcon,
-                        size: subtitleFontSize + 2,
-                        color: Colors.white,
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        result.difficulty,
-                        style: TextStyle(
-                          fontSize: subtitleFontSize - 5,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          Positioned(
-            top: 0,
-            right: 0,
-            child: Container(
-              padding: EdgeInsets.only(
-                top: 80,
-                right: 80,
-                left: 30,
-                bottom: 20,
-              ),
-              decoration: BoxDecoration(
-                color: difficultyColor.withOpacity(0.1),
-                shape: BoxShape.rectangle,
-                borderRadius: BorderRadius.only(
-                  bottomRight: Radius.circular(20),
-                  bottomLeft: Radius.circular(0),
-                  topRight: Radius.circular(20),
-                  topLeft: Radius.circular(0),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 }

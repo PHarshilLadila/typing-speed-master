@@ -119,7 +119,10 @@ class TextDisplayWidget extends StatelessWidget {
     // final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.grey[50];
     // final borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
     // final titleColor = isDarkMode ? Colors.grey[300] : Colors.grey[700];
-    final containerColor = isDarkMode ? Colors.grey[900] : Colors.grey[100];
+    final containerColor =
+        isDarkMode
+            ? Colors.white.withOpacity(0.04)
+            : Colors.black.withOpacity(0.04);
     final defaultTextColor = isDarkMode ? Colors.grey[300] : Colors.grey[800];
 
     return Column(
@@ -140,6 +143,7 @@ class TextDisplayWidget extends StatelessWidget {
 
   Widget _buildTextWithHighlighting(Color defaultTextColor) {
     return Wrap(
+      spacing: 4,
       children: [
         for (int i = 0; i < sampleText.length; i++) ...[
           _buildCharacterWidget(i, defaultTextColor),

@@ -24,6 +24,7 @@ class AppConstants {
   ];
 
   static const List<Duration> testDurations = [
+    Duration(seconds: 5),
     Duration(seconds: 30),
     Duration(seconds: 60),
     Duration(seconds: 120),

@@ -41,6 +41,7 @@ dependencies:
   confetti: ^0.8.0
   supabase_flutter: ^2.10.3
   google_fonts: ^6.3.2
+  font_awesome_flutter: ^10.9.1
 
 dev_dependencies:
   flutter_test:
