@@ -61,7 +61,7 @@ class CustomAppBar extends StatelessWidget {
                     onTap: () => onMenuClick(0),
                     isDarkTheme: isDarkMode,
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 12),
                   CustomNavItem(
                     icon: Icons.dashboard_outlined,
                     label: "Dashboard",
@@ -69,7 +69,7 @@ class CustomAppBar extends StatelessWidget {
                     onTap: () => onMenuClick(1),
                     isDarkTheme: isDarkMode,
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 12),
                   CustomNavItem(
                     icon: Icons.history,
                     label: "History",
@@ -77,7 +77,7 @@ class CustomAppBar extends StatelessWidget {
                     onTap: () => onMenuClick(2),
                     isDarkTheme: isDarkMode,
                   ),
-                  const SizedBox(width: 20),
+                  const SizedBox(width: 12),
                   CustomNavItem(
                     icon: Icons.person_outline,
                     label: "Profile",

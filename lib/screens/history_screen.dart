@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/providers/typing_provider.dart';
-import 'package:typing_speed_master/widgets/typing_result_class.dart';
+import 'package:typing_speed_master/widgets/typing_result_card.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});

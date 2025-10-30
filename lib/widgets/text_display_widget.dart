@@ -45,7 +45,7 @@ class TextDisplayWidget extends StatelessWidget {
 
   Widget _buildTextWithHighlighting(Color defaultTextColor) {
     return Wrap(
-      spacing: 4,
+      spacing: 2,
       children: [
         for (int i = 0; i < sampleText.length; i++) ...[
           _buildCharacterWidget(i, defaultTextColor),
@@ -85,7 +85,7 @@ class TextDisplayWidget extends StatelessWidget {
             child: Text(
               char,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 24,
                 fontWeight: FontWeight.w400,
                 color: color,
                 height: 0,

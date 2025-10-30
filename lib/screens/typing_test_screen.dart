@@ -1,6 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/utils/constants.dart';
 import '../providers/typing_provider.dart';
@@ -24,6 +25,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   bool _testCompleted = false;
   Duration _remainingTime = Duration.zero;
   late Duration _testDuration;
+  int _wordsTyped = 0;
+  bool get _isWordBasedTest => _testDuration.inSeconds == 0;
 
   @override
   void initState() {
@@ -44,11 +47,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testStarted = true;
       _startTime = DateTime.now();
       _userInput = '';
+      _wordsTyped = 0;
       _textController.clear();
       _remainingTime = _testDuration;
     });
 
-    _startTimer();
+    if (!_isWordBasedTest) {
+      _startTimer();
+    }
   }
 
   void _startTimer() {
@@ -77,18 +83,18 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final wpm = (words / (duration.inSeconds / 60)).round();
 
     int correctChars = 0;
-    final sampleText =
-        Provider.of<TypingProvider>(context, listen: false).getCurrentText();
+    final sampleText = _getTargetText();
 
     for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
       if (_userInput[i] == sampleText[i]) correctChars++;
     }
 
-    final accuracy = (correctChars / sampleText.length) * 100;
+    final accuracy =
+        sampleText.isNotEmpty ? (correctChars / sampleText.length) * 100 : 0;
 
     final result = TypingResult(
       wpm: wpm,
-      accuracy: accuracy,
+      accuracy: accuracy.toDouble(),
       correctChars: correctChars,
       incorrectChars: _userInput.length - correctChars,
       totalChars: _userInput.length,
@@ -99,6 +105,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
             context,
             listen: false,
           ).selectedDifficulty,
+      isWordBasedTest: _isWordBasedTest,
+      targetWords:
+          _isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
     );
 
     setState(() {
@@ -114,19 +123,35 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     );
   }
 
+  String _getTargetText() {
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    return provider.getCurrentText();
+  }
+
   void _onTextChanged(String value) {
     if (!_testStarted && value.isNotEmpty) {
       _startTest();
     }
 
+    // Update words typed for word-based test
+    final words = value.split(' ').where((word) => word.isNotEmpty).length;
     setState(() {
       _userInput = value;
+      _wordsTyped = words;
     });
 
-    final sampleText =
-        Provider.of<TypingProvider>(context, listen: false).getCurrentText();
-    if (value.length >= sampleText.length) {
-      _completeTest();
+    final sampleText = _getTargetText();
+
+    // For timed test: complete when text is fully typed
+    // For word-based test: complete when target words are reached
+    if (_isWordBasedTest) {
+      if (words >= AppConstants.wordBasedTestWordCount) {
+        _completeTest();
+      }
+    } else {
+      if (value.length >= sampleText.length) {
+        _completeTest();
+      }
     }
   }
 
@@ -135,9 +160,45 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testStarted = false;
       _testCompleted = false;
       _userInput = '';
+      _wordsTyped = 0;
       _textController.clear();
       _remainingTime = _testDuration;
     });
+  }
+
+  void _changeText() {
+    Provider.of<TypingProvider>(context, listen: false).moveToNextText();
+    _resetTest();
+  }
+
+  String _getDurationDisplay() {
+    if (_isWordBasedTest) {
+      return '${AppConstants.wordBasedTestWordCount} Words';
+    }
+    return '${_testDuration.inSeconds} seconds';
+  }
+
+  String _getTimerDisplay() {
+    if (_isWordBasedTest) {
+      return 'Words: $_wordsTyped/${AppConstants.wordBasedTestWordCount}';
+    }
+
+    if (_remainingTime.inSeconds <= 0) {
+      return '0s';
+    }
+    return '${_remainingTime.inSeconds}s';
+  }
+
+  Color _getTimerColor(ThemeProvider themeProvider) {
+    if (_isWordBasedTest) {
+      final progress = _wordsTyped / AppConstants.wordBasedTestWordCount;
+      if (progress >= 1.0) return Colors.green;
+      if (progress >= 0.7) return Colors.orange;
+      return Colors.blue;
+    }
+
+    if (_remainingTime.inSeconds <= 10) return Colors.red;
+    return Colors.blue;
   }
 
   @override
@@ -152,7 +213,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         themeProvider.isDarkMode ? Colors.grey[800] : Colors.white;
     final borderColor =
         themeProvider.isDarkMode ? Colors.grey[500]! : Colors.grey[500]!;
-    // final textColor = themeProvider.isDarkMode ? Colors.white : Colors.black87;
     final subtitleColor =
         themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
     final inputBorderColor =
@@ -183,13 +243,46 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'Type the text below:',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w500,
-                      color: titleColor,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _isWordBasedTest
+                            ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words):'
+                            : 'Type the text below:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: titleColor,
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          IconButton.filled(
+                            onPressed: _changeText,
+                            icon: const Icon(FontAwesomeIcons.syncAlt),
+                            tooltip: 'Change Text',
+                          ),
+                          const SizedBox(width: 8),
+                          TextButton(
+                            onPressed: _resetTest,
+                            style: const ButtonStyle(
+                              backgroundColor: WidgetStatePropertyAll(
+                                Colors.amber,
+                              ),
+                            ),
+                            child: Text(
+                              'Reset',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 32),
                   TextDisplayWidget(
@@ -215,7 +308,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         borderSide: BorderSide(color: borderColor),
                       ),
                       hintText: 'Type the text shown above...',
-
                       hintStyle: TextStyle(
                         color:
                             themeProvider.isDarkMode
@@ -338,7 +430,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                 ),
               ),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Container(
               decoration: BoxDecoration(
                 color:
@@ -368,7 +460,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                       return DropdownMenuItem(
                         value: duration,
                         child: Text(
-                          '${duration.inSeconds} seconds',
+                          duration.inSeconds == 0
+                              ? '${AppConstants.wordBasedTestWordCount} Words'
+                              : '${duration.inSeconds} seconds',
                           style: TextStyle(
                             color:
                                 themeProvider.isDarkMode
@@ -411,44 +505,33 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       }
     }
 
+    final timerColor = _getTimerColor(themeProvider);
+
     return Row(
       children: [
         Expanded(
           child: Container(
             padding: const EdgeInsets.symmetric(vertical: 26, horizontal: 16),
             decoration: BoxDecoration(
-              color:
-                  _remainingTime.inSeconds <= 10
-                      ? Colors.red.withOpacity(
-                        themeProvider.isDarkMode ? 0.2 : 0.1,
-                      )
-                      : Colors.blue.withOpacity(
-                        themeProvider.isDarkMode ? 0.2 : 0.1,
-                      ),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color:
-                    _remainingTime.inSeconds <= 10
-                        ? Colors.red.withOpacity(0.3)
-                        : Colors.blue.withOpacity(0.3),
+              color: timerColor.withOpacity(
+                themeProvider.isDarkMode ? 0.2 : 0.1,
               ),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: timerColor.withOpacity(0.3)),
             ),
             child: Column(
               children: [
                 Text(
-                  'Time Remaining',
+                  _isWordBasedTest ? 'Words Progress' : 'Time Remaining',
                   style: TextStyle(fontSize: 14, color: subtitleColor),
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  '${_remainingTime.inSeconds}s',
+                  _getTimerDisplay(),
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
-                    color:
-                        _remainingTime.inSeconds <= 10
-                            ? Colors.red
-                            : Colors.blue,
+                    color: timerColor,
                   ),
                 ),
               ],
@@ -501,7 +584,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
             child: Column(
               children: [
                 Text(
-                  'Words',
+                  'Words Typed',
                   style: TextStyle(fontSize: 14, color: subtitleColor),
                 ),
                 const SizedBox(height: 8),

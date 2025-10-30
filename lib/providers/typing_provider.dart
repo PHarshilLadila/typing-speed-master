@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/typing_result.dart';
@@ -8,6 +11,8 @@ class TypingProvider with ChangeNotifier {
   bool _isLoading = false;
   String _selectedDifficulty = 'Medium';
   Duration _selectedDuration = Duration(seconds: 60);
+  List<String> _currentTextPool = [];
+  int _currentTextIndex = 0;
 
   List<TypingResult> get results => _results;
   bool get isLoading => _isLoading;
@@ -16,10 +21,19 @@ class TypingProvider with ChangeNotifier {
 
   TypingProvider() {
     _loadResults();
+    _initializeTextPool();
+  }
+
+  void _initializeTextPool() {
+    _currentTextPool = List.from(
+      AppConstants.sampleTextsByDifficulty[_selectedDifficulty] ?? [],
+    );
+    _currentTextIndex = 0;
   }
 
   void setDifficulty(String difficulty) {
     _selectedDifficulty = difficulty;
+    _initializeTextPool();
     notifyListeners();
   }
 
@@ -29,19 +43,61 @@ class TypingProvider with ChangeNotifier {
   }
 
   String getCurrentText() {
-    final index =
-        _selectedDifficulty == 'Easy'
-            ? 0
-            : _selectedDifficulty == 'Medium'
-            ? 1
-            : 2;
-    return AppConstants.sampleTexts[index % AppConstants.sampleTexts.length];
+    if (_currentTextPool.isEmpty) {
+      _initializeTextPool();
+    }
+
+    String baseText = _currentTextPool[_currentTextIndex];
+
+    if (_selectedDuration.inSeconds == 0) {
+      return _generateWordBasedText(baseText);
+    }
+
+    return baseText;
+  }
+
+  String _generateWordBasedText(String baseText) {
+    List<String> words = baseText.split(' ');
+    List<String> extendedText = [];
+
+    while (extendedText.length < AppConstants.wordBasedTestWordCount) {
+      extendedText.addAll(words);
+    }
+
+    extendedText =
+        extendedText.take(AppConstants.wordBasedTestWordCount).toList();
+    return extendedText.join(' ');
+  }
+
+  void moveToNextText() {
+    _currentTextIndex = (_currentTextIndex + 1) % _currentTextPool.length;
+    notifyListeners();
   }
 
   Future<void> _loadResults() async {
     _isLoading = true;
     notifyListeners();
 
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final resultsString = prefs.getString('typing_results');
+
+      if (resultsString != null) {
+        final List<dynamic> jsonList = json.decode(resultsString);
+        _results = jsonList.map((json) => TypingResult.fromMap(json)).toList();
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        log('Error loading results: $e');
+      }
+      await _loadResultsOldFormat();
+    }
+
+    _isLoading = false;
+    notifyListeners();
+  }
+
+  Future<void> _loadResultsOldFormat() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final resultsString = prefs.getString('typing_results');
@@ -64,6 +120,7 @@ class TypingProvider with ChangeNotifier {
                         )
                         : {};
                   } catch (e) {
+                    log("Error in loadResultsOldFormat => $e");
                     return {};
                   }
                 })
@@ -74,12 +131,9 @@ class TypingProvider with ChangeNotifier {
       }
     } catch (e) {
       if (kDebugMode) {
-        print('Error loading results: $e');
+        log('Error loading old format results: $e');
       }
     }
-
-    _isLoading = false;
-    notifyListeners();
   }
 
   Future<void> saveResult(TypingResult result) async {
@@ -88,17 +142,11 @@ class TypingProvider with ChangeNotifier {
 
     try {
       final prefs = await SharedPreferences.getInstance();
-      final resultsString = _results
-          .map(
-            (r) =>
-                r.toMap().entries.map((e) => '${e.key}:${e.value}').join(','),
-          )
-          .join('||');
-
-      await prefs.setString('typing_results', resultsString);
+      final jsonString = json.encode(_results.map((r) => r.toMap()).toList());
+      await prefs.setString('typing_results', jsonString);
     } catch (e) {
       if (kDebugMode) {
-        print('Error saving result: $e');
+        log('Error saving result: $e');
       }
     }
 

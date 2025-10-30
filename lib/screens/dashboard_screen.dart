@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/responsive_layout.dart';
-import 'package:typing_speed_master/widgets/typing_result_class.dart';
+import 'package:typing_speed_master/widgets/typing_result_card.dart';
 import '../providers/typing_provider.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/accuracy_chart.dart';
@@ -17,37 +17,37 @@ class DashboardScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ResponsiveLayout(
-      smallMobile: _buildDashboard(
+      smallMobile: dashboardWidget(
         context: context,
         horizontalPadding: 12,
         titleFontSize: 22,
         subtitleFontSize: 14,
       ),
-      bigMobile: _buildDashboard(
+      bigMobile: dashboardWidget(
         context: context,
         horizontalPadding: 24,
         titleFontSize: 24,
         subtitleFontSize: 14,
       ),
-      smallTablet: _buildDashboard(
+      smallTablet: dashboardWidget(
         context: context,
         horizontalPadding: 40,
         titleFontSize: 26,
         subtitleFontSize: 16,
       ),
-      bigTablet: _buildDashboard(
+      bigTablet: dashboardWidget(
         context: context,
         horizontalPadding: 60,
         titleFontSize: 28,
         subtitleFontSize: 16,
       ),
-      smallDesktop: _buildDashboard(
+      smallDesktop: dashboardWidget(
         context: context,
         horizontalPadding: 80,
         titleFontSize: 30,
         subtitleFontSize: 18,
       ),
-      bigDesktop: _buildDashboard(
+      bigDesktop: dashboardWidget(
         context: context,
         horizontalPadding: 100,
         titleFontSize: 32,
@@ -56,44 +56,38 @@ class DashboardScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDashboard({
+  Widget dashboardWidget({
     required BuildContext context,
     required double horizontalPadding,
     required double titleFontSize,
     required double subtitleFontSize,
   }) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return Scaffold(
-      backgroundColor:
-          themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[50],
-      body: Padding(
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: 20,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    const SizedBox(height: 40),
-                    _buildStatsLayout(context),
-                    const SizedBox(height: 20),
-                    _buildRecentResults(context, subtitleFontSize),
-                  ],
-                ),
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: horizontalPadding,
+        vertical: 20,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  statsLayout(context),
+                  const SizedBox(height: 20),
+                  recentTypingResults(context, subtitleFontSize),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  Widget _buildStatsLayout(BuildContext context) {
+  Widget statsLayout(BuildContext context) {
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;
@@ -328,7 +322,7 @@ class DashboardScreen extends StatelessWidget {
     }
   }
 
-  Widget _buildRecentResults(BuildContext context, double subtitleFontSize) {
+  Widget recentTypingResults(BuildContext context, double subtitleFontSize) {
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final recentResults = provider.getRecentResults(5);

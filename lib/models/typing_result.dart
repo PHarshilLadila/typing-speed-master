@@ -1,3 +1,65 @@
+// class TypingResult {
+//   final int wpm;
+//   final double accuracy;
+//   final int correctChars;
+//   final int incorrectChars;
+//   final int totalChars;
+//   final Duration duration;
+//   final DateTime timestamp;
+//   final String difficulty;
+
+//   TypingResult({
+//     required this.wpm,
+//     required this.accuracy,
+//     required this.correctChars,
+//     required this.incorrectChars,
+//     required this.totalChars,
+//     required this.duration,
+//     required this.timestamp,
+//     required this.difficulty,
+//   });
+
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'wpm': wpm,
+//       'accuracy': accuracy,
+//       'correctChars': correctChars,
+//       'incorrectChars': incorrectChars,
+//       'totalChars': totalChars,
+//       'duration': duration.inSeconds,
+//       'timestamp': timestamp.millisecondsSinceEpoch,
+//       'difficulty': difficulty,
+//     };
+//   }
+
+//   factory TypingResult.fromMap(Map<String, dynamic> map) {
+//     return TypingResult(
+//       wpm: _parseInt(map['wpm']),
+//       accuracy: _parseDouble(map['accuracy']),
+//       correctChars: _parseInt(map['correctChars']),
+//       incorrectChars: _parseInt(map['incorrectChars']),
+//       totalChars: _parseInt(map['totalChars']),
+//       duration: Duration(seconds: _parseInt(map['duration'])),
+//       timestamp: DateTime.fromMillisecondsSinceEpoch(
+//         _parseInt(map['timestamp']),
+//       ),
+//       difficulty: map['difficulty']?.toString() ?? 'Unknown',
+//     );
+//   }
+//   static int _parseInt(dynamic value) {
+//     if (value is int) return value;
+//     if (value is String) return int.tryParse(value) ?? 0;
+//     return 0;
+//   }
+
+//   static double _parseDouble(dynamic value) {
+//     if (value is double) return value;
+//     if (value is int) return value.toDouble();
+//     if (value is String) return double.tryParse(value) ?? 0.0;
+//     return 0.0;
+//   }
+// }
+
 class TypingResult {
   final int wpm;
   final double accuracy;
@@ -7,6 +69,8 @@ class TypingResult {
   final Duration duration;
   final DateTime timestamp;
   final String difficulty;
+  final bool isWordBasedTest;
+  final int? targetWords;
 
   TypingResult({
     required this.wpm,
@@ -17,6 +81,8 @@ class TypingResult {
     required this.duration,
     required this.timestamp,
     required this.difficulty,
+    this.isWordBasedTest = false,
+    this.targetWords,
   });
 
   Map<String, dynamic> toMap() {
@@ -26,36 +92,26 @@ class TypingResult {
       'correctChars': correctChars,
       'incorrectChars': incorrectChars,
       'totalChars': totalChars,
-      'duration': duration.inSeconds,
+      'durationInSeconds': duration.inSeconds,
       'timestamp': timestamp.millisecondsSinceEpoch,
       'difficulty': difficulty,
+      'isWordBasedTest': isWordBasedTest,
+      'targetWords': targetWords,
     };
   }
 
   factory TypingResult.fromMap(Map<String, dynamic> map) {
     return TypingResult(
-      wpm: _parseInt(map['wpm']),
-      accuracy: _parseDouble(map['accuracy']),
-      correctChars: _parseInt(map['correctChars']),
-      incorrectChars: _parseInt(map['incorrectChars']),
-      totalChars: _parseInt(map['totalChars']),
-      duration: Duration(seconds: _parseInt(map['duration'])),
-      timestamp: DateTime.fromMillisecondsSinceEpoch(
-        _parseInt(map['timestamp']),
-      ),
-      difficulty: map['difficulty']?.toString() ?? 'Unknown',
+      wpm: map['wpm'],
+      accuracy: map['accuracy'].toDouble(),
+      correctChars: map['correctChars'],
+      incorrectChars: map['incorrectChars'],
+      totalChars: map['totalChars'],
+      duration: Duration(seconds: map['durationInSeconds']),
+      timestamp: DateTime.fromMillisecondsSinceEpoch(map['timestamp']),
+      difficulty: map['difficulty'],
+      isWordBasedTest: map['isWordBasedTest'] ?? false,
+      targetWords: map['targetWords'],
     );
-  }
-  static int _parseInt(dynamic value) {
-    if (value is int) return value;
-    if (value is String) return int.tryParse(value) ?? 0;
-    return 0;
-  }
-
-  static double _parseDouble(dynamic value) {
-    if (value is double) return value;
-    if (value is int) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? 0.0;
-    return 0.0;
   }
 }
