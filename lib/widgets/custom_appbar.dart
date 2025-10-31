@@ -20,7 +20,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: isDarkMode ? Colors.black : Colors.white,
+      backgroundColor: isDarkMode ? Colors.black38 : Colors.white,
       elevation: 0.5,
       excludeHeaderSemantics: true,
       automaticallyImplyLeading: isMobile,

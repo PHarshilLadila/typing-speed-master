@@ -29,8 +29,8 @@ class TypingSpeedTesterApp extends StatelessWidget {
             theme: AppLightTheme.theme,
             darkTheme: AppDarkTheme.theme,
             themeMode: themeProvider.themeMode,
-            home: const MainEntryPoint(),
             debugShowCheckedModeBanner: false,
+            home: const MainEntryPoint(),
           );
         },
       ),

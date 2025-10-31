@@ -332,7 +332,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: 28),
                   TextDisplayWidget(
                     sampleText: sampleText,
                     userInput: _userInput,
@@ -402,138 +402,133 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final borderColor =
         themeProvider.isDarkMode ? Colors.grey[500]! : Colors.grey[500]!;
     final titleColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+    final cardColor =
+        themeProvider.isDarkMode ? Colors.grey[800] : Colors.white;
+    final subtitleColor =
+        themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
+    final inputBorderColor =
+        themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!;
 
-    return Scaffold(
-      backgroundColor: backgroundColor,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
+              Text(
+                _isWordBasedTest
+                    ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words)'
+                    : 'Type the text below',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                  color: titleColor,
+                ),
+              ),
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    _isWordBasedTest
-                        ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words)'
-                        : 'Type the text below',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w500,
-                      color: titleColor,
-                    ),
+                  IconButton.filled(
+                    onPressed: _changeText,
+                    icon: const Icon(FontAwesomeIcons.syncAlt),
+                    tooltip: 'Change Text',
                   ),
-                  Row(
-                    children: [
-                      IconButton.filled(
-                        onPressed: _changeText,
-                        icon: const Icon(FontAwesomeIcons.syncAlt),
-                        tooltip: 'Change Text',
+                  const SizedBox(width: 8),
+                  IconButton.filled(
+                    onPressed: _toggleFullScreen,
+                    icon: const Icon(FontAwesomeIcons.minimize),
+                    tooltip: 'Minimize',
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton(
+                    onPressed: _resetTest,
+                    style: const ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                    ),
+                    child: Text(
+                      'Reset',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      const SizedBox(width: 8),
-                      IconButton.filled(
-                        onPressed: _toggleFullScreen,
-                        icon: const Icon(FontAwesomeIcons.minimize),
-                        tooltip: 'Minimize',
-                      ),
-                      const SizedBox(width: 8),
-                      TextButton(
-                        onPressed: _resetTest,
-                        style: const ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Colors.amber),
-                        ),
-                        child: Text(
-                          'Reset',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 20),
-
-              _buildTimerAndStatsFullScreen(themeProvider),
-              const SizedBox(height: 20),
-
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[800]
-                            : Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        TextDisplayWidget(
-                          sampleText: sampleText,
-                          userInput: _userInput,
-                          isTestActive: _testStarted && !_testCompleted,
-                          isDarkMode: themeProvider.isDarkMode,
-                        ),
-                        const SizedBox(height: 20),
-                        TextField(
-                          controller: _textController,
-                          focusNode: _textFocusNode,
-                          enabled: !_testCompleted,
-                          maxLines: 10,
-                          decoration: InputDecoration(
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            enabled: true,
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: borderColor),
-                            ),
-                            hintText: 'Type the text shown above...',
-                            hintStyle: TextStyle(
-                              color:
-                                  themeProvider.isDarkMode
-                                      ? Colors.grey[500]
-                                      : Colors.grey[600],
-                            ),
-                            fillColor: Colors.white,
-                            filled: false,
-                          ),
-                          onChanged: _onTextChanged,
-                          autofocus: true,
-                          style: TextStyle(
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              _buildInputField(
-                themeProvider,
-                themeProvider.isDarkMode ? Colors.grey[800]! : Colors.white,
-                borderColor,
-                themeProvider.isDarkMode
-                    ? Colors.grey[400]!
-                    : Colors.grey[600]!,
-              ),
             ],
           ),
-        ),
+          const SizedBox(height: 20),
+
+          _buildTimerAndStatsFullScreen(themeProvider),
+          const SizedBox(height: 20),
+
+          Expanded(
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.grey[300]!),
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  children: [
+                    TextDisplayWidget(
+                      sampleText: sampleText,
+                      userInput: _userInput,
+                      isTestActive: _testStarted && !_testCompleted,
+                      isDarkMode: themeProvider.isDarkMode,
+                    ),
+                    const SizedBox(height: 20),
+                    TextField(
+                      controller: _textController,
+                      focusNode: _textFocusNode,
+                      enabled: !_testCompleted,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                          borderSide: BorderSide(color: borderColor),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: borderColor),
+                        ),
+                        enabled: true,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: borderColor),
+                        ),
+                        hintText: 'Type the text shown above...',
+                        hintStyle: TextStyle(
+                          color:
+                              themeProvider.isDarkMode
+                                  ? Colors.grey[500]
+                                  : Colors.grey[600],
+                        ),
+                        fillColor: Colors.white,
+                        filled: false,
+                      ),
+                      onChanged: _onTextChanged,
+                      autofocus: true,
+                      style: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.white
+                                : Colors.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          _buildInputField(
+            themeProvider,
+            cardColor ?? Colors.grey,
+            inputBorderColor,
+            subtitleColor ?? Colors.grey,
+          ),
+        ],
       ),
     );
   }
