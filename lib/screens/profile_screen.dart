@@ -779,7 +779,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     bool isDark,
   ) {
     final user = authProvider.user!;
-    final cardColor = isDark ? Colors.grey[900] : Colors.white;
+    final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
     final textColor = isDark ? Colors.white : Colors.black;
