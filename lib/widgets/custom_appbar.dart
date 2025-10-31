@@ -71,7 +71,7 @@ class CustomAppBar extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
                   CustomNavItem(
-                    icon: Icons.history,
+                    icon: Icons.history_toggle_off_outlined,
                     label: "History",
                     selected: selectedIndex == 2,
                     onTap: () => onMenuClick(2),

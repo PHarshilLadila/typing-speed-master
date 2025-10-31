@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
@@ -86,51 +87,267 @@ class _MainEntryPointState extends State<MainEntryPoint> {
           drawer:
               isMobile
                   ? Drawer(
-                    child: ListView(
-                      children: [
-                        const DrawerHeader(
-                          child: Text(
-                            "TypeMaster",
-                            style: TextStyle(fontSize: 22),
+                    width: 300,
+                    elevation: 16,
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.horizontal(
+                        right: Radius.circular(20),
+                      ),
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(),
+                      child: ListView(
+                        children: [
+                          Container(
+                            height: 180,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  Colors.amber.shade500,
+                                  Colors.amber.shade300,
+                                ],
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                bottomRight: Radius.circular(30),
+                              ),
+                            ),
+                            child: Stack(
+                              children: [
+                                Positioned(
+                                  top: 5,
+                                  left: 120,
+                                  child: Icon(
+                                    Icons.speed_outlined,
+                                    size: 80,
+                                    color:
+                                        themeProvider.isDarkMode
+                                            ? Colors.black.withOpacity(0.05)
+                                            : Colors.white.withOpacity(0.25),
+                                  ),
+                                ),
+                                Positioned(
+                                  bottom: 20,
+                                  right: 20,
+                                  child: Icon(
+                                    Icons.keyboard_alt_outlined,
+                                    size: 60,
+                                    color:
+                                        themeProvider.isDarkMode
+                                            ? Colors.black.withOpacity(0.02)
+                                            : Colors.white.withOpacity(0.15),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          color:
+                                              themeProvider.isDarkMode
+                                                  ? Colors.black.withOpacity(
+                                                    0.8,
+                                                  )
+                                                  : Colors.white.withOpacity(
+                                                    0.6,
+                                                  ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                        child: Icon(
+                                          Icons.keyboard_outlined,
+                                          color:
+                                              themeProvider.isDarkMode
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                          size: 32,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 16),
+                                      Text(
+                                        "TypeMaster",
+                                        style: TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color:
+                                              themeProvider.isDarkMode
+                                                  ? Colors.black
+                                                  : Colors.white,
+                                          letterSpacing: 1.2,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        "Master Your Typing Skills",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color:
+                                              themeProvider.isDarkMode
+                                                  ? Colors.black.withOpacity(
+                                                    0.8,
+                                                  )
+                                                  : Colors.white.withOpacity(
+                                                    0.8,
+                                                  ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                        DrawerTile(
-                          icon: Icons.keyboard,
-                          label: "Test",
-                          selected: _selectedIndex == 0 && _currentPage == null,
-                          onTap: () {
-                            Navigator.pop(context);
-                            _onMenuClick(0);
-                          },
-                        ),
-                        DrawerTile(
-                          icon: Icons.dashboard_outlined,
-                          label: "Dashboard",
-                          selected: _selectedIndex == 1 && _currentPage == null,
-                          onTap: () {
-                            Navigator.pop(context);
-                            _onMenuClick(1);
-                          },
-                        ),
-                        DrawerTile(
-                          icon: Icons.history,
-                          label: "History",
-                          selected: _selectedIndex == 2 && _currentPage == null,
-                          onTap: () {
-                            Navigator.pop(context);
-                            _onMenuClick(2);
-                          },
-                        ),
-                        DrawerTile(
-                          icon: Icons.person_outline,
-                          label: "Profile",
-                          selected: _selectedIndex == 3 && _currentPage == null,
-                          onTap: () {
-                            Navigator.pop(context);
-                            _onMenuClick(3);
-                          },
-                        ),
-                      ],
+
+                          const SizedBox(height: 20),
+
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 8),
+                            child: Column(
+                              children: [
+                                DrawerTile(
+                                  icon: Icons.keyboard_alt_outlined,
+                                  label: "Typing Test",
+                                  isDarkMode: themeProvider.isDarkMode,
+                                  selected:
+                                      _selectedIndex == 0 &&
+                                      _currentPage == null,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _onMenuClick(0);
+                                  },
+                                ),
+                                DrawerTile(
+                                  icon: Icons.dashboard_outlined,
+                                  label: "Dashboard",
+                                  isDarkMode: themeProvider.isDarkMode,
+
+                                  selected:
+                                      _selectedIndex == 1 &&
+                                      _currentPage == null,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _onMenuClick(1);
+                                  },
+                                ),
+                                DrawerTile(
+                                  icon: Icons.history_toggle_off_outlined,
+                                  label: "History",
+                                  isDarkMode: themeProvider.isDarkMode,
+
+                                  selected:
+                                      _selectedIndex == 2 &&
+                                      _currentPage == null,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _onMenuClick(2);
+                                  },
+                                ),
+                                DrawerTile(
+                                  icon: Icons.person_outline_outlined,
+                                  label: "Profile",
+                                  isDarkMode: themeProvider.isDarkMode,
+
+                                  selected:
+                                      _selectedIndex == 3 &&
+                                      _currentPage == null,
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    _onMenuClick(3);
+                                  },
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        themeProvider.isDarkMode
+                                            ? Colors.grey.shade800.withOpacity(
+                                              0.5,
+                                            )
+                                            : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(12),
+                                    border: Border.all(
+                                      color:
+                                          themeProvider.isDarkMode
+                                              ? Colors.grey.shade700
+                                              : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        themeProvider.isDarkMode
+                                            ? Icons.dark_mode
+                                            : Icons.light_mode,
+                                        color:
+                                            themeProvider.isDarkMode
+                                                ? Colors.amber
+                                                : Colors.orange,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          themeProvider.isDarkMode
+                                              ? "Dark Mode"
+                                              : "Light Mode",
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.w500,
+                                            color:
+                                                themeProvider.isDarkMode
+                                                    ? Colors.grey.shade300
+                                                    : Colors.grey.shade800,
+                                          ),
+                                        ),
+                                      ),
+                                      CupertinoSwitch(
+                                        applyTheme: true,
+                                        value: themeProvider.isDarkMode,
+                                        onChanged: (value) {
+                                          themeProvider.toggleTheme();
+                                        },
+                                        activeColor: Colors.amber,
+                                        trackColor: Colors.grey,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+
+                                const SizedBox(height: 16),
+
+                                Text(
+                                  "Version 1.0.0",
+                                  style: TextStyle(
+                                    color:
+                                        themeProvider.isDarkMode
+                                            ? Colors.grey.shade500
+                                            : Colors.grey.shade600,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   )
                   : null,
