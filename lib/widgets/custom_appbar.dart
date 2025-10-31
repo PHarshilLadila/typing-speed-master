@@ -1,5 +1,7 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_nav_item.dart';
 
@@ -19,6 +21,8 @@ class CustomAppBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
     return AppBar(
       backgroundColor: isDarkMode ? Colors.black38 : Colors.white,
       elevation: 0.5,
@@ -116,11 +120,49 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  const CircleAvatar(
-                    backgroundColor: Colors.blue,
-                    radius: 18,
-                    child: Icon(Icons.person, color: Colors.white),
-                  ),
+                  authProvider.isLoggedIn &&
+                          authProvider.user?.avatarUrl != null
+                      ? ClipOval(
+                        child: CachedNetworkImage(
+                          imageUrl: authProvider.user!.avatarUrl!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          placeholder:
+                              (context, url) => Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.amber.shade800,
+                                  size: 24,
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => Container(
+                                width: 48,
+                                height: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.shade100,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  Icons.person,
+                                  color: Colors.amber.shade800,
+                                  size: 24,
+                                ),
+                              ),
+                        ),
+                      )
+                      : CircleAvatar(
+                        backgroundColor: Colors.blue,
+                        radius: 18,
+                        child: Icon(Icons.person, color: Colors.white),
+                      ),
                 ],
               ),
             ),

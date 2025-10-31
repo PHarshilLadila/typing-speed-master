@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/screens/dashboard_screen.dart';
 import 'package:typing_speed_master/screens/history_screen.dart';
 import 'package:typing_speed_master/screens/profile_screen.dart';
@@ -10,6 +11,7 @@ import 'package:typing_speed_master/screens/typing_test_screen.dart';
 import 'package:typing_speed_master/screens/results_screen.dart';
 import 'package:typing_speed_master/widgets/custom_appbar.dart';
 import 'package:typing_speed_master/widgets/drawer_tiles.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MainEntryPoint extends StatefulWidget {
   const MainEntryPoint({super.key});
@@ -63,6 +65,7 @@ class _MainEntryPointState extends State<MainEntryPoint> {
       builder: (context, constraints) {
         bool isMobile = constraints.maxWidth < 800;
         final themeProvider = Provider.of<ThemeProvider>(context);
+        final authProvider = Provider.of<AuthProvider>(context);
 
         final Widget bodyContent = _currentPage ?? _pages[_selectedIndex];
 
@@ -147,34 +150,107 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
                                       Container(
-                                        padding: const EdgeInsets.all(12),
+                                        padding: const EdgeInsets.all(2),
                                         decoration: BoxDecoration(
-                                          color:
-                                              themeProvider.isDarkMode
-                                                  ? Colors.black.withOpacity(
-                                                    0.8,
-                                                  )
-                                                  : Colors.white.withOpacity(
-                                                    0.6,
-                                                  ),
+                                          color: Colors.white,
                                           borderRadius: BorderRadius.circular(
-                                            16,
+                                            50,
                                           ),
                                         ),
-                                        child: Icon(
-                                          Icons.keyboard_outlined,
-                                          color:
-                                              themeProvider.isDarkMode
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                          size: 32,
-                                        ),
+                                        child:
+                                            authProvider.isLoggedIn &&
+                                                    authProvider
+                                                            .user
+                                                            ?.avatarUrl !=
+                                                        null
+                                                ? ClipOval(
+                                                  child: CachedNetworkImage(
+                                                    imageUrl:
+                                                        authProvider
+                                                            .user!
+                                                            .avatarUrl!,
+                                                    width: 48,
+                                                    height: 48,
+                                                    fit: BoxFit.cover,
+                                                    placeholder:
+                                                        (
+                                                          context,
+                                                          url,
+                                                        ) => Container(
+                                                          width: 48,
+                                                          height: 48,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .amber
+                                                                        .shade100,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                              ),
+                                                          child: Icon(
+                                                            Icons.person,
+                                                            color:
+                                                                Colors
+                                                                    .amber
+                                                                    .shade800,
+                                                            size: 24,
+                                                          ),
+                                                        ),
+                                                    errorWidget:
+                                                        (
+                                                          context,
+                                                          url,
+                                                          error,
+                                                        ) => Container(
+                                                          width: 48,
+                                                          height: 48,
+                                                          decoration:
+                                                              BoxDecoration(
+                                                                color:
+                                                                    Colors
+                                                                        .amber
+                                                                        .shade100,
+                                                                shape:
+                                                                    BoxShape
+                                                                        .circle,
+                                                              ),
+                                                          child: Icon(
+                                                            Icons.person,
+                                                            color:
+                                                                Colors
+                                                                    .amber
+                                                                    .shade800,
+                                                            size: 24,
+                                                          ),
+                                                        ),
+                                                  ),
+                                                )
+                                                : Container(
+                                                  width: 48,
+                                                  height: 48,
+                                                  decoration: BoxDecoration(
+                                                    color:
+                                                        Colors.amber.shade100,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                  child: Icon(
+                                                    Icons.person,
+                                                    color:
+                                                        Colors.amber.shade800,
+                                                    size: 24,
+                                                  ),
+                                                ),
                                       ),
                                       const SizedBox(height: 16),
                                       Text(
-                                        "TypeMaster",
+                                        authProvider.isLoggedIn
+                                            ? authProvider.user?.fullName ??
+                                                'User'
+                                            : "Guest User",
                                         style: TextStyle(
-                                          fontSize: 24,
+                                          fontSize: 20,
                                           fontWeight: FontWeight.bold,
                                           color:
                                               themeProvider.isDarkMode
@@ -185,9 +261,11 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
-                                        "Master Your Typing Skills",
+                                        authProvider.isLoggedIn
+                                            ? authProvider.user?.email ?? ''
+                                            : "Sign in to save progress",
                                         style: TextStyle(
-                                          fontSize: 14,
+                                          fontSize: 12,
                                           color:
                                               themeProvider.isDarkMode
                                                   ? Colors.black.withOpacity(
