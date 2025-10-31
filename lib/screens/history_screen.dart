@@ -83,6 +83,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               result: result,
               subtitleFontSize: 16,
               isDarkMode: themeProvider.isDarkMode,
+              isHistory: true,
               onViewDetails: () {
                 log('View details for ${result.difficulty}');
               },

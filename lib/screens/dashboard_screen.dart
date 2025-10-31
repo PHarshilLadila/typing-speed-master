@@ -409,6 +409,7 @@ class DashboardScreen extends StatelessWidget {
                   result: result,
                   subtitleFontSize: 16,
                   isDarkMode: themeProvider.isDarkMode,
+                  isHistory: false,
                   onViewDetails: () {
                     log('View details for ${result.difficulty}');
                   },

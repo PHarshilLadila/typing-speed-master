@@ -12,6 +12,7 @@ class TypingResultCard extends StatelessWidget {
   final double subtitleFontSize;
   final bool isDarkMode;
   final VoidCallback? onViewDetails;
+  final bool isHistory;
 
   const TypingResultCard({
     super.key,
@@ -19,6 +20,7 @@ class TypingResultCard extends StatelessWidget {
     this.subtitleFontSize = 16,
     this.isDarkMode = false,
     this.onViewDetails,
+    this.isHistory = true,
   });
 
   Color getDifficultyColor(String difficulty) {
@@ -85,7 +87,7 @@ class TypingResultCard extends StatelessWidget {
         clipBehavior: Clip.none,
         children: [
           Container(
-            height: 125,
+            height: isHistory ? 125 : 100,
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20),
@@ -100,7 +102,7 @@ class TypingResultCard extends StatelessWidget {
             ),
           ),
           Container(
-            height: 125,
+            height: isHistory ? 125 : 100,
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 20),
             decoration: BoxDecoration(
@@ -180,7 +182,7 @@ class TypingResultCard extends StatelessWidget {
                         Row(
                           children: [
                             Text(
-                              '${result.duration.inSeconds}s',
+                              '${result.duration.inSeconds - 1}s',
                               style: TextStyle(
                                 fontSize: subtitleFontSize - 2,
                                 fontWeight: FontWeight.w600,
@@ -199,42 +201,46 @@ class TypingResultCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        Container(
-                          decoration: BoxDecoration(
-                            color: iconBackgroundColor,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(4.0),
-                            child: Icon(
-                              FontAwesomeIcons.chartBar,
-                              size: subtitleFontSize - 1,
-                              color: iconColor,
+                    SizedBox(height: isHistory ? 6 : 0),
+                    isHistory
+                        ? Row(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: iconBackgroundColor,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(4.0),
+                                child: Icon(
+                                  FontAwesomeIcons.chartBar,
+                                  size: subtitleFontSize - 1,
+                                  color: iconColor,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        TextButton(
-                          onPressed: onViewDetails ?? () => log("View Details"),
-                          style: const ButtonStyle(
-                            backgroundColor: WidgetStatePropertyAll(
-                              Colors.amber,
+                            const SizedBox(width: 8),
+                            TextButton(
+                              onPressed:
+                                  onViewDetails ?? () => log("View Details"),
+                              style: const ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  Colors.amber,
+                                ),
+                              ),
+                              child: Text(
+                                'View Details',
+                                style: TextStyle(
+                                  fontSize: subtitleFontSize - 5,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                ),
+                              ),
                             ),
-                          ),
-                          child: Text(
-                            'View Details',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize - 5,
-                              fontWeight: FontWeight.bold,
-                              color: isDarkMode ? Colors.white : Colors.black,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                          ],
+                        )
+                        : SizedBox.shrink(),
                   ],
                 ),
                 const Spacer(),
@@ -254,7 +260,7 @@ class TypingResultCard extends StatelessWidget {
             child: IgnorePointer(
               ignoring: true,
               child: Container(
-                height: 125,
+                height: isHistory ? 125 : 100,
                 width: 100,
                 decoration: BoxDecoration(
                   borderRadius: const BorderRadius.only(

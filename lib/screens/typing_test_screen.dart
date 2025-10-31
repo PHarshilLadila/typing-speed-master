@@ -3,12 +3,13 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:typing_speed_master/screens/main_entry_point_.dart';
 import 'package:typing_speed_master/utils/constants.dart';
+import 'package:typing_speed_master/widgets/custom_dropdown.dart';
 import '../providers/typing_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/text_display_widget.dart';
 import '../models/typing_result.dart';
-import 'results_screen.dart';
 
 class TypingTestScreen extends StatefulWidget {
   const TypingTestScreen({super.key});
@@ -42,8 +43,20 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     _remainingTime = _testDuration;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _textFocusNode.requestFocus();
+      if (mounted) {
+        _textFocusNode.requestFocus();
+      }
     });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    if (_testDuration != provider.selectedDuration) {
+      _testDuration = provider.selectedDuration;
+      _remainingTime = _testDuration;
+    }
   }
 
   @override
@@ -54,6 +67,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   }
 
   void _startTest() {
+    if (!mounted) return;
+
     setState(() {
       _testStarted = true;
       _startTime = DateTime.now();
@@ -86,7 +101,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   }
 
   void _completeTest() {
-    if (_startTime == null) return;
+    if (_startTime == null || !mounted) return;
 
     final endTime = DateTime.now();
     final duration = endTime.difference(_startTime!);
@@ -129,10 +144,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     Provider.of<TypingProvider>(context, listen: false).saveResult(result);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => ResultsScreen(result: result)),
-    );
+    final resultsProvider = TypingTestResultsProvider.of(context);
+    if (resultsProvider != null) {
+      resultsProvider.showResults(result);
+    }
   }
 
   String _getTargetText() {
@@ -237,11 +252,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_isFullScreen) {
-      return _buildFullScreenContent();
-    }
-
-    return _buildNormalContent();
+    return KeyedSubtree(
+      key: ValueKey('typing_test_screen'),
+      child: _isFullScreen ? _buildFullScreenContent() : _buildNormalContent(),
+    );
   }
 
   Widget _buildNormalContent() {
@@ -280,7 +294,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               decoration: BoxDecoration(
                 color: backgroundColor,
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[200]!),
+                border: Border.all(color: borderColor, width: 0.3),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,14 +361,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                     maxLines: 8,
                     decoration: InputDecoration(
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: borderColor),
+                        borderSide: BorderSide(color: borderColor, width: 0.2),
                       ),
                       enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: borderColor),
+                        borderSide: BorderSide(color: borderColor, width: 0.2),
                       ),
                       enabled: true,
                       focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: borderColor),
+                        borderSide: BorderSide(color: borderColor, width: 0.2),
                       ),
                       hintText: 'Type the text shown above...',
                       hintStyle: TextStyle(
@@ -397,8 +411,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final sampleText = provider.getCurrentText();
 
-    final backgroundColor =
-        themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[50];
     final borderColor =
         themeProvider.isDarkMode ? Colors.grey[500]! : Colors.grey[500]!;
     final titleColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
@@ -468,7 +480,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
+                border: Border.all(color: borderColor, width: 0.5),
               ),
               child: SingleChildScrollView(
                 child: Column(
@@ -487,14 +499,23 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                       maxLines: 10,
                       decoration: InputDecoration(
                         border: OutlineInputBorder(
-                          borderSide: BorderSide(color: borderColor),
+                          borderSide: BorderSide(
+                            color: borderColor,
+                            width: 0.2,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: borderColor),
+                          borderSide: BorderSide(
+                            color: borderColor,
+                            width: 0.2,
+                          ),
                         ),
                         enabled: true,
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: borderColor),
+                          borderSide: BorderSide(
+                            color: borderColor,
+                            width: 0.2,
+                          ),
                         ),
                         hintText: 'Type the text shown above...',
                         hintStyle: TextStyle(
@@ -718,21 +739,13 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
             ],
           ),
         ),
-        Column(
+
+        Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              decoration: BoxDecoration(
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              height: 40,
+            SizedBox(
               width: isMobile ? 150 : 200,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: DropdownButton<String>(
-                underline: const SizedBox(),
+              child: CustomDropdown<String>(
                 value: provider.selectedDifficulty,
                 onChanged:
                     _testStarted
@@ -758,27 +771,16 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         ),
                       );
                     }).toList(),
-                isExpanded: true,
-                dropdownColor:
-                    themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
-                style: TextStyle(
-                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                ),
+                isDarkMode: themeProvider.isDarkMode,
+                lightModeColor: Colors.grey.shade200,
+                darkModeColor: Colors.grey.shade800,
+                enabled: !_testStarted,
               ),
             ),
-            const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey.shade800
-                        : Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              height: 40,
+            const SizedBox(width: 8),
+            SizedBox(
               width: isMobile ? 150 : 200,
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-              child: DropdownButton<Duration>(
+              child: CustomDropdown<Duration>(
                 value: provider.selectedDuration,
                 onChanged:
                     _testStarted
@@ -808,13 +810,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         ),
                       );
                     }).toList(),
-                isExpanded: true,
-                underline: const SizedBox(),
-                dropdownColor:
-                    themeProvider.isDarkMode ? Colors.grey[800] : Colors.white,
-                style: TextStyle(
-                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                ),
+                isDarkMode: themeProvider.isDarkMode,
+                lightModeColor: Colors.grey.shade200,
+                darkModeColor: Colors.grey.shade800,
+                enabled: !_testStarted,
               ),
             ),
           ],
