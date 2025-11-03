@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 
 class CustomDialog {
-  // Sign Out Dialog
   static void showSignOutDialog({
     required BuildContext context,
     required VoidCallback onConfirm,
@@ -26,7 +25,6 @@ class CustomDialog {
     );
   }
 
-  // Generic Confirmation Dialog
   static void showConfirmationDialog({
     required BuildContext context,
     required String title,
@@ -52,7 +50,6 @@ class CustomDialog {
     );
   }
 
-  // Success Dialog
   static void showSuccessDialog({
     required BuildContext context,
     required String title,
@@ -74,7 +71,6 @@ class CustomDialog {
     );
   }
 
-  // Error Dialog
   static void showErrorDialog({
     required BuildContext context,
     required String title,
@@ -96,7 +92,6 @@ class CustomDialog {
     );
   }
 
-  // Loading Dialog
   static void showLoadingDialog({
     required BuildContext context,
     String message = 'Loading...',
@@ -108,12 +103,10 @@ class CustomDialog {
     );
   }
 
-  // Dismiss Loading Dialog
   static void dismissLoadingDialog(BuildContext context) {
     Navigator.of(context, rootNavigator: true).pop();
   }
 
-  // Custom Input Dialog
   static Future<String?> showInputDialog({
     required BuildContext context,
     required String title,
@@ -142,7 +135,6 @@ class CustomDialog {
   }
 }
 
-// Confirmation Dialog Widget
 class _ConfirmationDialog extends StatelessWidget {
   final String title;
   final String content;
@@ -178,7 +170,6 @@ class _ConfirmationDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Title
               Text(
                 title,
                 style: TextStyle(
@@ -189,7 +180,6 @@ class _ConfirmationDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Content
               Text(
                 content,
                 style: TextStyle(
@@ -199,11 +189,9 @@ class _ConfirmationDialog extends StatelessWidget {
               ),
               const SizedBox(height: 24),
 
-              // Buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  // Cancel Button
                   TextButton(
                     onPressed: () => Navigator.pop(context),
                     style: TextButton.styleFrom(
@@ -214,7 +202,6 @@ class _ConfirmationDialog extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
 
-                  // Confirm Button
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context);
@@ -237,7 +224,6 @@ class _ConfirmationDialog extends StatelessWidget {
   }
 }
 
-// Info Dialog Widget (Success/Error)
 class _InfoDialog extends StatelessWidget {
   final String title;
   final String content;
@@ -268,11 +254,9 @@ class _InfoDialog extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Icon
             Icon(icon, size: 48, color: iconColor),
             const SizedBox(height: 16),
 
-            // Title
             Text(
               title,
               style: TextStyle(
@@ -283,7 +267,6 @@ class _InfoDialog extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Content
             Text(
               content,
               textAlign: TextAlign.center,
@@ -294,7 +277,6 @@ class _InfoDialog extends StatelessWidget {
             ),
             const SizedBox(height: 24),
 
-            // OK Button
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
@@ -316,7 +298,6 @@ class _InfoDialog extends StatelessWidget {
   }
 }
 
-// Loading Dialog Widget
 class _LoadingDialog extends StatelessWidget {
   final String message;
 
@@ -351,7 +332,6 @@ class _LoadingDialog extends StatelessWidget {
   }
 }
 
-// Input Dialog Widget
 class _InputDialog extends StatefulWidget {
   final String title;
   final String hintText;
@@ -388,7 +368,6 @@ class _InputDialogState extends State<_InputDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Title
             Text(
               widget.title,
               style: TextStyle(
@@ -399,7 +378,6 @@ class _InputDialogState extends State<_InputDialog> {
             ),
             const SizedBox(height: 16),
 
-            // Text Field
             TextField(
               controller: widget.controller,
               keyboardType: widget.keyboardType,
@@ -425,11 +403,9 @@ class _InputDialogState extends State<_InputDialog> {
             ),
             const SizedBox(height: 24),
 
-            // Buttons
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                // Cancel Button
                 TextButton(
                   onPressed: () => Navigator.pop(context),
                   style: TextButton.styleFrom(
@@ -440,7 +416,6 @@ class _InputDialogState extends State<_InputDialog> {
                 ),
                 const SizedBox(width: 12),
 
-                // Confirm Button
                 ElevatedButton(
                   onPressed: () {
                     Navigator.pop(context, widget.controller.text.trim());
@@ -461,18 +436,16 @@ class _InputDialogState extends State<_InputDialog> {
 }
 
 /*
-
-Success Dialog
+===>  Success Dialog
 CustomDialog.showSuccessDialog(
   context: context,
   title: 'Success!',
   content: 'Your profile has been updated successfully.',
   onPressed: () {
-    // Optional callback
   },
 );
 
-2. Generic Confirmation Dialog
+===>  Generic Confirmation Dialog
 CustomDialog.showConfirmationDialog(
   context: context,
   title: 'Delete Account',
@@ -481,7 +454,6 @@ CustomDialog.showConfirmationDialog(
   confirmButtonColor: Colors.red,
   isDestructive: true,
   onConfirm: () {
-    // Delete account logic
   },
 );
 
