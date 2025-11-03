@@ -14,6 +14,7 @@ class AnimatedProgressIndicator extends StatefulWidget {
     required this.textColor,
     required this.subtitleTextColor,
     required this.progressBackgroundColor,
+    required double size,
   });
 
   @override

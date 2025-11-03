@@ -19,37 +19,31 @@ class DashboardScreen extends StatelessWidget {
     return ResponsiveLayout(
       smallMobile: dashboardWidget(
         context: context,
-        horizontalPadding: 12,
         titleFontSize: 22,
         subtitleFontSize: 14,
       ),
       bigMobile: dashboardWidget(
         context: context,
-        horizontalPadding: 24,
         titleFontSize: 24,
         subtitleFontSize: 14,
       ),
       smallTablet: dashboardWidget(
         context: context,
-        horizontalPadding: 40,
         titleFontSize: 26,
         subtitleFontSize: 16,
       ),
       bigTablet: dashboardWidget(
         context: context,
-        horizontalPadding: 60,
         titleFontSize: 28,
         subtitleFontSize: 16,
       ),
       smallDesktop: dashboardWidget(
         context: context,
-        horizontalPadding: 80,
         titleFontSize: 30,
         subtitleFontSize: 18,
       ),
       bigDesktop: dashboardWidget(
         context: context,
-        horizontalPadding: 100,
         titleFontSize: 32,
         subtitleFontSize: 18,
       ),
@@ -58,15 +52,11 @@ class DashboardScreen extends StatelessWidget {
 
   Widget dashboardWidget({
     required BuildContext context,
-    required double horizontalPadding,
     required double titleFontSize,
     required double subtitleFontSize,
   }) {
     return Padding(
-      padding: EdgeInsets.symmetric(
-        horizontal: horizontalPadding,
-        vertical: 20,
-      ),
+      padding: EdgeInsets.all(40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -74,9 +64,8 @@ class DashboardScreen extends StatelessWidget {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  const SizedBox(height: 40),
                   statsLayout(context),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 26),
                   recentTypingResults(context, subtitleFontSize),
                 ],
               ),
@@ -163,7 +152,29 @@ class DashboardScreen extends StatelessWidget {
       );
     } else if (screenWidth <= 900) {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+            ),
+          ),
+          Text(
+            "Track your performance insights",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 38),
           Row(
             children: [
               Expanded(
@@ -225,7 +236,29 @@ class DashboardScreen extends StatelessWidget {
       );
     } else if (screenWidth <= 1200) {
       return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+            ),
+          ),
+          Text(
+            "Track your performance insights",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 38),
           Row(
             children: [
               Expanded(
@@ -288,56 +321,82 @@ class DashboardScreen extends StatelessWidget {
         ],
       );
     } else {
-      return Row(
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: StatsCard(
-              title: 'Average WPM',
-              value: provider.averageWPM.toStringAsFixed(1),
-              unit: 'WPM',
-              color: Colors.blue,
-              icon: Icons.speed,
-              isDarkMode: themeProvider.isDarkMode,
+          Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: StatsCard(
-              title: 'Average Accuracy',
-              value: provider.averageAccuracy.toStringAsFixed(1),
-              unit: '%',
-              color: Colors.green,
-              icon: Icons.flag,
-              isDarkMode: themeProvider.isDarkMode,
+          Text(
+            "Track your performance insights",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
             ),
           ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: StatsCard(
-              title: 'Total Tests',
-              value: provider.totalTests.toString(),
-              unit: 'Tests',
-              color: Colors.orange,
-              icon: Icons.assignment,
-              isDarkMode: themeProvider.isDarkMode,
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: StatsCard(
-              title: 'Best WPM',
-              value:
-                  provider.results.isNotEmpty
-                      ? provider.results
-                          .map((r) => r.wpm)
-                          .reduce((a, b) => a > b ? a : b)
-                          .toString()
-                      : '0',
-              unit: 'WPM',
-              color: Colors.purple,
-              icon: Icons.emoji_events,
-              isDarkMode: themeProvider.isDarkMode,
-            ),
+          const SizedBox(height: 38),
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Average WPM',
+                  value: provider.averageWPM.toStringAsFixed(1),
+                  unit: 'WPM',
+                  color: Colors.blue,
+                  icon: Icons.speed,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Average Accuracy',
+                  value: provider.averageAccuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Total Tests',
+                  value: provider.totalTests.toString(),
+                  unit: 'Tests',
+                  color: Colors.orange,
+                  icon: Icons.assignment,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Best WPM',
+                  value:
+                      provider.results.isNotEmpty
+                          ? provider.results
+                              .map((r) => r.wpm)
+                              .reduce((a, b) => a > b ? a : b)
+                              .toString()
+                          : '0',
+                  unit: 'WPM',
+                  color: Colors.purple,
+                  icon: Icons.emoji_events,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+            ],
           ),
         ],
       );
@@ -388,34 +447,39 @@ class DashboardScreen extends StatelessWidget {
         ),
         const SizedBox(height: 16),
         if (recentResults.isEmpty)
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: cardColor,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: borderColor ?? Colors.grey[200]!),
+          Padding(
+            padding: EdgeInsets.only(
+              top: MediaQuery.of(context).size.height / 6,
             ),
-            child: Column(
-              children: [
-                Icon(Icons.assignment, size: 48, color: iconColor),
-                const SizedBox(height: 16),
-                Text(
-                  'No tests completed yet',
-                  style: TextStyle(
-                    fontSize: subtitleFontSize,
-                    color: textColor,
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: cardColor,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: borderColor ?? Colors.grey[200]!),
+              ),
+              child: Column(
+                children: [
+                  Icon(Icons.assignment, size: 48, color: iconColor),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No tests completed yet',
+                    style: TextStyle(
+                      fontSize: subtitleFontSize,
+                      color: textColor,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  'Start your first typing test to see results here',
-                  style: TextStyle(
-                    fontSize: subtitleFontSize - 2,
-                    color: textColor,
+                  const SizedBox(height: 8),
+                  Text(
+                    'Start your first typing test to see results here',
+                    style: TextStyle(
+                      fontSize: subtitleFontSize - 2,
+                      color: textColor,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
-                  textAlign: TextAlign.center,
-                ),
-              ],
+                ],
+              ),
             ),
           )
         else

@@ -49,19 +49,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         final isTablet = constraints.maxWidth < 1024;
 
         return SingleChildScrollView(
-          padding: EdgeInsets.symmetric(
-            horizontal:
-                isMobile
-                    ? 16
-                    : isTablet
-                    ? 32
-                    : 64,
-            vertical: 32,
-          ),
+          padding: EdgeInsets.all(40),
           child: Column(
             children: [
               _buildHeader(context, isMobile, isTablet),
-              const SizedBox(height: 38),
+              const SizedBox(height: 40),
 
               Container(
                 width: double.infinity,
@@ -292,6 +284,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Row(
           mainAxisAlignment:
               isCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
@@ -300,13 +293,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               color: isDark ? Colors.amberAccent : Colors.grey[700],
             ),
             const SizedBox(width: 6),
-            Text(
-              authProvider.isLoggedIn
-                  ? (user?.email ?? 'No email')
-                  : 'Sign in to access your account',
-              style: TextStyle(
-                fontSize: isMobile ? 14 : 16,
-                color: textColor.withOpacity(0.8),
+            Flexible(
+              child: Text(
+                authProvider.isLoggedIn
+                    ? (user?.email ?? 'No email')
+                    : 'Sign in to access your account',
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
+                  color: textColor.withOpacity(0.8),
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
