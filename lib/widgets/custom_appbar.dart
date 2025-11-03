@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/custom_nav_item.dart';
 
 class CustomAppBar extends StatelessWidget {
@@ -120,53 +121,409 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  authProvider.isLoggedIn &&
-                          authProvider.user?.avatarUrl != null
-                      ? ClipOval(
-                        child: CachedNetworkImage(
-                          imageUrl: authProvider.user!.avatarUrl!,
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          placeholder:
-                              (context, url) => Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.shade100,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.amber.shade800,
-                                  size: 24,
-                                ),
-                              ),
-                          errorWidget:
-                              (context, url, error) => Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.shade100,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color: Colors.amber.shade800,
-                                  size: 24,
-                                ),
-                              ),
-                        ),
-                      )
-                      : CircleAvatar(
-                        backgroundColor: Colors.blue,
-                        radius: 18,
-                        child: Icon(Icons.person, color: Colors.white),
-                      ),
+                  // authProvider.isLoggedIn &&
+                  //         authProvider.user?.avatarUrl != null
+                  //     ? ClipOval(
+                  //       child: CachedNetworkImage(
+                  //         imageUrl: authProvider.user!.avatarUrl!,
+                  //         width: 48,
+                  //         height: 48,
+                  //         fit: BoxFit.cover,
+                  //         placeholder:
+                  //             (context, url) => Container(
+                  //               width: 48,
+                  //               height: 48,
+                  //               decoration: BoxDecoration(
+                  //                 color: Colors.amber.shade100,
+                  //                 shape: BoxShape.circle,
+                  //               ),
+                  //               child: Icon(
+                  //                 Icons.person,
+                  //                 color: Colors.amber.shade800,
+                  //                 size: 24,
+                  //               ),
+                  //             ),
+                  //         errorWidget:
+                  //             (context, url, error) => Container(
+                  //               width: 48,
+                  //               height: 48,
+                  //               decoration: BoxDecoration(
+                  //                 color: Colors.amber.shade100,
+                  //                 shape: BoxShape.circle,
+                  //               ),
+                  //               child: Icon(
+                  //                 Icons.person,
+                  //                 color: Colors.amber.shade800,
+                  //                 size: 24,
+                  //               ),
+                  //             ),
+                  //       ),
+                  //     )
+                  //     : CircleAvatar(
+                  //       backgroundColor: Colors.blue,
+                  //       radius: 18,
+                  //       child: Icon(Icons.person, color: Colors.white),
+                  //     ),
+                  ProfileDropdown(),
                 ],
               ),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class ProfileDropdown extends StatefulWidget {
+  const ProfileDropdown({super.key});
+
+  @override
+  State<ProfileDropdown> createState() => _ProfileDropdownState();
+}
+
+class _ProfileDropdownState extends State<ProfileDropdown> {
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
+
+  void _showProfileOverlay() {
+    final renderBox = context.findRenderObject() as RenderBox;
+    final size = renderBox.size;
+
+    _overlayEntry = OverlayEntry(
+      builder:
+          (context) => GestureDetector(
+            onTap: _hideProfileOverlay,
+            behavior: HitTestBehavior.translucent,
+            child: Stack(
+              children: [
+                CompositedTransformFollower(
+                  link: _layerLink,
+                  showWhenUnlinked: false,
+                  offset: Offset(-280 + size.width / 8, size.height + 16),
+                  child: _buildProfileCard(),
+                ),
+              ],
+            ),
+          ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _hideProfileOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  Widget _buildProfileCard() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final themeProvide = Provider.of<ThemeProvider>(context);
+    bool isDarkTheme = themeProvide.isDarkMode;
+
+    return Positioned(
+      left: 0,
+      top: 0,
+      right: 0,
+      child: Material(
+        elevation: 0,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          height: 150,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color:
+                isDarkTheme
+                    ? Colors.grey[900]
+                    : Colors.white, // Fixed background color
+            borderRadius: BorderRadius.circular(12),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(
+                  isDarkTheme ? 0.3 : 0.1,
+                ), // Adjusted shadow for dark mode
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (authProvider.isLoggedIn) ...[
+                Row(
+                  children: [
+                    authProvider.user?.avatarUrl != null
+                        ? ClipOval(
+                          child: CachedNetworkImage(
+                            imageUrl: authProvider.user!.avatarUrl!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder:
+                                (context, url) => Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isDarkTheme
+                                            ? Colors.amber.shade800
+                                            : Colors.amber.shade100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.person,
+                                    color:
+                                        isDarkTheme
+                                            ? Colors.amber.shade100
+                                            : Colors.amber.shade800,
+                                    size: 30,
+                                  ),
+                                ),
+                            errorWidget:
+                                (context, url, error) => Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isDarkTheme
+                                            ? Colors.amber.shade800
+                                            : Colors.amber.shade100,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Icons.person,
+                                    color:
+                                        isDarkTheme
+                                            ? Colors.amber.shade100
+                                            : Colors.amber.shade800,
+                                    size: 30,
+                                  ),
+                                ),
+                          ),
+                        )
+                        : CircleAvatar(
+                          backgroundColor:
+                              isDarkTheme
+                                  ? Colors.amber.shade800
+                                  : Colors.amber,
+                          radius: 30,
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 30,
+                          ),
+                        ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          authProvider.user?.fullName ?? 'User Name',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                isDarkTheme
+                                    ? Colors.white
+                                    : Colors.black87, // Text color
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          authProvider.user?.email ?? 'user@example.com',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                isDarkTheme
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600, // Email color
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Divider(
+                  height: 1,
+                  color:
+                      isDarkTheme
+                          ? Colors.grey.shade700
+                          : Colors.grey.shade300, // Divider color
+                ),
+                const SizedBox(height: 8),
+              ] else ...[
+                Row(
+                  children: [
+                    SizedBox(
+                      width: 50,
+                      height: 50,
+                      child: CircleAvatar(
+                        backgroundColor:
+                            isDarkTheme
+                                ? Colors.grey.shade600
+                                : Colors.grey.shade600,
+                        radius: 18,
+                        child: Icon(
+                          Icons.person,
+                          color: Colors.white,
+                          size: 28,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Welcome!',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: isDarkTheme ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Sign in to access your account',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                isDarkTheme
+                                    ? Colors.grey.shade400
+                                    : Colors.grey.shade600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 16),
+                Divider(
+                  height: 1,
+                  color:
+                      isDarkTheme ? Colors.grey.shade700 : Colors.grey.shade300,
+                ),
+                const SizedBox(height: 16),
+              ],
+
+              OutlinedButton.icon(
+                onPressed: () {
+                  _hideProfileOverlay();
+                  if (authProvider.isLoggedIn) {
+                    CustomDialog.showSignOutDialog(
+                      context: context,
+                      onConfirm: () {
+                        authProvider.signOut();
+                      },
+                    );
+                  } else {
+                    authProvider.signInWithGoogle();
+                  }
+                },
+                style: OutlinedButton.styleFrom(
+                  backgroundColor:
+                      authProvider.isLoggedIn
+                          ? (isDarkTheme
+                              ? Colors.red.shade800
+                              : Colors.red.shade600)
+                          : (isDarkTheme
+                              ? Colors.green.shade800
+                              : Colors.green.shade600),
+                  foregroundColor: Colors.white,
+                  side: BorderSide.none,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 0,
+                    horizontal: 12,
+                  ),
+                  minimumSize: const Size(90, 40),
+                ),
+                icon: Icon(
+                  authProvider.isLoggedIn ? Icons.logout : Icons.login,
+                  color: Colors.white,
+                  size: 18,
+                ),
+                label: Text(
+                  authProvider.isLoggedIn ? 'Sign Out' : 'Login',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _overlayEntry?.remove();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context);
+
+    return CompositedTransformTarget(
+      link: _layerLink,
+      child: GestureDetector(
+        onTap: _showProfileOverlay,
+        child:
+            authProvider.isLoggedIn && authProvider.user?.avatarUrl != null
+                ? ClipOval(
+                  child: CachedNetworkImage(
+                    imageUrl: authProvider.user!.avatarUrl!,
+                    width: 48,
+                    height: 48,
+                    fit: BoxFit.cover,
+                    placeholder:
+                        (context, url) => Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.amber.shade800,
+                            size: 24,
+                          ),
+                        ),
+                    errorWidget:
+                        (context, url, error) => Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: Colors.amber.shade100,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.amber.shade800,
+                            size: 24,
+                          ),
+                        ),
+                  ),
+                )
+                : CircleAvatar(
+                  backgroundColor: Colors.amber,
+                  radius: 18,
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
       ),
     );
   }

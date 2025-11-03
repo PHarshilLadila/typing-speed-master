@@ -1,7 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
@@ -45,10 +46,10 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
 
       if (event == AuthChangeEvent.signedIn && session != null) {
         // User signed in - you can fetch user profile here
-        print('User signed in: ${session.user.id}');
+        log('User signed in: ${session.user.id}');
       } else if (event == AuthChangeEvent.signedOut) {
         // User signed out
-        print('User signed out');
+        log('User signed out');
       }
     });
   }
@@ -76,5 +77,4 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
     );
   }
 }
-//
 //

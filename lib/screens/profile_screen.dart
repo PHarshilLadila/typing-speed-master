@@ -1,584 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-// import 'package:intl/intl.dart';
-// import 'package:provider/provider.dart';
-// import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:typing_speed_master/models/user_model.dart';
-// import 'package:typing_speed_master/providers/theme_provider.dart';
-// import '../providers/auth_provider.dart';
-
-// class ProfileScreen extends StatefulWidget {
-//   const ProfileScreen({super.key});
-
-//   @override
-//   State<ProfileScreen> createState() => _ProfileScreenState();
-// }
-
-// class _ProfileScreenState extends State<ProfileScreen> {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Consumer<AuthProvider>(
-//       builder: (context, authProvider, child) {
-//         if (authProvider.isLoading) {
-//           return const Center(child: CircularProgressIndicator());
-//         }
-
-//         if (!authProvider.isLoggedIn) {
-//           return _buildLoginUI(context, authProvider);
-//         }
-
-//         return _buildProfileUI(context, authProvider);
-//       },
-//     );
-//   }
-
-//   Widget _buildLoginUI(BuildContext context, AuthProvider authProvider) {
-//     return LayoutBuilder(
-//       builder: (context, constraints) {
-//         final isMobile = constraints.maxWidth < 768;
-//         final isTablet = constraints.maxWidth < 1024;
-
-//         return Container(
-//           width: double.infinity,
-//           height: double.infinity,
-//           decoration: BoxDecoration(
-//             gradient: LinearGradient(
-//               begin: Alignment.topLeft,
-//               end: Alignment.bottomRight,
-//               colors: [Colors.blue.shade600, Colors.purple.shade600],
-//             ),
-//           ),
-//           child: Center(
-//             child: Container(
-//               width: isMobile ? constraints.maxWidth * 0.9 : 400,
-//               padding: const EdgeInsets.all(32),
-//               decoration: BoxDecoration(
-//                 color: Colors.white,
-//                 borderRadius: BorderRadius.circular(20),
-//                 boxShadow: [
-//                   BoxShadow(
-//                     blurRadius: 32,
-//                     color: Colors.black.withOpacity(0.1),
-//                   ),
-//                 ],
-//               ),
-//               child: Column(
-//                 mainAxisSize: MainAxisSize.min,
-//                 children: [
-//                   _buildHeader(context, 24, 18),
-
-//                   Container(
-//                     width: 80,
-//                     height: 80,
-//                     decoration: BoxDecoration(
-//                       color: Colors.blue.shade50,
-//                       shape: BoxShape.circle,
-//                     ),
-//                     child: Icon(
-//                       Icons.person,
-//                       size: 40,
-//                       color: Colors.blue.shade600,
-//                     ),
-//                   ),
-
-//                   const SizedBox(height: 24),
-
-//                   Text(
-//                     'Welcome Back',
-//                     style: TextStyle(
-//                       fontSize: isMobile ? 24 : 28,
-//                       fontWeight: FontWeight.bold,
-//                       color: Colors.grey[800],
-//                     ),
-//                   ),
-
-//                   const SizedBox(height: 8),
-
-//                   Text(
-//                     'Sign in to access your profile',
-//                     style: TextStyle(
-//                       fontSize: isMobile ? 14 : 16,
-//                       color: Colors.grey[600],
-//                     ),
-//                     textAlign: TextAlign.center,
-//                   ),
-
-//                   const SizedBox(height: 32),
-
-//                   SizedBox(
-//                     width: double.infinity,
-//                     height: 50,
-//                     child: ElevatedButton(
-//                       onPressed:
-//                           authProvider.isLoading
-//                               ? null
-//                               : () {
-//                                 authProvider.signInWithGoogle();
-//                               },
-//                       style: ElevatedButton.styleFrom(
-//                         backgroundColor: Colors.white,
-//                         foregroundColor: Colors.grey[800],
-//                         elevation: 2,
-//                         shape: RoundedRectangleBorder(
-//                           borderRadius: BorderRadius.circular(12),
-//                           side: BorderSide(color: Colors.grey.shade300),
-//                         ),
-//                         padding: const EdgeInsets.symmetric(horizontal: 16),
-//                       ),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.center,
-//                         children: [
-//                           Icon(FontAwesomeIcons.google),
-
-//                           const SizedBox(width: 12),
-//                           Text(
-//                             'Continue with Google',
-//                             style: TextStyle(
-//                               fontSize: isMobile ? 14 : 16,
-//                               fontWeight: FontWeight.w500,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ),
-
-//                   if (authProvider.error != null) ...[
-//                     const SizedBox(height: 16),
-//                     Container(
-//                       padding: const EdgeInsets.all(12),
-//                       decoration: BoxDecoration(
-//                         color: Colors.red.shade50,
-//                         borderRadius: BorderRadius.circular(8),
-//                         border: Border.all(color: Colors.red.shade200),
-//                       ),
-//                       child: Row(
-//                         children: [
-//                           Icon(
-//                             Icons.error_outline,
-//                             color: Colors.red.shade600,
-//                             size: 20,
-//                           ),
-//                           const SizedBox(width: 8),
-//                           Expanded(
-//                             child: Text(
-//                               authProvider.error!,
-//                               style: TextStyle(
-//                                 color: Colors.red.shade700,
-//                                 fontSize: 14,
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ],
-//               ),
-//             ),
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildProfileUI(BuildContext context, AuthProvider authProvider) {
-//     final user = authProvider.user!;
-
-//     return LayoutBuilder(
-//       builder: (context, constraints) {
-//         final isMobile = constraints.maxWidth < 768;
-//         final isTablet = constraints.maxWidth < 1024;
-
-//         return SingleChildScrollView(
-//           padding: EdgeInsets.symmetric(
-//             horizontal:
-//                 isMobile
-//                     ? 16
-//                     : isTablet
-//                     ? 32
-//                     : 64,
-//             vertical: 32,
-//           ),
-//           child: Column(
-//             children: [
-//               _buildHeader(context, 24, 18),
-//               SizedBox(height: 38),
-//               Container(
-//                 width: double.infinity,
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 48,
-//                   vertical: 16,
-//                 ),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(12),
-//                   border: Border.all(color: Colors.grey.withOpacity(0.2)),
-//                 ),
-//                 child: Column(
-//                   mainAxisAlignment: MainAxisAlignment.start,
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Row(
-//                       children: [
-//                         Container(
-//                           width: isMobile ? 80 : 120,
-//                           height: isMobile ? 80 : 120,
-//                           decoration: BoxDecoration(
-//                             shape: BoxShape.circle,
-//                             border: Border.all(color: Colors.white, width: 4),
-//                           ),
-//                           child: ClipOval(
-//                             child:
-//                                 user.avatarUrl != null
-//                                     ? CachedNetworkImage(
-//                                       imageUrl:
-//                                           user.avatarUrl ??
-//                                           "https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80",
-//                                       fit: BoxFit.cover,
-//                                       errorWidget:
-//                                           (context, url, error) =>
-//                                               _buildPlaceholderAvatar(user),
-//                                     )
-//                                     : _buildPlaceholderAvatar(user),
-//                           ),
-//                         ),
-//                         const SizedBox(width: 16),
-
-//                         Column(
-//                           mainAxisAlignment: MainAxisAlignment.start,
-//                           crossAxisAlignment: CrossAxisAlignment.start,
-//                           children: [
-//                             Text(
-//                               user.fullName ?? 'User',
-//                               style: TextStyle(
-//                                 fontSize: isMobile ? 18 : 24,
-//                                 fontWeight: FontWeight.bold,
-//                                 color: Colors.black,
-//                               ),
-//                             ),
-
-//                             const SizedBox(height: 8),
-
-//                             Row(
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Row(
-//                                   children: [
-//                                     Icon(FontAwesomeIcons.envelope, size: 16),
-//                                     const SizedBox(width: 4),
-
-//                                     Text(
-//                                       user.email,
-//                                       style: TextStyle(
-//                                         fontSize: isMobile ? 14 : 16,
-//                                         color: Colors.black.withOpacity(0.9),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                                 const SizedBox(width: 18),
-
-//                                 Row(
-//                                   children: [
-//                                     Icon(FontAwesomeIcons.calendar, size: 16),
-//                                     const SizedBox(width: 4),
-
-//                                     Text(
-//                                       user.createdAt != null
-//                                           ? 'Joined ${DateFormat('MMM yyyy').format(user.createdAt!)}'
-//                                           : 'Unknown',
-//                                       style: TextStyle(
-//                                         fontSize: isMobile ? 14 : 16,
-//                                         color: Colors.black.withOpacity(0.9),
-//                                       ),
-//                                     ),
-//                                   ],
-//                                 ),
-//                               ],
-//                             ),
-
-//                             const SizedBox(height: 16),
-
-//                             Row(
-//                               mainAxisSize: MainAxisSize.min,
-//                               children: [
-//                                 Container(
-//                                   padding: const EdgeInsets.symmetric(
-//                                     horizontal: 12,
-//                                     vertical: 6,
-//                                   ),
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.black.withOpacity(0.1),
-//                                     borderRadius: BorderRadius.circular(4),
-//                                   ),
-//                                   child: Text(
-//                                     'ID: ${user.id.substring(0, 8)}...',
-//                                     style: const TextStyle(
-//                                       color: Colors.black,
-//                                       fontSize: 12,
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(width: 12),
-
-//                                 Container(
-//                                   padding: const EdgeInsets.symmetric(
-//                                     horizontal: 12,
-//                                     vertical: 6,
-//                                   ),
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.black.withOpacity(0.1),
-//                                     borderRadius: BorderRadius.circular(4),
-//                                   ),
-//                                   child: Text(
-//                                     'Intermediate',
-//                                     style: const TextStyle(
-//                                       color: Colors.black,
-//                                       fontSize: 12,
-//                                     ),
-//                                   ),
-//                                 ),
-//                                 const SizedBox(width: 12),
-
-//                                 Container(
-//                                   padding: const EdgeInsets.symmetric(
-//                                     horizontal: 12,
-//                                     vertical: 6,
-//                                   ),
-//                                   decoration: BoxDecoration(
-//                                     color: Colors.black.withOpacity(0.1),
-//                                     borderRadius: BorderRadius.circular(4),
-//                                   ),
-//                                   child: Text(
-//                                     '7 Day Streak 🔥',
-//                                     style: const TextStyle(
-//                                       color: Colors.black,
-//                                       fontSize: 12,
-//                                     ),
-//                                   ),
-//                                 ),
-//                               ],
-//                             ),
-//                           ],
-//                         ),
-//                         Spacer(),
-//                         TextButton(
-//                           onPressed: () {
-//                             _showEditProfileDialog(context, authProvider);
-//                           },
-//                           style: const ButtonStyle(
-//                             backgroundColor: WidgetStatePropertyAll(
-//                               Colors.amber,
-//                             ),
-//                           ),
-//                           child: Padding(
-//                             padding: const EdgeInsets.all(8.0),
-//                             child: Text(
-//                               'Edit Profile',
-//                               style: TextStyle(
-//                                 fontSize: 14,
-//                                 fontWeight: FontWeight.bold,
-//                                 color: Colors.black,
-//                               ),
-//                             ),
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ],
-//                 ),
-//               ),
-
-//               const SizedBox(height: 32),
-
-//               Container(
-//                 width: double.infinity,
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 32,
-//                   vertical: 20,
-//                 ),
-//                 decoration: BoxDecoration(
-//                   color: Colors.white,
-//                   borderRadius: BorderRadius.circular(12),
-//                   border: Border.all(color: Colors.red.withOpacity(0.2)),
-//                 ),
-//                 child: Column(
-//                   crossAxisAlignment: CrossAxisAlignment.start,
-//                   children: [
-//                     Text(
-//                       'Danger Zone',
-//                       style: TextStyle(
-//                         fontSize: isMobile ? 18 : 20,
-//                         fontWeight: FontWeight.bold,
-//                         color: Colors.red,
-//                       ),
-//                     ),
-//                     SizedBox(height: 28),
-//                     Container(
-//                       width: double.infinity,
-//                       padding: const EdgeInsets.symmetric(
-//                         horizontal: 24,
-//                         vertical: 24,
-//                       ),
-//                       decoration: BoxDecoration(
-//                         color: Colors.red.withOpacity(0.03),
-//                         borderRadius: BorderRadius.circular(12),
-//                       ),
-//                       child: Row(
-//                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                         children: [
-//                           Column(
-//                             mainAxisAlignment: MainAxisAlignment.start,
-//                             crossAxisAlignment: CrossAxisAlignment.start,
-//                             children: [
-//                               Text(
-//                                 'Delete Account',
-//                                 style: TextStyle(
-//                                   fontSize: isMobile ? 16 : 18,
-//                                   fontWeight: FontWeight.w600,
-//                                   color: Colors.black,
-//                                 ),
-//                               ),
-//                               SizedBox(height: 4),
-//                               Text(
-//                                 'Permanently delete your account and all data',
-//                                 style: TextStyle(
-//                                   fontSize: isMobile ? 16 : 16,
-//                                   fontWeight: FontWeight.w500,
-//                                   color: Colors.grey[600],
-//                                 ),
-//                               ),
-//                             ],
-//                           ),
-//                           TextButton(
-//                             onPressed: () {
-//                               authProvider.signOut();
-//                             },
-//                             style: const ButtonStyle(
-//                               backgroundColor: WidgetStatePropertyAll(
-//                                 Colors.red,
-//                               ),
-//                             ),
-//                             child: Padding(
-//                               padding: const EdgeInsets.all(8.0),
-//                               child: Text(
-//                                 'Delete',
-//                                 style: TextStyle(
-//                                   fontSize: 14,
-//                                   fontWeight: FontWeight.bold,
-//                                   color: Colors.white,
-//                                 ),
-//                               ),
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ),
-//                   ],
-//                 ),
-//               ),
-
-//               const SizedBox(height: 24),
-//             ],
-//           ),
-//         );
-//       },
-//     );
-//   }
-
-//   Widget _buildHeader(
-//     BuildContext context,
-//     double titleFontSize,
-//     double subtitleFontSize,
-//     // bool isMobile,
-//   ) {
-//     final themeProvider = Provider.of<ThemeProvider>(context);
-//     final titleColor =
-//         themeProvider.isDarkMode ? Colors.white : Colors.grey[800];
-//     final subtitleColor =
-//         themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
-
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//       children: [
-//         Expanded(
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Text(
-//                 'Profile',
-//                 style: TextStyle(
-//                   fontSize: titleFontSize,
-//                   fontWeight: FontWeight.bold,
-//                   color: titleColor,
-//                 ),
-//               ),
-//               const SizedBox(height: 4),
-//               Text(
-//                 'Manage your account and preferences',
-//                 style: TextStyle(
-//                   fontSize: subtitleFontSize,
-//                   color: subtitleColor,
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildPlaceholderAvatar(UserModel user) {
-//     return Container(
-//       color: Colors.blue.shade100,
-//       child: Center(
-//         child: Icon(Icons.person, size: 40, color: Colors.blue.shade600),
-//       ),
-//     );
-//   }
-
-//   void _showEditProfileDialog(BuildContext context, AuthProvider authProvider) {
-//     final user = authProvider.user!;
-//     final nameController = TextEditingController(text: user.fullName);
-
-//     showDialog(
-//       context: context,
-//       builder:
-//           (context) => AlertDialog(
-//             title: const Text('Edit Profile'),
-//             content: Column(
-//               mainAxisSize: MainAxisSize.min,
-//               children: [
-//                 TextField(
-//                   controller: nameController,
-//                   decoration: const InputDecoration(
-//                     labelText: 'Full Name',
-//                     border: OutlineInputBorder(),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             actions: [
-//               TextButton(
-//                 onPressed: () => Navigator.pop(context),
-//                 child: const Text('Cancel'),
-//               ),
-//               ElevatedButton(
-//                 onPressed: () {
-//                   authProvider.updateProfile(
-//                     fullName: nameController.text.trim(),
-//                   );
-//                   Navigator.pop(context);
-//                 },
-//                 child: const Text('Save'),
-//               ),
-//             ],
-//           ),
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -586,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import '../providers/auth_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -603,172 +23,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        if (authProvider.isLoading) {
+        if (authProvider.isLoading && !authProvider.isInitialized) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        if (!authProvider.isLoggedIn) {
-          return _buildLoginUI(context, authProvider, isDark);
-        }
-
         return _buildProfileUI(context, authProvider, isDark);
-      },
-    );
-  }
-
-  Widget _buildLoginUI(
-    BuildContext context,
-    AuthProvider authProvider,
-    bool isDark,
-  ) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final isMobile = constraints.maxWidth < 768;
-        final backgroundGradient =
-            isDark
-                ? [Colors.indigo.shade900, Colors.deepPurple.shade800]
-                : [Colors.blue.shade600, Colors.purple.shade600];
-
-        return Container(
-          width: double.infinity,
-          height: double.infinity,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: backgroundGradient,
-            ),
-          ),
-          child: Center(
-            child: Container(
-              width: isMobile ? constraints.maxWidth * 0.9 : 400,
-              padding: const EdgeInsets.all(32),
-              decoration: BoxDecoration(
-                color: isDark ? Colors.grey[900] : Colors.white,
-                borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    blurRadius: 32,
-                    color:
-                        isDark
-                            ? Colors.black.withOpacity(0.6)
-                            : Colors.black.withOpacity(0.1),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildHeader(context, 24, 18),
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: isDark ? Colors.grey[800] : Colors.blue.shade50,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      Icons.person,
-                      size: 40,
-                      color: isDark ? Colors.amberAccent : Colors.blue.shade600,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    'Welcome Back',
-                    style: TextStyle(
-                      fontSize: isMobile ? 24 : 28,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? Colors.white : Colors.grey[800],
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Sign in to access your profile',
-                    style: TextStyle(
-                      fontSize: isMobile ? 14 : 16,
-                      color: isDark ? Colors.grey[400] : Colors.grey[600],
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed:
-                          authProvider.isLoading
-                              ? null
-                              : () {
-                                authProvider.signInWithGoogle();
-                              },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor:
-                            isDark ? Colors.grey[850] : Colors.white,
-                        foregroundColor:
-                            isDark ? Colors.white : Colors.grey[800],
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(
-                            color:
-                                isDark
-                                    ? Colors.grey.shade700
-                                    : Colors.grey.shade300,
-                          ),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(FontAwesomeIcons.google),
-                          const SizedBox(width: 12),
-                          Text(
-                            'Continue with Google',
-                            style: TextStyle(
-                              fontSize: isMobile ? 14 : 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  if (authProvider.error != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        borderRadius: BorderRadius.circular(8),
-                        border: Border.all(color: Colors.red.shade200),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.error_outline,
-                            color: Colors.red.shade600,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              authProvider.error!,
-                              style: TextStyle(
-                                color: Colors.red.shade700,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-        );
       },
     );
   }
@@ -778,7 +37,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     AuthProvider authProvider,
     bool isDark,
   ) {
-    final user = authProvider.user!;
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
@@ -801,220 +59,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
           child: Column(
             children: [
-              _buildHeader(context, 24, 18),
+              _buildHeader(context, isMobile, isTablet),
               const SizedBox(height: 38),
+
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 48,
-                  vertical: 16,
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 24 : 48,
+                  vertical: isMobile ? 20 : 24,
                 ),
                 decoration: BoxDecoration(
                   color: cardColor,
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: borderColor),
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: isMobile ? 80 : 120,
-                      height: isMobile ? 80 : 120,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isDark ? Colors.grey[800]! : Colors.white,
-                          width: 4,
-                        ),
-                      ),
-                      child: ClipOval(
-                        child:
-                            user.avatarUrl != null
-                                ? CachedNetworkImage(
-                                  imageUrl: user.avatarUrl!,
-                                  fit: BoxFit.cover,
-                                  errorWidget:
-                                      (context, url, error) =>
-                                          _buildPlaceholderAvatar(user, isDark),
-                                )
-                                : _buildPlaceholderAvatar(user, isDark),
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          user.fullName ?? 'User',
-                          style: TextStyle(
-                            fontSize: isMobile ? 18 : 24,
-                            fontWeight: FontWeight.bold,
-                            color: textColor,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              FontAwesomeIcons.envelope,
-                              size: 16,
-                              color: isDark ? Colors.amberAccent : Colors.black,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              user.email,
-                              style: TextStyle(
-                                fontSize: isMobile ? 14 : 16,
-                                color: textColor.withOpacity(0.9),
-                              ),
-                            ),
-                            const SizedBox(width: 18),
-                            Icon(
-                              FontAwesomeIcons.calendar,
-                              size: 16,
-                              color: isDark ? Colors.amberAccent : Colors.black,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              user.createdAt != null
-                                  ? 'Joined ${DateFormat('MMM yyyy').format(user.createdAt!)}'
-                                  : 'Unknown',
-                              style: TextStyle(
-                                fontSize: isMobile ? 14 : 16,
-                                color: textColor.withOpacity(0.9),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            _buildTag(
-                              'ID: ${user.id.substring(0, 8)}...',
-                              isDark,
-                            ),
-                            const SizedBox(width: 12),
-                            _buildTag('Intermediate', isDark),
-                            const SizedBox(width: 12),
-                            _buildTag('7 Day Streak 🔥', isDark),
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    TextButton(
-                      onPressed: () {
-                        _showEditProfileDialog(context, authProvider);
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          isDark ? Colors.amberAccent.shade400 : Colors.amber,
-                        ),
-                      ),
-                      child: const Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text(
-                          'Edit Profile',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                      blurRadius: 15,
+                      offset: const Offset(0, 4),
                     ),
                   ],
                 ),
+                child: _buildProfileContent(
+                  context,
+                  authProvider,
+                  isDark,
+                  isMobile,
+                  isTablet,
+                ),
               ),
+
               const SizedBox(height: 32),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 20,
+
+              if (authProvider.isLoggedIn)
+                _buildDangerZone(
+                  context,
+                  authProvider,
+                  isDark,
+                  isMobile,
+                  isTablet,
                 ),
-                decoration: BoxDecoration(
-                  color: cardColor,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.red.withOpacity(0.2)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Danger Zone',
-                      style: TextStyle(
-                        fontSize: isMobile ? 18 : 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.redAccent,
-                      ),
-                    ),
-                    const SizedBox(height: 28),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 24,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.red.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Delete Account',
-                                style: TextStyle(
-                                  fontSize: isMobile ? 16 : 18,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                'Permanently delete your account and all data',
-                                style: TextStyle(
-                                  fontSize: isMobile ? 16 : 16,
-                                  fontWeight: FontWeight.w500,
-                                  color:
-                                      isDark
-                                          ? Colors.grey[400]
-                                          : Colors.grey[600],
-                                ),
-                              ),
-                            ],
-                          ),
-                          TextButton(
-                            onPressed: () {
-                              authProvider.signOut();
-                            },
-                            style: const ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                Colors.red,
-                              ),
-                            ),
-                            child: const Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: Text(
-                                'Delete',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+
               const SizedBox(height: 24),
             ],
           ),
@@ -1023,11 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader(
-    BuildContext context,
-    double titleFontSize,
-    double subtitleFontSize,
-  ) {
+  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final titleColor =
         themeProvider.isDarkMode ? Colors.white : Colors.grey[800];
@@ -1044,7 +125,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 'Profile',
                 style: TextStyle(
-                  fontSize: titleFontSize,
+                  fontSize:
+                      isMobile
+                          ? 22
+                          : isTablet
+                          ? 26
+                          : 28,
                   fontWeight: FontWeight.bold,
                   color: titleColor,
                 ),
@@ -1053,7 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 'Manage your account and preferences',
                 style: TextStyle(
-                  fontSize: subtitleFontSize,
+                  fontSize: isMobile ? 14 : 16,
                   color: subtitleColor,
                 ),
               ),
@@ -1064,13 +150,400 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPlaceholderAvatar(UserModel user, bool isDark) {
+  Widget _buildProfileContent(
+    BuildContext context,
+    AuthProvider authProvider,
+    bool isDark,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    final textColor = isDark ? Colors.white : Colors.black;
+    final user = authProvider.user;
+
+    return Column(
+      children: [
+        if (isMobile)
+          _buildMobileLayout(authProvider, isDark, isMobile, textColor, user)
+        else
+          _buildDesktopLayout(
+            authProvider,
+            isDark,
+            isMobile,
+            isTablet,
+            textColor,
+            user,
+          ),
+      ],
+    );
+  }
+
+  Widget _buildMobileLayout(
+    AuthProvider authProvider,
+    bool isDark,
+    bool isMobile,
+    Color textColor,
+    UserModel? user,
+  ) {
+    return Column(
+      children: [
+        _buildAvatar(user, isDark, isMobile ? 80.0 : 100.0),
+        const SizedBox(height: 20),
+
+        _buildUserInfo(authProvider, user, textColor, isMobile, true, isDark),
+        const SizedBox(height: 24),
+
+        _buildActionButton(authProvider, isDark, isMobile),
+      ],
+    );
+  }
+
+  Widget _buildDesktopLayout(
+    AuthProvider authProvider,
+    bool isDark,
+    bool isMobile,
+    bool isTablet,
+    Color textColor,
+    UserModel? user,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildAvatar(user, isDark, isTablet ? 100.0 : 120.0),
+        const SizedBox(width: 24),
+
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildUserInfo(
+                authProvider,
+                user,
+                textColor,
+                isMobile,
+                false,
+                isDark,
+              ),
+              const SizedBox(height: 20),
+
+              if (authProvider.isLoggedIn && user != null)
+                _buildUserTags(user, isDark, isMobile),
+            ],
+          ),
+        ),
+
+        _buildActionButton(authProvider, isDark, isMobile),
+      ],
+    );
+  }
+
+  Widget _buildAvatar(UserModel? user, bool isDark, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
+          width: 1,
+        ),
+      ),
+      child: ClipOval(
+        child:
+            user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
+                ? CachedNetworkImage(
+                  imageUrl: user.avatarUrl!,
+                  fit: BoxFit.cover,
+                  placeholder:
+                      (context, url) => _buildPlaceholderAvatar(isDark, size),
+                  errorWidget:
+                      (context, url, error) =>
+                          _buildPlaceholderAvatar(isDark, size),
+                )
+                : _buildPlaceholderAvatar(isDark, size),
+      ),
+    );
+  }
+
+  Widget _buildUserInfo(
+    AuthProvider authProvider,
+    UserModel? user,
+    Color textColor,
+    bool isMobile,
+    bool isCentered,
+    bool isDark,
+  ) {
+    return Column(
+      crossAxisAlignment:
+          isCentered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
+      children: [
+        Text(
+          authProvider.isLoggedIn ? (user?.fullName ?? 'User') : 'Welcome!',
+          style: TextStyle(
+            fontSize: isMobile ? 20 : 24,
+            fontWeight: FontWeight.bold,
+            color: textColor,
+          ),
+          textAlign: isCentered ? TextAlign.center : TextAlign.left,
+        ),
+        const SizedBox(height: 8),
+
+        Row(
+          mainAxisAlignment:
+              isCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              FontAwesomeIcons.envelope,
+              size: isMobile ? 14 : 16,
+              color: isDark ? Colors.amberAccent : Colors.grey[700],
+            ),
+            const SizedBox(width: 6),
+            Text(
+              authProvider.isLoggedIn
+                  ? (user?.email ?? 'No email')
+                  : 'Sign in to access your account',
+              style: TextStyle(
+                fontSize: isMobile ? 14 : 16,
+                color: textColor.withOpacity(0.8),
+              ),
+            ),
+          ],
+        ),
+
+        if (authProvider.isLoggedIn && user?.createdAt != null) ...[
+          const SizedBox(height: 6),
+          Row(
+            mainAxisAlignment:
+                isCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                FontAwesomeIcons.calendar,
+                size: isMobile ? 12 : 14,
+                color: isDark ? Colors.amberAccent : Colors.grey[700],
+              ),
+              const SizedBox(width: 6),
+              Text(
+                'Joined ${DateFormat('MMM yyyy').format(user!.createdAt!)}',
+                style: TextStyle(
+                  fontSize: isMobile ? 12 : 14,
+                  color: textColor.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildUserTags(UserModel user, bool isDark, bool isMobile) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _buildTag('ID: ${user.id.substring(0, 8)}...', isDark),
+        _buildTag('Intermediate', isDark),
+        _buildTag('7 Day Streak 🔥', isDark),
+      ],
+    );
+  }
+
+  Widget _buildActionButton(
+    AuthProvider authProvider,
+    bool isDark,
+    bool isMobile,
+  ) {
+    if (authProvider.isLoggedIn) {
+      return SizedBox(
+        width: isMobile ? double.infinity : null,
+        child: TextButton(
+          onPressed: () {
+            _showEditProfileDialog(context, authProvider);
+          },
+          style: TextButton.styleFrom(
+            backgroundColor:
+                isDark ? Colors.amberAccent.shade400 : Colors.amber,
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 16 : 20,
+              vertical: isMobile ? 12 : 14,
+            ),
+          ),
+          child: Text(
+            'Edit Profile',
+            style: TextStyle(
+              fontSize: isMobile ? 14 : 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      );
+    } else {
+      return SizedBox(
+        width: isMobile ? double.infinity : null,
+        child: ElevatedButton(
+          onPressed:
+              authProvider.isLoading
+                  ? null
+                  : () {
+                    authProvider.signInWithGoogle();
+                  },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: isDark ? Colors.grey[850] : Colors.white,
+            foregroundColor: isDark ? Colors.white : Colors.grey[800],
+            elevation: 2,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+              side: BorderSide(
+                color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+              ),
+            ),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 16 : 24,
+              vertical: isMobile ? 14 : 16,
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: isMobile ? MainAxisSize.max : MainAxisSize.min,
+            children: [
+              const Icon(FontAwesomeIcons.google, size: 16),
+              const SizedBox(width: 12),
+              Text(
+                'Continue with Google',
+                style: TextStyle(
+                  fontSize: isMobile ? 14 : 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+  }
+
+  Widget _buildDangerZone(
+    BuildContext context,
+    AuthProvider authProvider,
+    bool isDark,
+    bool isMobile,
+    bool isTablet,
+  ) {
+    final textColor = isDark ? Colors.white : Colors.black;
+
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.symmetric(
+        horizontal: isMobile ? 20 : 32,
+        vertical: isMobile ? 16 : 20,
+      ),
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[850] : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.red.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.warning_amber_rounded,
+                color: Colors.redAccent,
+                size: isMobile ? 20 : 24,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Danger Zone',
+                style: TextStyle(
+                  fontSize: isMobile ? 18 : 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 16 : 24,
+              vertical: isMobile ? 16 : 20,
+            ),
+            decoration: BoxDecoration(
+              color: Colors.red.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Sign Out',
+                        style: TextStyle(
+                          fontSize: isMobile ? 16 : 18,
+                          fontWeight: FontWeight.w600,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        'Sign out from your account',
+                        style: TextStyle(
+                          fontSize: isMobile ? 14 : 15,
+                          color: isDark ? Colors.grey[400] : Colors.grey[600],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 16),
+                TextButton(
+                  onPressed: () {
+                    CustomDialog.showSignOutDialog(
+                      context: context,
+                      onConfirm: () {
+                        authProvider.signOut();
+                      },
+                    );
+                  },
+                  style: TextButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 12,
+                    ),
+                  ),
+                  child: Text(
+                    'Sign Out',
+                    style: TextStyle(
+                      fontSize: isMobile ? 14 : 15,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderAvatar(bool isDark, double size) {
     return Container(
       color: isDark ? Colors.grey[800] : Colors.blue.shade100,
       child: Center(
         child: Icon(
           Icons.person,
-          size: 40,
+          size: size * 0.4,
           color: isDark ? Colors.amberAccent : Colors.blue.shade600,
         ),
       ),
@@ -1085,21 +558,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             isDark
                 ? Colors.white.withOpacity(0.1)
                 : Colors.black.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(4),
+        borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
         text,
         style: TextStyle(
           color: isDark ? Colors.white : Colors.black,
           fontSize: 12,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
   }
 
   void _showEditProfileDialog(BuildContext context, AuthProvider authProvider) {
-    final user = authProvider.user!;
-    final nameController = TextEditingController(text: user.fullName);
+    final user = authProvider.user;
+    final nameController = TextEditingController(text: user?.fullName ?? '');
 
     showDialog(
       context: context,
@@ -1145,9 +619,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             ElevatedButton(
               onPressed: () {
-                authProvider.updateProfile(
-                  fullName: nameController.text.trim(),
-                );
+                if (nameController.text.trim().isNotEmpty) {
+                  authProvider.updateProfile(
+                    fullName: nameController.text.trim(),
+                  );
+                }
                 Navigator.pop(context);
               },
               style: ElevatedButton.styleFrom(

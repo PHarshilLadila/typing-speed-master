@@ -274,13 +274,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final inputBorderColor =
         themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!;
     final titleColor = themeProvider.isDarkMode ? Colors.white : Colors.black;
+    final isMobile = MediaQuery.of(context).size.width < 600;
 
     return SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
         child: Column(
           children: [
-            _buildHeader(context, 24, 18, false),
+            _buildHeader(context, 24, 18, isMobile),
             const SizedBox(height: 40),
 
             _buildTimerAndStats(
@@ -740,84 +741,163 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
           ),
         ),
 
-        Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: isMobile ? 150 : 200,
-              child: CustomDropdown<String>(
-                value: provider.selectedDifficulty,
-                onChanged:
-                    _testStarted
-                        ? null
-                        : (value) {
-                          if (value != null) {
-                            provider.setDifficulty(value);
-                            _resetTest();
-                          }
-                        },
-                items:
-                    AppConstants.difficultyLevels.map((level) {
-                      return DropdownMenuItem(
-                        value: level,
-                        child: Text(
-                          level,
-                          style: TextStyle(
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                isDarkMode: themeProvider.isDarkMode,
-                lightModeColor: Colors.grey.shade200,
-                darkModeColor: Colors.grey.shade800,
-                enabled: !_testStarted,
-              ),
+        isMobile
+            ? Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: isMobile ? 150 : 200,
+                  child: CustomDropdown<String>(
+                    value: provider.selectedDifficulty,
+                    onChanged:
+                        _testStarted
+                            ? null
+                            : (value) {
+                              if (value != null) {
+                                provider.setDifficulty(value);
+                                _resetTest();
+                              }
+                            },
+                    items:
+                        AppConstants.difficultyLevels.map((level) {
+                          return DropdownMenuItem(
+                            value: level,
+                            child: Text(
+                              level,
+                              style: TextStyle(
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                    isDarkMode: themeProvider.isDarkMode,
+                    lightModeColor: Colors.grey.shade200,
+                    darkModeColor: Colors.grey.shade800,
+                    enabled: !_testStarted,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: isMobile ? 150 : 200,
+                  child: CustomDropdown<Duration>(
+                    value: provider.selectedDuration,
+                    onChanged:
+                        _testStarted
+                            ? null
+                            : (value) {
+                              if (value != null) {
+                                provider.setDuration(value);
+                                _testDuration = value;
+                                _remainingTime = value;
+                                _resetTest();
+                              }
+                            },
+                    items:
+                        AppConstants.testDurations.map((duration) {
+                          return DropdownMenuItem(
+                            value: duration,
+                            child: Text(
+                              duration.inSeconds == 0
+                                  ? '${AppConstants.wordBasedTestWordCount} Words'
+                                  : '${duration.inSeconds} seconds',
+                              style: TextStyle(
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                    isDarkMode: themeProvider.isDarkMode,
+                    lightModeColor: Colors.grey.shade200,
+                    darkModeColor: Colors.grey.shade800,
+                    enabled: !_testStarted,
+                  ),
+                ),
+              ],
+            )
+            : Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: isMobile ? 150 : 200,
+                  child: CustomDropdown<String>(
+                    value: provider.selectedDifficulty,
+                    onChanged:
+                        _testStarted
+                            ? null
+                            : (value) {
+                              if (value != null) {
+                                provider.setDifficulty(value);
+                                _resetTest();
+                              }
+                            },
+                    items:
+                        AppConstants.difficultyLevels.map((level) {
+                          return DropdownMenuItem(
+                            value: level,
+                            child: Text(
+                              level,
+                              style: TextStyle(
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                    isDarkMode: themeProvider.isDarkMode,
+                    lightModeColor: Colors.grey.shade200,
+                    darkModeColor: Colors.grey.shade800,
+                    enabled: !_testStarted,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: isMobile ? 150 : 200,
+                  child: CustomDropdown<Duration>(
+                    value: provider.selectedDuration,
+                    onChanged:
+                        _testStarted
+                            ? null
+                            : (value) {
+                              if (value != null) {
+                                provider.setDuration(value);
+                                _testDuration = value;
+                                _remainingTime = value;
+                                _resetTest();
+                              }
+                            },
+                    items:
+                        AppConstants.testDurations.map((duration) {
+                          return DropdownMenuItem(
+                            value: duration,
+                            child: Text(
+                              duration.inSeconds == 0
+                                  ? '${AppConstants.wordBasedTestWordCount} Words'
+                                  : '${duration.inSeconds} seconds',
+                              style: TextStyle(
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                    isDarkMode: themeProvider.isDarkMode,
+                    lightModeColor: Colors.grey.shade200,
+                    darkModeColor: Colors.grey.shade800,
+                    enabled: !_testStarted,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(width: 8),
-            SizedBox(
-              width: isMobile ? 150 : 200,
-              child: CustomDropdown<Duration>(
-                value: provider.selectedDuration,
-                onChanged:
-                    _testStarted
-                        ? null
-                        : (value) {
-                          if (value != null) {
-                            provider.setDuration(value);
-                            _testDuration = value;
-                            _remainingTime = value;
-                            _resetTest();
-                          }
-                        },
-                items:
-                    AppConstants.testDurations.map((duration) {
-                      return DropdownMenuItem(
-                        value: duration,
-                        child: Text(
-                          duration.inSeconds == 0
-                              ? '${AppConstants.wordBasedTestWordCount} Words'
-                              : '${duration.inSeconds} seconds',
-                          style: TextStyle(
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                isDarkMode: themeProvider.isDarkMode,
-                lightModeColor: Colors.grey.shade200,
-                darkModeColor: Colors.grey.shade800,
-                enabled: !_testStarted,
-              ),
-            ),
-          ],
-        ),
       ],
     );
   }
