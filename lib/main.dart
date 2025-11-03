@@ -45,10 +45,8 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
       final session = data.session;
 
       if (event == AuthChangeEvent.signedIn && session != null) {
-        // User signed in - you can fetch user profile here
         log('User signed in: ${session.user.id}');
       } else if (event == AuthChangeEvent.signedOut) {
-        // User signed out
         log('User signed out');
       }
     });
