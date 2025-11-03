@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
@@ -40,7 +42,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
-    final textColor = isDark ? Colors.white : Colors.black;
 
     return LayoutBuilder(
       builder: (context, constraints) {

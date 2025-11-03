@@ -1,4 +1,545 @@
-// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+// // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
+// import 'package:flutter/material.dart';
+// import 'package:confetti/confetti.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:provider/provider.dart';
+// import 'package:syncfusion_flutter_charts/charts.dart';
+// import 'package:typing_speed_master/providers/theme_provider.dart';
+// import '../models/typing_result.dart';
+// import '../widgets/stats_card.dart';
+
+// class ResultsScreen extends StatefulWidget {
+//   final TypingResult result;
+//   final VoidCallback onBackToTest;
+//   final VoidCallback onBackToDashboard;
+
+//   const ResultsScreen({
+//     super.key,
+//     required this.result,
+//     required this.onBackToTest,
+//     required this.onBackToDashboard,
+//   });
+
+//   @override
+//   _ResultsScreenState createState() => _ResultsScreenState();
+// }
+
+// class _ResultsScreenState extends State<ResultsScreen> {
+//   late ConfettiController _confettiController;
+//   late List<TypingStatData> _chartData;
+//   late List<TypingStatData> _chartDataPerformance;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _confettiController = ConfettiController(
+//       duration: const Duration(seconds: 3),
+//     );
+
+//     if (widget.result.wpm > 40 && widget.result.accuracy > 90) {
+//       _confettiController.play();
+//     }
+
+//     _chartData = [
+//       TypingStatData('Correct', widget.result.correctChars.toDouble()),
+//       TypingStatData('Incorrect', widget.result.incorrectChars.toDouble()),
+//       TypingStatData('Total', widget.result.totalChars.toDouble()),
+//     ];
+
+//     double difficultyValue;
+//     switch (widget.result.difficulty.toLowerCase()) {
+//       case 'easy':
+//         difficultyValue = 1;
+//         break;
+//       case 'medium':
+//         difficultyValue = 2;
+//         break;
+//       case 'hard':
+//         difficultyValue = 3;
+//         break;
+//       default:
+//         difficultyValue = 0;
+//     }
+
+//     _chartDataPerformance = [
+//       TypingStatData('WPM', widget.result.wpm.toDouble()),
+//       TypingStatData('Accuracy', widget.result.accuracy.toDouble()),
+//       TypingStatData('Duration', widget.result.duration.inSeconds.toDouble()),
+//       TypingStatData('Difficulty', difficultyValue),
+//     ];
+//   }
+
+//   @override
+//   void dispose() {
+//     _confettiController.dispose();
+//     super.dispose();
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return KeyedSubtree(
+//       child: LayoutBuilder(
+//         key: ValueKey(
+//           'results_screen_${widget.result.timestamp.millisecondsSinceEpoch}',
+//         ),
+//         builder: (context, constraints) {
+//           final isDesktop = constraints.maxWidth > 1000;
+//           final isTablet =
+//               constraints.maxWidth > 600 && constraints.maxWidth <= 1000;
+//           final isMobile = constraints.maxWidth <= 600;
+//           final themeProvider = Provider.of<ThemeProvider>(context);
+
+//           final horizontalPadding =
+//               isDesktop
+//                   ? 100.0
+//                   : isTablet
+//                   ? 40.0
+//                   : 20.0;
+
+//           final headerFontSize =
+//               isDesktop
+//                   ? 36.0
+//                   : isTablet
+//                   ? 30.0
+//                   : 26.0;
+//           final textFontSize =
+//               isDesktop
+//                   ? 20.0
+//                   : isTablet
+//                   ? 18.0
+//                   : 16.0;
+//           final gridCrossAxisCount =
+//               isDesktop
+//                   ? 4
+//                   : isTablet
+//                   ? 3
+//                   : 2;
+
+//           return Stack(
+//             children: [
+//               Padding(
+//                 padding: EdgeInsets.symmetric(
+//                   horizontal: horizontalPadding,
+//                   vertical: 20,
+//                 ),
+//                 child: SingleChildScrollView(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       _buildHeader(
+//                         headerFontSize,
+//                         textFontSize,
+//                         themeProvider.isDarkMode,
+//                         isMobile,
+//                       ),
+//                       const SizedBox(height: 20),
+//                       _buildStatsGrid(gridCrossAxisCount),
+//                       const SizedBox(height: 20),
+//                       _buildDetailedStats(
+//                         textFontSize,
+//                         isMobile,
+//                         themeProvider.isDarkMode,
+//                       ),
+//                       const SizedBox(height: 20),
+//                     ],
+//                   ),
+//                 ),
+//               ),
+//               if (widget.result.wpm > 40 && widget.result.accuracy > 90)
+//                 Align(
+//                   alignment: Alignment.topCenter,
+//                   child: ConfettiWidget(
+//                     confettiController: _confettiController,
+//                     blastDirectionality: BlastDirectionality.explosive,
+//                     shouldLoop: false,
+//                     colors: const [
+//                       Colors.green,
+//                       Colors.blue,
+//                       Colors.orange,
+//                       Colors.purple,
+//                       Colors.red,
+//                     ],
+//                   ),
+//                 ),
+//             ],
+//           );
+//         },
+//       ),
+//     );
+//   }
+
+//   Widget _buildHeader(
+//     double headerFontSize,
+//     double textFontSize,
+//     bool isDarkTheme,
+//     bool isMobile,
+//   ) {
+//     return Row(
+//       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+//       children: [
+//         Column(
+//           crossAxisAlignment: CrossAxisAlignment.start,
+//           children: [
+//             Text(
+//               'Test Completed!',
+//               style: TextStyle(
+//                 fontSize: headerFontSize,
+//                 fontWeight: FontWeight.bold,
+//                 color: isDarkTheme ? Colors.white : Colors.black,
+//               ),
+//             ),
+//             const SizedBox(height: 8),
+//             Text(
+//               'Great job! Here are your results',
+//               style: TextStyle(fontSize: textFontSize, color: Colors.grey[600]),
+//             ),
+//           ],
+//         ),
+//         _buildActionButtons(isMobile),
+//       ],
+//     );
+//   }
+
+//   Widget _buildStatsGrid(int crossAxisCount) {
+//     final themeProvider = Provider.of<ThemeProvider>(context);
+
+//     return GridView(
+//       shrinkWrap: true,
+//       physics: const NeverScrollableScrollPhysics(),
+//       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+//         crossAxisCount: crossAxisCount,
+//         crossAxisSpacing: 16,
+//         mainAxisSpacing: 16,
+//         childAspectRatio: 2.5,
+//       ),
+//       children: [
+//         StatsCard(
+//           title: 'Words Per Minute',
+//           value: widget.result.wpm.toString(),
+//           unit: 'WPM',
+//           color: Colors.blue,
+//           icon: Icons.speed,
+//           isDarkMode: themeProvider.isDarkMode,
+//         ),
+//         StatsCard(
+//           title: 'Accuracy',
+//           value: widget.result.accuracy.toStringAsFixed(1),
+//           unit: '%',
+//           color: Colors.green,
+//           icon: Icons.flag,
+//           isDarkMode: themeProvider.isDarkMode,
+//         ),
+//         StatsCard(
+//           title: 'Duration',
+//           value: widget.result.duration.inSeconds.toString(),
+//           unit: 'seconds',
+//           color: Colors.orange,
+//           icon: Icons.timer,
+//           isDarkMode: themeProvider.isDarkMode,
+//         ),
+//         StatsCard(
+//           title: 'Difficulty',
+//           value: widget.result.difficulty,
+//           unit: '',
+//           color: Colors.purple,
+//           icon: Icons.leaderboard,
+//           isDarkMode: themeProvider.isDarkMode,
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildDetailedStats(
+//     double textFontSize,
+//     bool isMobile,
+//     bool isDarkTheme,
+//   ) {
+//     return Container(
+//       width: double.infinity,
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: isDarkTheme ? Colors.black12 : Colors.white,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(
+//           color: isDarkTheme ? Colors.grey[800]! : Colors.grey[200]!,
+//         ),
+//       ),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             'Detailed Statistics',
+//             style: TextStyle(
+//               fontSize: textFontSize + 2,
+//               fontWeight: FontWeight.bold,
+//               color: isDarkTheme ? Colors.white : Colors.grey[800],
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+
+//           SingleChildScrollView(
+//             scrollDirection: Axis.horizontal,
+//             child: Row(
+//               mainAxisAlignment: MainAxisAlignment.end,
+//               children: [
+//                 _buildStatItem(
+//                   'Correct Characters',
+//                   widget.result.correctChars.toString(),
+//                   Colors.green,
+//                   isDarkTheme,
+//                 ),
+//                 const SizedBox(width: 20),
+//                 _buildStatItem(
+//                   'Incorrect Characters',
+//                   widget.result.incorrectChars.toString(),
+//                   Colors.red,
+//                   isDarkTheme,
+//                 ),
+//                 const SizedBox(width: 20),
+//                 _buildStatItem(
+//                   'Total Characters',
+//                   widget.result.totalChars.toString(),
+//                   Colors.blue,
+//                   isDarkTheme,
+//                 ),
+//               ],
+//             ),
+//           ),
+//           const SizedBox(height: 24),
+
+//           Text(
+//             'Performance Overview',
+//             style: TextStyle(
+//               fontSize: textFontSize + 2,
+//               fontWeight: FontWeight.bold,
+//               color: isDarkTheme ? Colors.white : Colors.grey[800],
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+
+//           SizedBox(
+//             height: isMobile ? 250 : 350,
+//             child: SfCartesianChart(
+//               primaryXAxis: CategoryAxis(
+//                 majorGridLines: const MajorGridLines(width: 0),
+//                 labelStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//               ),
+//               primaryYAxis: NumericAxis(
+//                 axisLine: const AxisLine(width: 0),
+//                 majorTickLines: const MajorTickLines(size: 0),
+//                 labelStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//                 majorGridLines: MajorGridLines(
+//                   color: isDarkTheme ? Colors.grey[700] : Colors.grey[300],
+//                   dashArray: const [5, 5],
+//                 ),
+//               ),
+//               tooltipBehavior: TooltipBehavior(
+//                 enable: true,
+//                 header: '',
+//                 canShowMarker: true,
+//                 tooltipPosition: TooltipPosition.pointer,
+//                 color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
+//                 textStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.black87 : Colors.white,
+//                 ),
+//               ),
+//               series: <CartesianSeries>[
+//                 ColumnSeries<TypingStatData, String>(
+//                   dataSource: _chartDataPerformance,
+//                   xValueMapper: (TypingStatData data, _) => data.label,
+//                   yValueMapper: (TypingStatData data, _) => data.value,
+//                   gradient: LinearGradient(
+//                     colors:
+//                         isDarkTheme
+//                             ? [Colors.blueAccent, Colors.lightBlueAccent]
+//                             : [Colors.lightBlueAccent, Colors.blueAccent],
+//                     begin: Alignment.bottomCenter,
+//                     end: Alignment.topCenter,
+//                   ),
+//                   borderRadius: const BorderRadius.all(Radius.circular(10)),
+//                   dataLabelSettings: DataLabelSettings(
+//                     isVisible: true,
+//                     textStyle: TextStyle(
+//                       fontWeight: FontWeight.bold,
+//                       color: isDarkTheme ? Colors.white : Colors.black87,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+
+//           const SizedBox(height: 24),
+
+//           Text(
+//             'Character Analysis',
+//             style: TextStyle(
+//               fontSize: textFontSize + 2,
+//               fontWeight: FontWeight.bold,
+//               color: isDarkTheme ? Colors.white : Colors.grey[800],
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+
+//           SizedBox(
+//             height: isMobile ? 250 : 350,
+//             child: SfCartesianChart(
+//               primaryXAxis: CategoryAxis(
+//                 majorGridLines: const MajorGridLines(width: 0),
+//                 labelStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//               ),
+//               primaryYAxis: NumericAxis(
+//                 axisLine: const AxisLine(width: 0),
+//                 majorTickLines: const MajorTickLines(size: 0),
+//                 labelStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+//                   fontWeight: FontWeight.w500,
+//                 ),
+//                 majorGridLines: MajorGridLines(
+//                   color: isDarkTheme ? Colors.grey[700] : Colors.grey[300],
+//                   dashArray: const [5, 5],
+//                 ),
+//               ),
+//               tooltipBehavior: TooltipBehavior(
+//                 enable: true,
+//                 header: '',
+//                 canShowMarker: true,
+//                 tooltipPosition: TooltipPosition.pointer,
+//                 color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
+//                 textStyle: TextStyle(
+//                   color: isDarkTheme ? Colors.black87 : Colors.white,
+//                 ),
+//               ),
+//               series: <CartesianSeries>[
+//                 ColumnSeries<TypingStatData, String>(
+//                   dataSource: _chartData,
+//                   xValueMapper: (TypingStatData data, _) => data.label,
+//                   yValueMapper: (TypingStatData data, _) => data.value,
+//                   gradient: LinearGradient(
+//                     colors:
+//                         isDarkTheme
+//                             ? [Colors.green, Colors.lightGreenAccent]
+//                             : [Colors.lightGreenAccent, Colors.green],
+//                     begin: Alignment.bottomCenter,
+//                     end: Alignment.topCenter,
+//                   ),
+//                   borderRadius: const BorderRadius.all(Radius.circular(10)),
+//                   dataLabelSettings: DataLabelSettings(
+//                     isVisible: true,
+//                     textStyle: TextStyle(
+//                       fontWeight: FontWeight.bold,
+//                       color: isDarkTheme ? Colors.white : Colors.black87,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+
+//   Widget _buildStatItem(
+//     String label,
+//     String value,
+//     Color color,
+//     bool isDarkTheme,
+//   ) {
+//     return Column(
+//       children: [
+//         Container(
+//           padding: const EdgeInsets.all(12),
+//           decoration: BoxDecoration(
+//             color: color.withOpacity(0.1),
+//             shape: BoxShape.circle,
+//           ),
+//           child: Text(
+//             value,
+//             style: TextStyle(
+//               fontSize: 16,
+//               fontWeight: FontWeight.bold,
+//               color: color,
+//             ),
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         Text(
+//           label,
+//           style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+//           textAlign: TextAlign.center,
+//         ),
+//       ],
+//     );
+//   }
+
+//   Widget _buildActionButtons(bool isMobile) {
+//     return isMobile
+//         ? Column(
+//           children: [
+//             IconButton.filled(
+//               onPressed: widget.onBackToTest,
+//               icon: Icon(FontAwesomeIcons.undoAlt),
+//             ),
+//             const SizedBox(height: 8),
+//             TextButton(
+//               onPressed: widget.onBackToDashboard,
+//               style: const ButtonStyle(
+//                 backgroundColor: WidgetStatePropertyAll(Colors.amber),
+//               ),
+//               child: Text(
+//                 'Dashboard',
+//                 style: TextStyle(
+//                   fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         )
+//         : Row(
+//           children: [
+//             IconButton.filled(
+//               onPressed: widget.onBackToTest,
+//               icon: Icon(FontAwesomeIcons.undoAlt),
+//             ),
+//             const SizedBox(width: 16),
+//             TextButton(
+//               onPressed: widget.onBackToDashboard,
+//               style: const ButtonStyle(
+//                 backgroundColor: WidgetStatePropertyAll(Colors.amber),
+//               ),
+//               child: Text(
+//                 'Dashboard',
+//                 style: TextStyle(
+//                   fontSize: 16,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.black,
+//                 ),
+//               ),
+//             ),
+//           ],
+//         );
+//   }
+// }
+
+// class TypingStatData {
+//   final String label;
+//   final double value;
+
+//   TypingStatData(this.label, this.value);
+// }
 
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
@@ -78,93 +619,144 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
-      child: LayoutBuilder(
+    return Scaffold(
+      body: KeyedSubtree(
         key: ValueKey(
           'results_screen_${widget.result.timestamp.millisecondsSinceEpoch}',
         ),
-        builder: (context, constraints) {
-          final isDesktop = constraints.maxWidth > 1000;
-          final isTablet =
-              constraints.maxWidth > 600 && constraints.maxWidth <= 1000;
-          final isMobile = constraints.maxWidth <= 600;
-          final themeProvider = Provider.of<ThemeProvider>(context);
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            // Device type detection
+            final isDesktop = constraints.maxWidth > 1200;
+            final isTablet =
+                constraints.maxWidth > 600 && constraints.maxWidth <= 1200;
+            final isMobile = constraints.maxWidth <= 600;
+            final isSmallMobile = constraints.maxWidth <= 400;
 
-          final horizontalPadding =
-              isDesktop
-                  ? 100.0
-                  : isTablet
-                  ? 40.0
-                  : 20.0;
+            // Responsive values
+            final horizontalPadding =
+                isDesktop
+                    ? 100.0
+                    : isTablet
+                    ? 60.0
+                    : isSmallMobile
+                    ? 12.0
+                    : 20.0;
 
-          final headerFontSize =
-              isDesktop
-                  ? 36.0
-                  : isTablet
-                  ? 30.0
-                  : 26.0;
-          final textFontSize =
-              isDesktop
-                  ? 20.0
-                  : isTablet
-                  ? 18.0
-                  : 16.0;
-          final gridCrossAxisCount =
-              isDesktop
-                  ? 4
-                  : isTablet
-                  ? 3
-                  : 2;
+            final verticalPadding =
+                isDesktop
+                    ? 40.0
+                    : isTablet
+                    ? 30.0
+                    : 20.0;
 
-          return Stack(
-            children: [
-              Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: 20,
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeader(
-                        headerFontSize,
-                        textFontSize,
-                        themeProvider.isDarkMode,
-                        isMobile,
-                      ),
-                      const SizedBox(height: 20),
-                      _buildStatsGrid(gridCrossAxisCount),
-                      const SizedBox(height: 20),
-                      _buildDetailedStats(
-                        textFontSize,
-                        isMobile,
-                        themeProvider.isDarkMode,
-                      ),
-                      const SizedBox(height: 20),
-                    ],
+            final headerFontSize =
+                isDesktop
+                    ? 36.0
+                    : isTablet
+                    ? 30.0
+                    : isSmallMobile
+                    ? 22.0
+                    : 26.0;
+
+            final titleFontSize =
+                isDesktop
+                    ? 24.0
+                    : isTablet
+                    ? 20.0
+                    : isSmallMobile
+                    ? 16.0
+                    : 18.0;
+
+            final textFontSize =
+                isDesktop
+                    ? 18.0
+                    : isTablet
+                    ? 16.0
+                    : isSmallMobile
+                    ? 14.0
+                    : 16.0;
+
+            final chartHeight =
+                isDesktop
+                    ? 400.0
+                    : isTablet
+                    ? 300.0
+                    : isSmallMobile
+                    ? 220.0
+                    : 250.0;
+
+            final statItemSpacing =
+                isDesktop
+                    ? 32.0
+                    : isTablet
+                    ? 24.0
+                    : isSmallMobile
+                    ? 16.0
+                    : 20.0;
+
+            return Stack(
+              children: [
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: verticalPadding,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildHeader(
+                          headerFontSize,
+                          textFontSize,
+                          isDesktop,
+                          isTablet,
+                          isMobile,
+                          isSmallMobile,
+                        ),
+                        SizedBox(height: isDesktop ? 32.0 : 20.0),
+                        _buildStatsSection(
+                          isDesktop,
+                          isTablet,
+                          isMobile,
+                          isSmallMobile,
+                        ),
+                        SizedBox(height: isDesktop ? 32.0 : 20.0),
+                        _buildDetailedStats(
+                          titleFontSize,
+                          textFontSize,
+                          chartHeight,
+                          statItemSpacing,
+                          isDesktop,
+                          isTablet,
+                          isMobile,
+                          isSmallMobile,
+                        ),
+                        SizedBox(height: isDesktop ? 32.0 : 20.0),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              if (widget.result.wpm > 40 && widget.result.accuracy > 90)
-                Align(
-                  alignment: Alignment.topCenter,
-                  child: ConfettiWidget(
-                    confettiController: _confettiController,
-                    blastDirectionality: BlastDirectionality.explosive,
-                    shouldLoop: false,
-                    colors: const [
-                      Colors.green,
-                      Colors.blue,
-                      Colors.orange,
-                      Colors.purple,
-                      Colors.red,
-                    ],
+                if (widget.result.wpm > 40 && widget.result.accuracy > 90)
+                  Align(
+                    alignment: Alignment.topCenter,
+                    child: ConfettiWidget(
+                      confettiController: _confettiController,
+                      blastDirectionality: BlastDirectionality.explosive,
+                      shouldLoop: false,
+                      colors: const [
+                        Colors.green,
+                        Colors.blue,
+                        Colors.orange,
+                        Colors.purple,
+                        Colors.red,
+                      ],
+                    ),
                   ),
-                ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -172,98 +764,317 @@ class _ResultsScreenState extends State<ResultsScreen> {
   Widget _buildHeader(
     double headerFontSize,
     double textFontSize,
-    bool isDarkTheme,
+    bool isDesktop,
+    bool isTablet,
     bool isMobile,
+    bool isSmallMobile,
   ) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    if (isSmallMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Test Completed!',
+            style: TextStyle(
+              fontSize: headerFontSize,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Great job! Here are your results',
+            style: TextStyle(
+              fontSize: textFontSize - 2,
+              color: Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildActionButtons(isDesktop, isTablet, isMobile, isSmallMobile),
+        ],
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Test Completed!',
-              style: TextStyle(
-                fontSize: headerFontSize,
-                fontWeight: FontWeight.bold,
-                color: isDarkTheme ? Colors.white : Colors.black,
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Test Completed!',
+                style: TextStyle(
+                  fontSize: headerFontSize,
+                  fontWeight: FontWeight.bold,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Great job! Here are your results',
-              style: TextStyle(fontSize: textFontSize, color: Colors.grey[600]),
-            ),
-          ],
+              const SizedBox(height: 8),
+              Text(
+                'Great job! Here are your results',
+                style: TextStyle(
+                  fontSize: textFontSize,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ),
         ),
-        _buildActionButtons(isMobile),
+        if (!isSmallMobile)
+          _buildActionButtons(isDesktop, isTablet, isMobile, isSmallMobile),
       ],
     );
   }
 
-  Widget _buildStatsGrid(int crossAxisCount) {
+  Widget _buildStatsSection(
+    bool isDesktop,
+    bool isTablet,
+    bool isMobile,
+    bool isSmallMobile,
+  ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return GridView(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: crossAxisCount,
-        crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 2.5,
-      ),
-      children: [
-        StatsCard(
-          title: 'Words Per Minute',
-          value: widget.result.wpm.toString(),
-          unit: 'WPM',
-          color: Colors.blue,
-          icon: Icons.speed,
-          isDarkMode: themeProvider.isDarkMode,
-        ),
-        StatsCard(
-          title: 'Accuracy',
-          value: widget.result.accuracy.toStringAsFixed(1),
-          unit: '%',
-          color: Colors.green,
-          icon: Icons.flag,
-          isDarkMode: themeProvider.isDarkMode,
-        ),
-        StatsCard(
-          title: 'Duration',
-          value: widget.result.duration.inSeconds.toString(),
-          unit: 'seconds',
-          color: Colors.orange,
-          icon: Icons.timer,
-          isDarkMode: themeProvider.isDarkMode,
-        ),
-        StatsCard(
-          title: 'Difficulty',
-          value: widget.result.difficulty,
-          unit: '',
-          color: Colors.purple,
-          icon: Icons.leaderboard,
-          isDarkMode: themeProvider.isDarkMode,
-        ),
-      ],
-    );
+    if (isDesktop) {
+      // Desktop - 4 cards in a row
+      return Row(
+        children: [
+          Expanded(
+            child: StatsCard(
+              title: 'Words Per Minute',
+              value: widget.result.wpm.toString(),
+              unit: 'WPM',
+              color: Colors.blue,
+              icon: Icons.speed,
+              isDarkMode: themeProvider.isDarkMode,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Accuracy',
+              value: widget.result.accuracy.toStringAsFixed(1),
+              unit: '%',
+              color: Colors.green,
+              icon: Icons.flag,
+              isDarkMode: themeProvider.isDarkMode,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Duration',
+              value: widget.result.duration.inSeconds.toString(),
+              unit: 'seconds',
+              color: Colors.orange,
+              icon: Icons.timer,
+              isDarkMode: themeProvider.isDarkMode,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
+              title: 'Difficulty',
+              value: widget.result.difficulty,
+              unit: '',
+              color: Colors.purple,
+              icon: Icons.leaderboard,
+              isDarkMode: themeProvider.isDarkMode,
+            ),
+          ),
+        ],
+      );
+    } else if (isTablet) {
+      // Tablet - 2 rows of 2 cards
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Words Per Minute',
+                  value: widget.result.wpm.toString(),
+                  unit: 'WPM',
+                  color: Colors.blue,
+                  icon: Icons.speed,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Accuracy',
+                  value: widget.result.accuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Duration',
+                  value: widget.result.duration.inSeconds.toString(),
+                  unit: 'seconds',
+                  color: Colors.orange,
+                  icon: Icons.timer,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Difficulty',
+                  value: widget.result.difficulty,
+                  unit: '',
+                  color: Colors.purple,
+                  icon: Icons.leaderboard,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else if (isMobile && !isSmallMobile) {
+      // Mobile (but not small) - 2 columns, 2 rows
+      return Column(
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'WPM',
+                  value: widget.result.wpm.toString(),
+                  unit: 'WPM',
+                  color: Colors.blue,
+                  icon: Icons.speed,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: StatsCard(
+                  title: 'Accuracy',
+                  value: widget.result.accuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+            ],
+          ),
+          SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: StatsCard(
+                  title: 'Duration',
+                  value: widget.result.duration.inSeconds.toString(),
+                  unit: 'sec',
+                  color: Colors.orange,
+                  icon: Icons.timer,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              SizedBox(width: 12),
+              Expanded(
+                child: StatsCard(
+                  title: 'Difficulty',
+                  value: widget.result.difficulty,
+                  unit: '',
+                  color: Colors.purple,
+                  icon: Icons.leaderboard,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    } else {
+      // Small Mobile - Vertical stack
+      return Column(
+        children: [
+          StatsCard(
+            title: 'Words Per Minute',
+            value: widget.result.wpm.toString(),
+            unit: 'WPM',
+            color: Colors.blue,
+            icon: Icons.speed,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+          SizedBox(height: 12),
+          StatsCard(
+            title: 'Accuracy',
+            value: widget.result.accuracy.toStringAsFixed(1),
+            unit: '%',
+            color: Colors.green,
+            icon: Icons.flag,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+          SizedBox(height: 12),
+          StatsCard(
+            title: 'Duration',
+            value: widget.result.duration.inSeconds.toString(),
+            unit: 'seconds',
+            color: Colors.orange,
+            icon: Icons.timer,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+          SizedBox(height: 12),
+          StatsCard(
+            title: 'Difficulty',
+            value: widget.result.difficulty,
+            unit: '',
+            color: Colors.purple,
+            icon: Icons.leaderboard,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+        ],
+      );
+    }
   }
 
   Widget _buildDetailedStats(
+    double titleFontSize,
     double textFontSize,
+    double chartHeight,
+    double statItemSpacing,
+    bool isDesktop,
+    bool isTablet,
     bool isMobile,
-    bool isDarkTheme,
+    bool isSmallMobile,
   ) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(20),
+      padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
       decoration: BoxDecoration(
-        color: isDarkTheme ? Colors.black12 : Colors.white,
-        borderRadius: BorderRadius.circular(12),
+        color: themeProvider.isDarkMode ? Colors.black12 : Colors.white,
+        borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: isDarkTheme ? Colors.grey[800]! : Colors.grey[200]!,
+          color:
+              themeProvider.isDarkMode ? Colors.grey[800]! : Colors.grey[200]!,
         ),
+        boxShadow: [
+          if (!themeProvider.isDarkMode)
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -271,72 +1082,116 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Text(
             'Detailed Statistics',
             style: TextStyle(
-              fontSize: textFontSize + 2,
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: isDarkTheme ? Colors.white : Colors.grey[800],
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isDesktop ? 20.0 : 16.0),
 
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+          // Character Stats - Responsive layout
+          if (isDesktop || isTablet)
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 _buildStatItem(
                   'Correct Characters',
                   widget.result.correctChars.toString(),
                   Colors.green,
-                  isDarkTheme,
+                  themeProvider.isDarkMode,
+                  isSmallMobile,
                 ),
-                const SizedBox(width: 20),
                 _buildStatItem(
                   'Incorrect Characters',
                   widget.result.incorrectChars.toString(),
                   Colors.red,
-                  isDarkTheme,
+                  themeProvider.isDarkMode,
+                  isSmallMobile,
                 ),
-                const SizedBox(width: 20),
                 _buildStatItem(
                   'Total Characters',
                   widget.result.totalChars.toString(),
                   Colors.blue,
-                  isDarkTheme,
+                  themeProvider.isDarkMode,
+                  isSmallMobile,
+                ),
+              ],
+            )
+          else
+            Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildStatItem(
+                      'Correct',
+                      widget.result.correctChars.toString(),
+                      Colors.green,
+                      themeProvider.isDarkMode,
+                      isSmallMobile,
+                    ),
+                    _buildStatItem(
+                      'Incorrect',
+                      widget.result.incorrectChars.toString(),
+                      Colors.red,
+                      themeProvider.isDarkMode,
+                      isSmallMobile,
+                    ),
+                  ],
+                ),
+                SizedBox(height: 16),
+                _buildStatItem(
+                  'Total Characters',
+                  widget.result.totalChars.toString(),
+                  Colors.blue,
+                  themeProvider.isDarkMode,
+                  isSmallMobile,
                 ),
               ],
             ),
-          ),
-          const SizedBox(height: 24),
+
+          SizedBox(height: isDesktop ? 32.0 : 24.0),
 
           Text(
             'Performance Overview',
             style: TextStyle(
-              fontSize: textFontSize + 2,
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: isDarkTheme ? Colors.white : Colors.grey[800],
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isDesktop ? 20.0 : 16.0),
 
           SizedBox(
-            height: isMobile ? 250 : 350,
+            height: chartHeight,
             child: SfCartesianChart(
               primaryXAxis: CategoryAxis(
                 majorGridLines: const MajorGridLines(width: 0),
                 labelStyle: TextStyle(
-                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[300]
+                          : Colors.grey[700],
                   fontWeight: FontWeight.w500,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
               ),
               primaryYAxis: NumericAxis(
                 axisLine: const AxisLine(width: 0),
                 majorTickLines: const MajorTickLines(size: 0),
                 labelStyle: TextStyle(
-                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[300]
+                          : Colors.grey[700],
                   fontWeight: FontWeight.w500,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
                 majorGridLines: MajorGridLines(
-                  color: isDarkTheme ? Colors.grey[700] : Colors.grey[300],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[700]
+                          : Colors.grey[300],
                   dashArray: const [5, 5],
                 ),
               ),
@@ -345,9 +1200,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 header: '',
                 canShowMarker: true,
                 tooltipPosition: TooltipPosition.pointer,
-                color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[300]
+                        : Colors.grey[800],
                 textStyle: TextStyle(
-                  color: isDarkTheme ? Colors.black87 : Colors.white,
+                  color:
+                      themeProvider.isDarkMode ? Colors.black87 : Colors.white,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
               ),
               series: <CartesianSeries>[
@@ -357,18 +1217,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   yValueMapper: (TypingStatData data, _) => data.value,
                   gradient: LinearGradient(
                     colors:
-                        isDarkTheme
+                        themeProvider.isDarkMode
                             ? [Colors.blueAccent, Colors.lightBlueAccent]
                             : [Colors.lightBlueAccent, Colors.blueAccent],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                   dataLabelSettings: DataLabelSettings(
-                    isVisible: true,
+                    isVisible: !isSmallMobile,
                     textStyle: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isDarkTheme ? Colors.white : Colors.black87,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
+                      fontSize: isSmallMobile ? 10 : 12,
                     ),
                   ),
                 ),
@@ -376,37 +1240,48 @@ class _ResultsScreenState extends State<ResultsScreen> {
             ),
           ),
 
-          const SizedBox(height: 24),
+          SizedBox(height: isDesktop ? 32.0 : 24.0),
 
           Text(
             'Character Analysis',
             style: TextStyle(
-              fontSize: textFontSize + 2,
+              fontSize: titleFontSize,
               fontWeight: FontWeight.bold,
-              color: isDarkTheme ? Colors.white : Colors.grey[800],
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
-          const SizedBox(height: 16),
+          SizedBox(height: isDesktop ? 20.0 : 16.0),
 
           SizedBox(
-            height: isMobile ? 250 : 350,
+            height: chartHeight,
             child: SfCartesianChart(
               primaryXAxis: CategoryAxis(
                 majorGridLines: const MajorGridLines(width: 0),
                 labelStyle: TextStyle(
-                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[300]
+                          : Colors.grey[700],
                   fontWeight: FontWeight.w500,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
               ),
               primaryYAxis: NumericAxis(
                 axisLine: const AxisLine(width: 0),
                 majorTickLines: const MajorTickLines(size: 0),
                 labelStyle: TextStyle(
-                  color: isDarkTheme ? Colors.grey[300] : Colors.grey[700],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[300]
+                          : Colors.grey[700],
                   fontWeight: FontWeight.w500,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
                 majorGridLines: MajorGridLines(
-                  color: isDarkTheme ? Colors.grey[700] : Colors.grey[300],
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[700]
+                          : Colors.grey[300],
                   dashArray: const [5, 5],
                 ),
               ),
@@ -415,9 +1290,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 header: '',
                 canShowMarker: true,
                 tooltipPosition: TooltipPosition.pointer,
-                color: isDarkTheme ? Colors.grey[300] : Colors.grey[800],
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[300]
+                        : Colors.grey[800],
                 textStyle: TextStyle(
-                  color: isDarkTheme ? Colors.black87 : Colors.white,
+                  color:
+                      themeProvider.isDarkMode ? Colors.black87 : Colors.white,
+                  fontSize: isSmallMobile ? 10 : 12,
                 ),
               ),
               series: <CartesianSeries>[
@@ -427,18 +1307,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   yValueMapper: (TypingStatData data, _) => data.value,
                   gradient: LinearGradient(
                     colors:
-                        isDarkTheme
+                        themeProvider.isDarkMode
                             ? [Colors.green, Colors.lightGreenAccent]
                             : [Colors.lightGreenAccent, Colors.green],
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                   ),
-                  borderRadius: const BorderRadius.all(Radius.circular(10)),
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                   dataLabelSettings: DataLabelSettings(
-                    isVisible: true,
+                    isVisible: !isSmallMobile,
                     textStyle: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: isDarkTheme ? Colors.white : Colors.black87,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black87,
+                      fontSize: isSmallMobile ? 10 : 12,
                     ),
                   ),
                 ),
@@ -455,11 +1339,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
     String value,
     Color color,
     bool isDarkTheme,
+    bool isSmallMobile,
   ) {
     return Column(
       children: [
         Container(
-          padding: const EdgeInsets.all(12),
+          padding: EdgeInsets.all(isSmallMobile ? 8 : 12),
           decoration: BoxDecoration(
             color: color.withOpacity(0.1),
             shape: BoxShape.circle,
@@ -467,70 +1352,123 @@ class _ResultsScreenState extends State<ResultsScreen> {
           child: Text(
             value,
             style: TextStyle(
-              fontSize: 16,
+              fontSize: isSmallMobile ? 12 : 16,
               fontWeight: FontWeight.bold,
               color: color,
             ),
           ),
         ),
         const SizedBox(height: 8),
-        Text(
-          label,
-          style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-          textAlign: TextAlign.center,
+        SizedBox(
+          width: isSmallMobile ? 80 : 100,
+          child: Text(
+            label,
+            style: TextStyle(
+              fontSize: isSmallMobile ? 10 : 12,
+              color: Colors.grey[600],
+            ),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildActionButtons(bool isMobile) {
-    return isMobile
-        ? Column(
-          children: [
-            IconButton.filled(
+  Widget _buildActionButtons(
+    bool isDesktop,
+    bool isTablet,
+    bool isMobile,
+    bool isSmallMobile,
+  ) {
+    if (isSmallMobile) {
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: IconButton.filled(
               onPressed: widget.onBackToTest,
-              icon: Icon(FontAwesomeIcons.undoAlt),
+              icon: Icon(FontAwesomeIcons.undoAlt, size: 20),
             ),
-            const SizedBox(height: 8),
-            TextButton(
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            flex: 2,
+            child: TextButton(
               onPressed: widget.onBackToDashboard,
-              style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.amber),
+              style: TextButton.styleFrom(
+                backgroundColor: Colors.amber,
+                padding: EdgeInsets.symmetric(vertical: 12),
               ),
               child: Text(
                 'Dashboard',
                 style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
             ),
-          ],
-        )
-        : Row(
-          children: [
-            IconButton.filled(
-              onPressed: widget.onBackToTest,
-              icon: Icon(FontAwesomeIcons.undoAlt),
+          ),
+        ],
+      );
+    }
+
+    if (isMobile) {
+      return Column(
+        children: [
+          IconButton.filled(
+            onPressed: widget.onBackToTest,
+            icon: Icon(FontAwesomeIcons.undoAlt),
+          ),
+          const SizedBox(height: 8),
+          TextButton(
+            onPressed: widget.onBackToDashboard,
+            style: TextButton.styleFrom(
+              backgroundColor: Colors.amber,
+              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            const SizedBox(width: 16),
-            TextButton(
-              onPressed: widget.onBackToDashboard,
-              style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.amber),
-              ),
-              child: Text(
-                'Dashboard',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+            child: Text(
+              'Dashboard',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
               ),
             ),
-          ],
-        );
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        IconButton.filled(
+          onPressed: widget.onBackToTest,
+          icon: Icon(FontAwesomeIcons.undoAlt),
+          iconSize: isTablet ? 20 : 24,
+        ),
+        SizedBox(width: isTablet ? 12 : 16),
+        TextButton(
+          onPressed: widget.onBackToDashboard,
+          style: TextButton.styleFrom(
+            backgroundColor: Colors.amber,
+            padding: EdgeInsets.symmetric(
+              horizontal: isTablet ? 20 : 24,
+              vertical: isTablet ? 12 : 16,
+            ),
+          ),
+          child: Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: isTablet ? 14 : 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

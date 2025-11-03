@@ -95,7 +95,29 @@ class DashboardScreen extends StatelessWidget {
 
     if (isMobile) {
       return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
+          Text(
+            'Dashboard',
+            style: TextStyle(
+              fontSize: 26,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+            ),
+          ),
+          Text(
+            "Track your performance insights",
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+            ),
+          ),
+          const SizedBox(height: 38),
           StatsCard(
             title: 'Average WPM',
             value: provider.averageWPM.toStringAsFixed(1),
