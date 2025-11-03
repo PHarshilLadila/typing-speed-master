@@ -121,49 +121,6 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  // authProvider.isLoggedIn &&
-                  //         authProvider.user?.avatarUrl != null
-                  //     ? ClipOval(
-                  //       child: CachedNetworkImage(
-                  //         imageUrl: authProvider.user!.avatarUrl!,
-                  //         width: 48,
-                  //         height: 48,
-                  //         fit: BoxFit.cover,
-                  //         placeholder:
-                  //             (context, url) => Container(
-                  //               width: 48,
-                  //               height: 48,
-                  //               decoration: BoxDecoration(
-                  //                 color: Colors.amber.shade100,
-                  //                 shape: BoxShape.circle,
-                  //               ),
-                  //               child: Icon(
-                  //                 Icons.person,
-                  //                 color: Colors.amber.shade800,
-                  //                 size: 24,
-                  //               ),
-                  //             ),
-                  //         errorWidget:
-                  //             (context, url, error) => Container(
-                  //               width: 48,
-                  //               height: 48,
-                  //               decoration: BoxDecoration(
-                  //                 color: Colors.amber.shade100,
-                  //                 shape: BoxShape.circle,
-                  //               ),
-                  //               child: Icon(
-                  //                 Icons.person,
-                  //                 color: Colors.amber.shade800,
-                  //                 size: 24,
-                  //               ),
-                  //             ),
-                  //       ),
-                  //     )
-                  //     : CircleAvatar(
-                  //       backgroundColor: Colors.blue,
-                  //       radius: 18,
-                  //       child: Icon(Icons.person, color: Colors.white),
-                  //     ),
                   ProfileDropdown(),
                 ],
               ),
@@ -231,16 +188,11 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
           height: 150,
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color:
-                isDarkTheme
-                    ? Colors.grey[900]
-                    : Colors.white, // Fixed background color
+            color: isDarkTheme ? Colors.grey[900] : Colors.white,
             borderRadius: BorderRadius.circular(12),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(
-                  isDarkTheme ? 0.3 : 0.1,
-                ), // Adjusted shadow for dark mode
+                color: Colors.black.withOpacity(isDarkTheme ? 0.3 : 0.1),
                 blurRadius: 10,
                 offset: const Offset(0, 4),
               ),
@@ -322,10 +274,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
-                            color:
-                                isDarkTheme
-                                    ? Colors.white
-                                    : Colors.black87, // Text color
+                            color: isDarkTheme ? Colors.white : Colors.black87,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -338,7 +287,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                             color:
                                 isDarkTheme
                                     ? Colors.grey.shade400
-                                    : Colors.grey.shade600, // Email color
+                                    : Colors.grey.shade600,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
@@ -351,9 +300,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                 Divider(
                   height: 1,
                   color:
-                      isDarkTheme
-                          ? Colors.grey.shade700
-                          : Colors.grey.shade300, // Divider color
+                      isDarkTheme ? Colors.grey.shade700 : Colors.grey.shade300,
                 ),
                 const SizedBox(height: 8),
               ] else ...[

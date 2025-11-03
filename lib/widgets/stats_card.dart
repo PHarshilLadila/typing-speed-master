@@ -68,17 +68,10 @@ class _StatsCardState extends State<StatsCard>
 
   @override
   Widget build(BuildContext context) {
-    // Theme colors
     final backgroundColor = widget.isDarkMode ? widget.color : widget.color;
-    final borderColor =
-        widget.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!;
     final titleColor = widget.isDarkMode ? Colors.grey[300] : Colors.grey[800];
     final valueColor = widget.isDarkMode ? Colors.white : Colors.black87;
     final unitColor = widget.isDarkMode ? Colors.grey[400] : Colors.grey[600];
-    final shadowColor =
-        widget.isDarkMode
-            ? Colors.black.withOpacity(0.3)
-            : Colors.grey.withOpacity(0.1);
 
     return MouseRegion(
       onEnter: (_) => _handleHover(true),
@@ -88,13 +81,6 @@ class _StatsCardState extends State<StatsCard>
         decoration: BoxDecoration(
           color: backgroundColor.withOpacity(0.1),
           borderRadius: BorderRadius.circular(12),
-          // boxShadow: [
-          //   BoxShadow(
-          //     color: shadowColor,
-          //     blurRadius: 10,
-          //     offset: const Offset(0, 4),
-          //   ),
-          // ],
           border: Border.all(color: backgroundColor, width: 0.5),
         ),
         child: Column(
