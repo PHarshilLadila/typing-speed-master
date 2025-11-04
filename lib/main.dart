@@ -75,4 +75,3 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
     );
   }
 }
-//
