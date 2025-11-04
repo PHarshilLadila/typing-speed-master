@@ -1,5 +1,10 @@
+import 'dart:developer' as dev;
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:typing_speed_master/providers/typing_provider.dart';
 import '../models/user_model.dart';
 
 class AuthProvider with ChangeNotifier {
@@ -20,19 +25,7 @@ class AuthProvider with ChangeNotifier {
 
   AuthProvider() {
     _initializeAuth();
-    _setupAuthListener();
-  }
-
-  void _setupAuthListener() {
-    _supabase.auth.onAuthStateChange.listen((data) {
-      final session = data.session;
-      if (session != null && !_isSignOut) {
-        _fetchUserProfile(session.user.id);
-      } else {
-        _user = null;
-        notifyListeners();
-      }
-    });
+    setupAuthListener();
   }
 
   Future<void> _initializeAuth() async {
@@ -44,7 +37,7 @@ class AuthProvider with ChangeNotifier {
 
       final session = _supabase.auth.currentSession;
       if (session != null) {
-        await _fetchUserProfile(session.user.id);
+        await fetchUserProfile(session.user.id);
       }
     } catch (e) {
       debugPrint('Auth initialization error: $e');
@@ -56,6 +49,31 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Future<void> signInWithGoogle() async {
+  //   try {
+  //     _isLoading = true;
+  //     _error = null;
+  //     _isSignOut = false;
+  //     notifyListeners();
+
+  //     final currentUrl = Uri.base.toString();
+  //     debugPrint('Current URL: $currentUrl');
+
+  //     await _supabase.auth.signInWithOAuth(
+  //       OAuthProvider.google,
+  //       redirectTo: kIsWeb ? currentUrl : 'http://localhost:62621',
+  //     );
+  //   } on AuthException catch (e) {
+  //     _error = 'Authentication failed: ${e.message}';
+  //     debugPrint('AuthException: ${e.message}');
+  //   } catch (e) {
+  //     _error = 'An error occurred during sign in: $e';
+  //     debugPrint('Sign in error: $e');
+  //   } finally {
+  //     _isLoading = false;
+  //     notifyListeners();
+  //   }
+  // }
   Future<void> signInWithGoogle() async {
     try {
       _isLoading = true;
@@ -66,9 +84,22 @@ class AuthProvider with ChangeNotifier {
       final currentUrl = Uri.base.toString();
       debugPrint('Current URL: $currentUrl');
 
+      // For web, use a more reliable redirect URL handling
+      String redirectUrl;
+      if (kIsWeb) {
+        // Use current origin for web
+        final uri = Uri.parse(currentUrl);
+        redirectUrl = '${uri.origin}${uri.path}';
+      } else {
+        // For mobile, use a deep link
+        redirectUrl = 'http://localhost:62621';
+      }
+
+      debugPrint('Using redirect URL: $redirectUrl');
+
       await _supabase.auth.signInWithOAuth(
         OAuthProvider.google,
-        redirectTo: kIsWeb ? currentUrl : 'http://localhost:62621',
+        redirectTo: redirectUrl,
       );
     } on AuthException catch (e) {
       _error = 'Authentication failed: ${e.message}';
@@ -82,7 +113,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _fetchUserProfile(String userId) async {
+  Future<void> fetchUserProfile(String userId) async {
     try {
       if (_isSignOut) return;
 
@@ -246,4 +277,71 @@ class AuthProvider with ChangeNotifier {
     _isSignOut = false;
     notifyListeners();
   }
+
+  // Add this method to your existing AuthProvider class
+  Future<void> syncUserData() async {
+    try {
+      // Get the typing provider from context
+      final typingProvider = _getTypingProvider();
+      if (typingProvider != null) {
+        await typingProvider.syncLocalResultsToSupabase();
+      }
+    } catch (e) {
+      debugPrint('Error syncing user data: $e');
+    }
+  }
+
+  // Helper method to get typing provider
+  TypingProvider? _getTypingProvider() {
+    try {
+      // This assumes you're using Provider package and TypingProvider is available in the widget tree
+      final context = navigatorKey.currentContext;
+      if (context != null) {
+        return Provider.of<TypingProvider>(context, listen: false);
+      }
+    } catch (e) {
+      debugPrint('Error getting typing provider: $e');
+    }
+    return null;
+  }
+
+  // Add to your existing AuthProvider class
+  Future<void> triggerDataSync() async {
+    try {
+      // This will be called from the UI to ensure sync happens
+      dev.log('Triggering data sync after login');
+
+      // Add a small delay to ensure auth state is fully updated
+      await Future.delayed(Duration(seconds: 2));
+
+      // The TypingProvider will handle the actual sync through its auth listener
+    } catch (e) {
+      debugPrint('Error triggering data sync: $e');
+    }
+  }
+
+  void setupAuthListener() {
+    _supabase.auth.onAuthStateChange.listen((data) async {
+      final session = data.session;
+      if (session != null && !_isSignOut) {
+        await fetchUserProfile(session.user.id);
+
+        // Add delay to ensure auth is fully established
+        await Future.delayed(Duration(seconds: 1));
+
+        // Verify Supabase connection
+        final typingProvider = _getTypingProvider();
+        if (typingProvider != null) {
+          await typingProvider.verifySupabaseConnection();
+          await typingProvider.syncLocalResultsToSupabase();
+        }
+      } else {
+        _user = null;
+        notifyListeners();
+      }
+    });
+  }
+
+  // You'll need to add this to your AuthProvider class
+  final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }

@@ -1,5 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use
 
+import 'dart:developer' as dev;
+
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
@@ -128,6 +130,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
+  // In your TypingTestScreen, add this to the save result section
   void _completeTest() {
     if (_startTime == null || !mounted) return;
 
@@ -171,6 +174,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testCompleted = true;
       _testStarted = false;
     });
+
+    // Add debug log
+    dev.log('Saving typing result - WPM: $wpm, Accuracy: $accuracy');
 
     provider.saveResult(result);
 

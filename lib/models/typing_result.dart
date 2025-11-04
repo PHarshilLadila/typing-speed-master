@@ -56,4 +56,20 @@ class TypingResult {
       targetWords: map['targetWords'],
     );
   }
+  // Add this method to your existing TypingResult class
+  Map<String, dynamic> toSupabaseJson() {
+    return {
+      'wpm': wpm,
+      'accuracy': accuracy,
+      'consistency': consistency,
+      'correct_chars': correctChars,
+      'incorrect_chars': incorrectChars,
+      'total_chars': totalChars,
+      'duration_in_seconds': duration.inSeconds,
+      'difficulty': difficulty,
+      'is_word_based_test': isWordBasedTest,
+      'target_words': targetWords,
+      'timestamp': timestamp.toIso8601String(),
+    };
+  }
 }

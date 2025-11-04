@@ -1,7 +1,5 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -31,27 +29,6 @@ class TypingSpeedTesterApp extends StatefulWidget {
 }
 
 class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
-  final _supabase = Supabase.instance.client;
-
-  @override
-  void initState() {
-    super.initState();
-    _setupAuthListener();
-  }
-
-  void _setupAuthListener() {
-    _supabase.auth.onAuthStateChange.listen((data) {
-      final event = data.event;
-      final session = data.session;
-
-      if (event == AuthChangeEvent.signedIn && session != null) {
-        log('User signed in: ${session.user.id}');
-      } else if (event == AuthChangeEvent.signedOut) {
-        log('User signed out');
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
