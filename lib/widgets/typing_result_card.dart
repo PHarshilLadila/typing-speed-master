@@ -196,7 +196,7 @@ class TypingResultCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Text(
+                          SelectableText(
                             '${result.accuracy.toStringAsFixed(1)}%',
                             style: TextStyle(
                               fontSize: subtitleFontSize,
@@ -206,14 +206,14 @@ class TypingResultCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 4),
                           Expanded(
-                            child: Text(
+                            child: SelectableText(
                               'Accuracy',
                               style: TextStyle(
                                 fontSize: subtitleFontSize - 1,
                                 color: subtitleTextColor,
                               ),
                               maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                              // overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],

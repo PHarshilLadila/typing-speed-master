@@ -63,10 +63,24 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
 
     _chartDataPerformance = [
-      TypingStatData('WPM', widget.result.wpm.toDouble()),
-      TypingStatData('Accuracy', widget.result.accuracy.toDouble()),
-      TypingStatData('Duration', widget.result.duration.inSeconds.toDouble()),
-      TypingStatData('Difficulty', difficultyValue),
+      TypingStatData(
+        'WPM',
+        double.parse(widget.result.wpm.toDouble().toStringAsFixed(2)),
+      ),
+      TypingStatData(
+        'Consistency',
+        double.parse(widget.result.consistency.toDouble().toStringAsFixed(2)),
+      ),
+      TypingStatData(
+        'Accuracy',
+        double.parse(widget.result.accuracy.toDouble().toStringAsFixed(2)),
+      ),
+      TypingStatData(
+        'Duration',
+        double.parse(
+          widget.result.duration.inSeconds.toDouble().toStringAsFixed(2),
+        ),
+      ),
     ];
   }
 
@@ -87,32 +101,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:
-          widget.isViewDetails
-              ? AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                leading: IconButton(
-                  icon: Icon(
-                    Icons.arrow_back,
-                    color:
-                        Provider.of<ThemeProvider>(context).isDarkMode
-                            ? Colors.white
-                            : Colors.black,
-                  ),
-                  onPressed: _handleBack,
-                ),
-                title: Text(
-                  'Result Details',
-                  style: TextStyle(
-                    color:
-                        Provider.of<ThemeProvider>(context).isDarkMode
-                            ? Colors.white
-                            : Colors.black,
-                  ),
-                ),
-              )
-              : null,
       body: KeyedSubtree(
         key: ValueKey(
           'results_screen_${widget.result.timestamp.millisecondsSinceEpoch}',
@@ -191,10 +179,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             return Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: horizontalPadding,
-                    vertical: verticalPadding,
-                  ),
+                  padding: EdgeInsets.all(40),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -356,6 +341,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
           SizedBox(width: 16),
           Expanded(
             child: StatsCard(
+              title: 'Consistancy',
+              value: widget.result.consistency.toString(),
+              unit: '%',
+              color: Colors.pink,
+              icon: FontAwesomeIcons.bolt,
+              isDarkMode: themeProvider.isDarkMode,
+            ),
+          ),
+          SizedBox(width: 16),
+          Expanded(
+            child: StatsCard(
               title: 'Accuracy',
               value: widget.result.accuracy.toStringAsFixed(1),
               unit: '%',
@@ -406,11 +402,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
               SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Accuracy',
-                  value: widget.result.accuracy.toStringAsFixed(1),
+                  title: 'Consistancy',
+                  value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
-                  color: Colors.green,
-                  icon: Icons.flag,
+                  color: Colors.pink,
+                  icon: FontAwesomeIcons.bolt,
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
@@ -421,6 +417,18 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 child: StatsCard(
+                  title: 'Accuracy',
+                  value: widget.result.accuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+
+              SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
                   title: 'Duration',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: 'seconds',
@@ -429,8 +437,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-              SizedBox(width: 16),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
               Expanded(
+                flex: 1,
                 child: StatsCard(
                   title: 'Difficulty',
                   value: widget.result.difficulty,
@@ -440,6 +453,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
+              Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -451,7 +465,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 child: StatsCard(
-                  title: 'WPM',
+                  title: 'Words Per Minute',
                   value: widget.result.wpm.toString(),
                   unit: 'WPM',
                   color: Colors.blue,
@@ -462,11 +476,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: StatsCard(
-                  title: 'Accuracy',
-                  value: widget.result.accuracy.toStringAsFixed(1),
+                  title: 'Consistancy',
+                  value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
-                  color: Colors.green,
-                  icon: Icons.flag,
+                  color: Colors.pink,
+                  icon: FontAwesomeIcons.bolt,
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
@@ -477,16 +491,33 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 child: StatsCard(
+                  title: 'Accuracy',
+                  value: widget.result.accuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+
+              SizedBox(width: 12),
+              Expanded(
+                child: StatsCard(
                   title: 'Duration',
                   value: widget.result.duration.inSeconds.toString(),
-                  unit: 'sec',
+                  unit: 'seconds',
                   color: Colors.orange,
                   icon: Icons.timer,
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-              SizedBox(width: 12),
+            ],
+          ),
+          SizedBox(height: 16),
+          Row(
+            children: [
               Expanded(
+                flex: 1,
                 child: StatsCard(
                   title: 'Difficulty',
                   value: widget.result.difficulty,
@@ -496,6 +527,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
+              Expanded(child: SizedBox()),
             ],
           ),
         ],

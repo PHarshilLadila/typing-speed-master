@@ -3,6 +3,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/responsive_layout.dart';
@@ -117,6 +118,15 @@ class DashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           StatsCard(
+            title: 'Consistancy',
+            value: provider.averageConsistency.toStringAsFixed(1),
+            unit: '%',
+            color: Colors.pink,
+            icon: FontAwesomeIcons.bolt,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+          const SizedBox(height: 16),
+          StatsCard(
             title: 'Average Accuracy',
             value: provider.averageAccuracy.toStringAsFixed(1),
             unit: '%',
@@ -190,11 +200,11 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Average Accuracy',
-                  value: provider.averageAccuracy.toStringAsFixed(1),
+                  title: 'Consistancy',
+                  value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
-                  color: Colors.green,
-                  icon: Icons.flag,
+                  color: Colors.pink,
+                  icon: FontAwesomeIcons.bolt,
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
@@ -205,6 +215,18 @@ class DashboardScreen extends StatelessWidget {
             children: [
               Expanded(
                 child: StatsCard(
+                  title: 'Average Accuracy',
+                  value: provider.averageAccuracy.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.green,
+                  icon: Icons.flag,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
                   title: 'Total Tests',
                   value: provider.totalTests.toString(),
                   unit: 'Tests',
@@ -213,8 +235,13 @@ class DashboardScreen extends StatelessWidget {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-              const SizedBox(width: 16),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
               Expanded(
+                flex: 1,
                 child: StatsCard(
                   title: 'Best WPM',
                   value:
@@ -230,6 +257,9 @@ class DashboardScreen extends StatelessWidget {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
+              const SizedBox(width: 16),
+
+              Expanded(child: SizedBox()),
             ],
           ),
         ],
@@ -274,6 +304,17 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
+                  title: 'Consistancy',
+                  value: provider.averageConsistency.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.pink,
+                  icon: FontAwesomeIcons.bolt,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
                   title: 'Average Accuracy',
                   value: provider.averageAccuracy.toStringAsFixed(1),
                   unit: '%',
@@ -282,8 +323,13 @@ class DashboardScreen extends StatelessWidget {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-              const SizedBox(width: 16),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
               Expanded(
+                flex: 1,
                 child: StatsCard(
                   title: 'Total Tests',
                   value: provider.totalTests.toString(),
@@ -293,13 +339,10 @@ class DashboardScreen extends StatelessWidget {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              SizedBox(
-                width: 300,
+              const SizedBox(width: 16),
+
+              Expanded(
+                flex: 1,
                 child: StatsCard(
                   title: 'Best WPM',
                   value:
@@ -315,6 +358,8 @@ class DashboardScreen extends StatelessWidget {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
+              const SizedBox(width: 16),
+
               const Spacer(flex: 1),
             ],
           ),
@@ -354,6 +399,17 @@ class DashboardScreen extends StatelessWidget {
                   unit: 'WPM',
                   color: Colors.blue,
                   icon: Icons.speed,
+                  isDarkMode: themeProvider.isDarkMode,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: StatsCard(
+                  title: 'Consistancy',
+                  value: provider.averageConsistency.toStringAsFixed(1),
+                  unit: '%',
+                  color: Colors.pink,
+                  icon: FontAwesomeIcons.bolt,
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),

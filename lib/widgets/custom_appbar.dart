@@ -395,11 +395,6 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                   ),
                   minimumSize: const Size(90, 40),
                 ),
-                icon: Icon(
-                  authProvider.isLoggedIn ? Icons.logout : Icons.login,
-                  color: Colors.white,
-                  size: 18,
-                ),
                 label: Text(
                   authProvider.isLoggedIn ? 'Sign Out' : 'Login',
                   style: const TextStyle(

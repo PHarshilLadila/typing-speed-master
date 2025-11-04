@@ -45,7 +45,7 @@ class CustomNavItem extends StatelessWidget {
                       : isDarkTheme
                       ? Colors.white
                       : Colors.black87,
-              size: 16,
+              size: 20,
             ),
             const SizedBox(width: 6),
             Text(

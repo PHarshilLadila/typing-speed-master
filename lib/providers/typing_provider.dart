@@ -1,7 +1,192 @@
-import 'dart:convert';
-import 'dart:developer';
+// import 'dart:convert';
+// import 'dart:developer';
 
-import 'package:flutter/foundation.dart';
+// import 'package:flutter/foundation.dart';
+// import 'package:shared_preferences/shared_preferences.dart';
+// import '../models/typing_result.dart';
+// import '../utils/constants.dart';
+
+// class TypingProvider with ChangeNotifier {
+//   List<TypingResult> _results = [];
+//   bool _isLoading = false;
+//   String _selectedDifficulty = 'Medium';
+//   Duration _selectedDuration = Duration(seconds: 60);
+//   List<String> _currentTextPool = [];
+//   int _currentTextIndex = 0;
+
+//   List<TypingResult> get results => _results;
+//   bool get isLoading => _isLoading;
+//   String get selectedDifficulty => _selectedDifficulty;
+//   Duration get selectedDuration => _selectedDuration;
+
+//   TypingProvider() {
+//     _loadResults();
+//     _initializeTextPool();
+//   }
+
+//   void _initializeTextPool() {
+//     _currentTextPool = List.from(
+//       AppConstants.sampleTextsByDifficulty[_selectedDifficulty] ?? [],
+//     );
+//     _currentTextIndex = 0;
+//   }
+
+//   void setDifficulty(String difficulty) {
+//     _selectedDifficulty = difficulty;
+//     _initializeTextPool();
+//     notifyListeners();
+//   }
+
+//   void setDuration(Duration duration) {
+//     _selectedDuration = duration;
+//     notifyListeners();
+//   }
+
+//   String getCurrentText() {
+//     if (_currentTextPool.isEmpty) {
+//       _initializeTextPool();
+//     }
+
+//     String baseText = _currentTextPool[_currentTextIndex];
+
+//     if (_selectedDuration.inSeconds == 0) {
+//       return _generateWordBasedText(baseText);
+//     }
+
+//     return baseText;
+//   }
+
+//   String _generateWordBasedText(String baseText) {
+//     List<String> words = baseText.split(' ');
+//     List<String> extendedText = [];
+
+//     while (extendedText.length < AppConstants.wordBasedTestWordCount) {
+//       extendedText.addAll(words);
+//     }
+
+//     extendedText =
+//         extendedText.take(AppConstants.wordBasedTestWordCount).toList();
+//     return extendedText.join(' ');
+//   }
+
+//   void moveToNextText() {
+//     _currentTextIndex = (_currentTextIndex + 1) % _currentTextPool.length;
+//     notifyListeners();
+//   }
+
+//   Future<void> _loadResults() async {
+//     _isLoading = true;
+//     notifyListeners();
+
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final resultsString = prefs.getString('typing_results');
+
+//       if (resultsString != null) {
+//         final List<dynamic> jsonList = json.decode(resultsString);
+//         _results = jsonList.map((json) => TypingResult.fromMap(json)).toList();
+//       }
+//     } catch (e) {
+//       if (kDebugMode) {
+//         log('Error loading results: $e');
+//       }
+//       await _loadResultsOldFormat();
+//     }
+
+//     _isLoading = false;
+//     notifyListeners();
+//   }
+
+//   Future<void> _loadResultsOldFormat() async {
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final resultsString = prefs.getString('typing_results');
+
+//       if (resultsString != null) {
+//         final List<dynamic> resultsList =
+//             (resultsString
+//                 .split('||')
+//                 .map((e) {
+//                   try {
+//                     return e.isNotEmpty
+//                         ? Map<String, dynamic>.from(
+//                           e.split(',').fold({}, (map, item) {
+//                             final parts = item.split(':');
+//                             if (parts.length == 2) {
+//                               map[parts[0]] = parts[1];
+//                             }
+//                             return map;
+//                           }),
+//                         )
+//                         : {};
+//                   } catch (e) {
+//                     log("Error in loadResultsOldFormat => $e");
+//                     return {};
+//                   }
+//                 })
+//                 .where((map) => map.isNotEmpty)
+//                 .toList());
+
+//         _results = resultsList.map((map) => TypingResult.fromMap(map)).toList();
+//       }
+//     } catch (e) {
+//       if (kDebugMode) {
+//         log('Error loading old format results: $e');
+//       }
+//     }
+//   }
+
+//   Future<void> saveResult(TypingResult result) async {
+//     _results.add(result);
+//     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+//     try {
+//       final prefs = await SharedPreferences.getInstance();
+//       final jsonString = json.encode(_results.map((r) => r.toMap()).toList());
+//       await prefs.setString('typing_results', jsonString);
+//     } catch (e) {
+//       if (kDebugMode) {
+//         log('Error saving result: $e');
+//       }
+//     }
+
+//     notifyListeners();
+//   }
+
+//   void clearHistory() async {
+//     _results.clear();
+//     final prefs = await SharedPreferences.getInstance();
+//     await prefs.remove('typing_results');
+//     notifyListeners();
+//   }
+
+//   double get averageWPM {
+//     if (_results.isEmpty) return 0;
+//     return _results.map((r) => r.wpm).reduce((a, b) => a + b) / _results.length;
+//   }
+
+//   double get averageAccuracy {
+//     if (_results.isEmpty) return 0;
+//     return _results.map((r) => r.accuracy).reduce((a, b) => a + b) /
+//         _results.length;
+//   }
+
+//   int get totalTests => _results.length;
+
+//   List<TypingResult> getRecentResults(int count) {
+//     return _results.take(count).toList();
+//   }
+
+//   List<TypingResult> getAllRecentResults() {
+//     return _results.toList();
+//   }
+// }
+
+import 'dart:convert';
+import 'dart:math';
+import 'dart:developer' as dev;
+
+import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/typing_result.dart';
 import '../utils/constants.dart';
@@ -9,10 +194,15 @@ import '../utils/constants.dart';
 class TypingProvider with ChangeNotifier {
   List<TypingResult> _results = [];
   bool _isLoading = false;
-  String _selectedDifficulty = 'Medium';
+  String _selectedDifficulty = 'Easy';
   Duration _selectedDuration = Duration(seconds: 60);
   List<String> _currentTextPool = [];
   int _currentTextIndex = 0;
+
+  // For consistency calculation
+  List<int> _typingSpeedSamples = [];
+  List<DateTime> _typingTimestamps = [];
+  int _lastCharCount = 0;
 
   List<TypingResult> get results => _results;
   bool get isLoading => _isLoading;
@@ -74,6 +264,61 @@ class TypingProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Method to record typing speed sample for consistency calculation
+  void recordTypingSpeedSample(int charCount, DateTime timestamp) {
+    _typingTimestamps.add(timestamp);
+
+    // Calculate instantaneous WPM (chars per minute)
+    if (_typingTimestamps.length > 1) {
+      final timeDiff =
+          timestamp
+              .difference(_typingTimestamps[_typingTimestamps.length - 2])
+              .inSeconds;
+      if (timeDiff > 0) {
+        final charsTyped = charCount - _lastCharCount;
+        final instantWPM =
+            (charsTyped / 5) / (timeDiff / 60); // Assuming 5 chars per word
+        _typingSpeedSamples.add(instantWPM.round());
+      }
+    }
+
+    _lastCharCount = charCount;
+  }
+
+  // Calculate consistency based on typing speed samples
+  double calculateConsistency() {
+    if (_typingSpeedSamples.length < 2) {
+      return 100.0; // Perfect consistency if not enough samples
+    }
+
+    // Calculate coefficient of variation (standard deviation / mean)
+    final mean =
+        _typingSpeedSamples.reduce((a, b) => a + b) /
+        _typingSpeedSamples.length;
+
+    if (mean == 0) return 0.0;
+
+    final variance =
+        _typingSpeedSamples
+            .map((x) => pow(x - mean, 2))
+            .reduce((a, b) => a + b) /
+        _typingSpeedSamples.length;
+    final standardDeviation = sqrt(variance);
+    final coefficientOfVariation = (standardDeviation / mean) * 100;
+
+    // Convert to consistency percentage (higher is better)
+    final consistency = max(0.0, 100.0 - coefficientOfVariation);
+
+    return double.parse(consistency.toStringAsFixed(2));
+  }
+
+  // Reset consistency tracking
+  void resetConsistencyTracking() {
+    _typingSpeedSamples.clear();
+    _typingTimestamps.clear();
+    _lastCharCount = 0;
+  }
+
   Future<void> _loadResults() async {
     _isLoading = true;
     notifyListeners();
@@ -87,9 +332,7 @@ class TypingProvider with ChangeNotifier {
         _results = jsonList.map((json) => TypingResult.fromMap(json)).toList();
       }
     } catch (e) {
-      if (kDebugMode) {
-        log('Error loading results: $e');
-      }
+      dev.log('Error loading results: $e');
       await _loadResultsOldFormat();
     }
 
@@ -120,7 +363,7 @@ class TypingProvider with ChangeNotifier {
                         )
                         : {};
                   } catch (e) {
-                    log("Error in loadResultsOldFormat => $e");
+                    dev.log("Error in loadResultsOldFormat => $e");
                     return {};
                   }
                 })
@@ -130,9 +373,7 @@ class TypingProvider with ChangeNotifier {
         _results = resultsList.map((map) => TypingResult.fromMap(map)).toList();
       }
     } catch (e) {
-      if (kDebugMode) {
-        log('Error loading old format results: $e');
-      }
+      dev.log('Error loading old format results: $e');
     }
   }
 
@@ -145,9 +386,7 @@ class TypingProvider with ChangeNotifier {
       final jsonString = json.encode(_results.map((r) => r.toMap()).toList());
       await prefs.setString('typing_results', jsonString);
     } catch (e) {
-      if (kDebugMode) {
-        log('Error saving result: $e');
-      }
+      dev.log('Error saving result: $e');
     }
 
     notifyListeners();
@@ -168,6 +407,12 @@ class TypingProvider with ChangeNotifier {
   double get averageAccuracy {
     if (_results.isEmpty) return 0;
     return _results.map((r) => r.accuracy).reduce((a, b) => a + b) /
+        _results.length;
+  }
+
+  double get averageConsistency {
+    if (_results.isEmpty) return 0;
+    return _results.map((r) => r.consistency).reduce((a, b) => a + b) /
         _results.length;
   }
 
