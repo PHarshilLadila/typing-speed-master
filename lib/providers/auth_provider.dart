@@ -49,31 +49,26 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> signInWithGoogle() async {
-  //   try {
-  //     _isLoading = true;
-  //     _error = null;
-  //     _isSignOut = false;
-  //     notifyListeners();
+  void setupAuthListener() {
+    _supabase.auth.onAuthStateChange.listen((data) async {
+      final session = data.session;
+      if (session != null && !_isSignOut) {
+        await fetchUserProfile(session.user.id);
 
-  //     final currentUrl = Uri.base.toString();
-  //     debugPrint('Current URL: $currentUrl');
+        await Future.delayed(Duration(seconds: 1));
 
-  //     await _supabase.auth.signInWithOAuth(
-  //       OAuthProvider.google,
-  //       redirectTo: kIsWeb ? currentUrl : 'http://localhost:62621',
-  //     );
-  //   } on AuthException catch (e) {
-  //     _error = 'Authentication failed: ${e.message}';
-  //     debugPrint('AuthException: ${e.message}');
-  //   } catch (e) {
-  //     _error = 'An error occurred during sign in: $e';
-  //     debugPrint('Sign in error: $e');
-  //   } finally {
-  //     _isLoading = false;
-  //     notifyListeners();
-  //   }
-  // }
+        final typingProvider = _getTypingProvider();
+        if (typingProvider != null) {
+          await typingProvider.verifySupabaseConnection();
+          await typingProvider.syncLocalResultsToSupabase();
+        }
+      } else {
+        _user = null;
+        notifyListeners();
+      }
+    });
+  }
+
   Future<void> signInWithGoogle() async {
     try {
       _isLoading = true;
@@ -84,14 +79,11 @@ class AuthProvider with ChangeNotifier {
       final currentUrl = Uri.base.toString();
       debugPrint('Current URL: $currentUrl');
 
-      // For web, use a more reliable redirect URL handling
       String redirectUrl;
       if (kIsWeb) {
-        // Use current origin for web
         final uri = Uri.parse(currentUrl);
         redirectUrl = '${uri.origin}${uri.path}';
       } else {
-        // For mobile, use a deep link
         redirectUrl = 'http://localhost:62621';
       }
 
@@ -278,10 +270,8 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Add this method to your existing AuthProvider class
   Future<void> syncUserData() async {
     try {
-      // Get the typing provider from context
       final typingProvider = _getTypingProvider();
       if (typingProvider != null) {
         await typingProvider.syncLocalResultsToSupabase();
@@ -291,10 +281,8 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Helper method to get typing provider
   TypingProvider? _getTypingProvider() {
     try {
-      // This assumes you're using Provider package and TypingProvider is available in the widget tree
       final context = navigatorKey.currentContext;
       if (context != null) {
         return Provider.of<TypingProvider>(context, listen: false);
@@ -305,43 +293,15 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  // Add to your existing AuthProvider class
   Future<void> triggerDataSync() async {
     try {
-      // This will be called from the UI to ensure sync happens
       dev.log('Triggering data sync after login');
 
-      // Add a small delay to ensure auth state is fully updated
       await Future.delayed(Duration(seconds: 2));
-
-      // The TypingProvider will handle the actual sync through its auth listener
     } catch (e) {
       debugPrint('Error triggering data sync: $e');
     }
   }
 
-  void setupAuthListener() {
-    _supabase.auth.onAuthStateChange.listen((data) async {
-      final session = data.session;
-      if (session != null && !_isSignOut) {
-        await fetchUserProfile(session.user.id);
-
-        // Add delay to ensure auth is fully established
-        await Future.delayed(Duration(seconds: 1));
-
-        // Verify Supabase connection
-        final typingProvider = _getTypingProvider();
-        if (typingProvider != null) {
-          await typingProvider.verifySupabaseConnection();
-          await typingProvider.syncLocalResultsToSupabase();
-        }
-      } else {
-        _user = null;
-        notifyListeners();
-      }
-    });
-  }
-
-  // You'll need to add this to your AuthProvider class
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }

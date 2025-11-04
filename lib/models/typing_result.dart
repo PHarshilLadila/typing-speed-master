@@ -56,7 +56,6 @@ class TypingResult {
       targetWords: map['targetWords'],
     );
   }
-  // Add this method to your existing TypingResult class
   Map<String, dynamic> toSupabaseJson() {
     return {
       'wpm': wpm,

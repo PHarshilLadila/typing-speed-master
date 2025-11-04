@@ -130,7 +130,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
-  // In your TypingTestScreen, add this to the save result section
   void _completeTest() {
     if (_startTime == null || !mounted) return;
 
@@ -175,7 +174,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testStarted = false;
     });
 
-    // Add debug log
     dev.log('Saving typing result - WPM: $wpm, Accuracy: $accuracy');
 
     provider.saveResult(result);
