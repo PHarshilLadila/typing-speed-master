@@ -302,7 +302,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           SizedBox(width: 16),
           Expanded(
             child: StatsCard(
-              title: 'Consistancy',
+              title: 'Consistency',
               value: widget.result.consistency.toString(),
               unit: '%',
               color: Colors.pink,
@@ -363,7 +363,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Consistancy',
+                  title: 'Consistency',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
                   color: Colors.pink,
@@ -437,7 +437,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               SizedBox(width: 12),
               Expanded(
                 child: StatsCard(
-                  title: 'Consistancy',
+                  title: 'Consistency',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
                   color: Colors.pink,

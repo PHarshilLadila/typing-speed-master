@@ -118,7 +118,7 @@ class DashboardScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           StatsCard(
-            title: 'Consistancy',
+            title: 'Consistency',
             value: provider.averageConsistency.toStringAsFixed(1),
             unit: '%',
             color: Colors.pink,
@@ -200,7 +200,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Consistancy',
+                  title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
                   color: Colors.pink,
@@ -304,7 +304,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Consistancy',
+                  title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
                   color: Colors.pink,
@@ -405,7 +405,7 @@ class DashboardScreen extends StatelessWidget {
               const SizedBox(width: 16),
               Expanded(
                 child: StatsCard(
-                  title: 'Consistancy',
+                  title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
                   color: Colors.pink,
