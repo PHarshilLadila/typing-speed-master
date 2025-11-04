@@ -716,8 +716,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     }
 
     final timerColor = _getTimerColor(themeProvider);
-    final subtitleColor =
-        themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
 
     return isMobile
         ? Column(

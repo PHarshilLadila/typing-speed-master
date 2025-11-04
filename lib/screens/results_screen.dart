@@ -1,3 +1,5 @@
+// ignore_for_file: library_private_types_in_public_api, deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -47,21 +49,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
       TypingStatData('Total', widget.result.totalChars.toDouble()),
     ];
 
-    double difficultyValue;
-    switch (widget.result.difficulty.toLowerCase()) {
-      case 'easy':
-        difficultyValue = 1;
-        break;
-      case 'medium':
-        difficultyValue = 2;
-        break;
-      case 'hard':
-        difficultyValue = 3;
-        break;
-      default:
-        difficultyValue = 0;
-    }
-
     _chartDataPerformance = [
       TypingStatData(
         'WPM',
@@ -90,14 +77,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
     super.dispose();
   }
 
-  void _handleBack() {
-    if (widget.isViewDetails) {
-      Navigator.of(context).pop();
-    } else {
-      widget.onBackToDashboard();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,24 +91,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 constraints.maxWidth > 600 && constraints.maxWidth <= 1200;
             final isMobile = constraints.maxWidth <= 600;
             final isSmallMobile = constraints.maxWidth <= 400;
-
-            final horizontalPadding =
-                isDesktop
-                    ? 100.0
-                    : isTablet
-                    ? 60.0
-                    : isSmallMobile
-                    ? 12.0
-                    : 20.0;
-
-            final verticalPadding =
-                isDesktop
-                    ? 40.0
-                    : isTablet
-                    ? 30.0
-                    : widget.isViewDetails
-                    ? 0.0
-                    : 20.0;
 
             final headerFontSize =
                 isDesktop
