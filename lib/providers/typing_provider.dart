@@ -188,15 +188,11 @@ class TypingProvider with ChangeNotifier {
           .eq('user_id', user.id)
           .order('timestamp', ascending: false);
 
-      if (response != null && response is List) {
-        _results =
-            response
-                .map((json) => _typingResultFromSupabaseJson(json))
-                .toList();
-        dev.log('Loaded ${_results.length} results from Supabase');
+      _results =
+          response.map((json) => _typingResultFromSupabaseJson(json)).toList();
+      dev.log('Loaded ${_results.length} results from Supabase');
 
-        await _saveAllResultsToLocal();
-      }
+      await _saveAllResultsToLocal();
     } catch (e) {
       dev.log('Error loading results from Supabase: $e');
       await _loadResultsFromLocal();
@@ -331,7 +327,7 @@ class TypingProvider with ChangeNotifier {
 
       dev.log('Supabase insert response: $response');
 
-      if (response != null && response.isNotEmpty) {
+      if (response.isNotEmpty) {
         dev.log(
           'Result saved to Supabase successfully with ID: ${response[0]['id']}',
         );
