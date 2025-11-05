@@ -1,3 +1,103 @@
+// // ignore_for_file: deprecated_member_use
+
+// import 'package:flutter/material.dart';
+
+// class TextDisplayWidget extends StatefulWidget {
+//   final String sampleText;
+//   final String userInput;
+//   final bool isTestActive;
+//   final bool isDarkMode;
+
+//   const TextDisplayWidget({
+//     super.key,
+//     required this.sampleText,
+//     required this.userInput,
+//     required this.isTestActive,
+//     required this.isDarkMode,
+//   });
+
+//   @override
+//   State<TextDisplayWidget> createState() => _TextDisplayWidgetState();
+// }
+
+// class _TextDisplayWidgetState extends State<TextDisplayWidget> {
+//   @override
+//   Widget build(BuildContext context) {
+//     final containerColor =
+//         widget.isDarkMode
+//             ? Colors.white.withOpacity(0.04)
+//             : Colors.black.withOpacity(0.04);
+
+//     return Container(
+//       padding: const EdgeInsets.all(16),
+//       decoration: BoxDecoration(
+//         color: containerColor,
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       child: _buildOptimizedText(),
+//     );
+//   }
+
+//   Widget _buildOptimizedText() {
+//     return SelectableText.rich(
+//       TextSpan(children: _buildTextSpans()),
+//       style: TextStyle(
+//         fontSize: 24,
+//         fontWeight: FontWeight.w400,
+//         height: 1.5,
+//         fontFamily: 'Monospace',
+//       ),
+//     );
+//   }
+
+//   List<TextSpan> _buildTextSpans() {
+//     final List<TextSpan> spans = [];
+//     final defaultTextColor =
+//         widget.isDarkMode ? Colors.grey[300] : Colors.grey[800];
+
+//     for (int i = 0; i < widget.sampleText.length; i++) {
+//       final char = widget.sampleText[i];
+//       final textSpan = _buildTextSpanForChar(i, char, defaultTextColor!);
+//       spans.add(textSpan);
+//     }
+
+//     return spans;
+//   }
+
+//   TextSpan _buildTextSpanForChar(
+//     int index,
+//     String char,
+//     Color defaultTextColor,
+//   ) {
+//     Color color = defaultTextColor;
+//     Color backgroundColor = Colors.transparent;
+
+//     if (index < widget.userInput.length) {
+//       if (widget.userInput[index] == char) {
+//         color = Colors.green;
+//         backgroundColor = Colors.green.withOpacity(
+//           widget.isDarkMode ? 0.2 : 0.1,
+//         );
+//       } else {
+//         color = Colors.red;
+//         backgroundColor = Colors.red.withOpacity(widget.isDarkMode ? 0.2 : 0.1);
+//       }
+//     } else if (index == widget.userInput.length && widget.isTestActive) {
+//       backgroundColor = Colors.blue.withOpacity(widget.isDarkMode ? 0.3 : 0.2);
+//       color = widget.isDarkMode ? Colors.blue[100]! : Colors.blue[800]!;
+//     }
+
+//     return TextSpan(
+//       text: char,
+//       style: TextStyle(
+//         color: color,
+//         backgroundColor: backgroundColor,
+//         fontWeight: FontWeight.w400,
+//         wordSpacing: 4,
+//       ),
+//     );
+//   }
+// }
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -20,7 +120,70 @@ class TextDisplayWidget extends StatefulWidget {
   State<TextDisplayWidget> createState() => _TextDisplayWidgetState();
 }
 
-class _TextDisplayWidgetState extends State<TextDisplayWidget> {
+class _TextDisplayWidgetState extends State<TextDisplayWidget>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<double> _cursorAnimation;
+  late Animation<Color?> _colorAnimation;
+
+  String _previousUserInput = '';
+
+  @override
+  void initState() {
+    super.initState();
+
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 600),
+      vsync: this,
+    );
+
+    _cursorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _colorAnimation = ColorTween(
+      begin: Colors.blue.withOpacity(0.3),
+      end: Colors.blue.withOpacity(0.7),
+    ).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+
+    _animationController.repeat(reverse: true);
+  }
+
+  @override
+  void didUpdateWidget(TextDisplayWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    // Trigger character animation when user types
+    if (widget.userInput != _previousUserInput) {
+      _handleInputChange(oldWidget.userInput, widget.userInput);
+      _previousUserInput = widget.userInput;
+    }
+  }
+
+  void _handleInputChange(String oldInput, String newInput) {
+    if (newInput.length > oldInput.length) {
+      // Character added
+      _triggerCharacterAnimation();
+    } else if (newInput.length < oldInput.length) {
+      // Character removed
+    }
+  }
+
+  void _triggerCharacterAnimation() {
+    // Restart cursor animation for smooth transition
+    _animationController
+      ..stop()
+      ..forward(from: 0.0);
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final containerColor =
@@ -34,13 +197,13 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget> {
         color: containerColor,
         borderRadius: BorderRadius.circular(8),
       ),
-      child: _buildOptimizedText(),
+      child: _buildAnimatedText(),
     );
   }
 
-  Widget _buildOptimizedText() {
+  Widget _buildAnimatedText() {
     return SelectableText.rich(
-      TextSpan(children: _buildTextSpans()),
+      TextSpan(children: _buildAnimatedTextSpans()),
       style: TextStyle(
         fontSize: 24,
         fontWeight: FontWeight.w400,
@@ -50,41 +213,67 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget> {
     );
   }
 
-  List<TextSpan> _buildTextSpans() {
+  List<TextSpan> _buildAnimatedTextSpans() {
     final List<TextSpan> spans = [];
     final defaultTextColor =
         widget.isDarkMode ? Colors.grey[300] : Colors.grey[800];
 
     for (int i = 0; i < widget.sampleText.length; i++) {
       final char = widget.sampleText[i];
-      final textSpan = _buildTextSpanForChar(i, char, defaultTextColor!);
+      final textSpan = _buildAnimatedTextSpanForChar(
+        i,
+        char,
+        defaultTextColor!,
+      );
       spans.add(textSpan);
     }
 
     return spans;
   }
 
-  TextSpan _buildTextSpanForChar(
+  TextSpan _buildAnimatedTextSpanForChar(
     int index,
     String char,
     Color defaultTextColor,
   ) {
     Color color = defaultTextColor;
     Color backgroundColor = Colors.transparent;
+    FontWeight fontWeight = FontWeight.w400;
+    double fontSize = 24.0;
 
+    // Handle typed characters with smooth transitions
     if (index < widget.userInput.length) {
       if (widget.userInput[index] == char) {
-        color = Colors.green;
-        backgroundColor = Colors.green.withOpacity(
-          widget.isDarkMode ? 0.2 : 0.1,
-        );
+        // Correct character - green with smooth transition
+        color = _getAnimatedColor(Colors.green, Colors.green[700]!);
+        backgroundColor = _getBackgroundColor(Colors.green);
+        fontWeight = FontWeight.w500;
       } else {
-        color = Colors.red;
-        backgroundColor = Colors.red.withOpacity(widget.isDarkMode ? 0.2 : 0.1);
+        // Incorrect character - red with smooth transition
+        color = _getAnimatedColor(Colors.red, Colors.red[700]!);
+        backgroundColor = _getBackgroundColor(Colors.red);
+        fontWeight = FontWeight.w500;
       }
     } else if (index == widget.userInput.length && widget.isTestActive) {
-      backgroundColor = Colors.blue.withOpacity(widget.isDarkMode ? 0.3 : 0.2);
-      color = widget.isDarkMode ? Colors.blue[100]! : Colors.blue[800]!;
+      // Current cursor position with pulsing animation
+      return TextSpan(
+        text: char,
+        style: TextStyle(
+          color: widget.isDarkMode ? Colors.blue[100] : Colors.blue[800],
+          backgroundColor: _colorAnimation.value,
+          fontWeight: FontWeight.w600,
+          fontSize: fontSize,
+          wordSpacing: 4,
+        ),
+      );
+    } else if (index == widget.userInput.length - 1 &&
+        widget.userInput.isNotEmpty &&
+        widget.isTestActive) {
+      // Last typed character with emphasis animation
+      color = _getLastCharacterColor();
+      backgroundColor = _getLastCharacterBackgroundColor();
+      fontWeight = FontWeight.w600;
+      fontSize = 25.0; // Slightly larger for emphasis
     }
 
     return TextSpan(
@@ -92,9 +281,72 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget> {
       style: TextStyle(
         color: color,
         backgroundColor: backgroundColor,
-        fontWeight: FontWeight.w400,
+        fontWeight: fontWeight,
+        fontSize: fontSize,
         wordSpacing: 4,
       ),
     );
+  }
+
+  Color _getAnimatedColor(Color baseColor, Color darkColor) {
+    if (!widget.isTestActive) return baseColor;
+
+    // Use animation value to create subtle color pulsing
+    final animationValue = _cursorAnimation.value;
+    return Color.lerp(
+      baseColor,
+      darkColor,
+      animationValue * 0.3, // Reduced intensity for smoother effect
+    )!;
+  }
+
+  Color _getBackgroundColor(Color baseColor) {
+    if (!widget.isTestActive) return Colors.transparent;
+
+    final animationValue = _cursorAnimation.value;
+    return baseColor.withOpacity(
+      widget.isDarkMode
+          ? 0.1 +
+              (animationValue * 0.1) // 0.1 to 0.2 opacity
+          : 0.05 + (animationValue * 0.05), // 0.05 to 0.1 opacity
+    );
+  }
+
+  Color _getLastCharacterColor() {
+    final animationValue = _cursorAnimation.value;
+    if (widget.userInput.isNotEmpty &&
+        widget.userInput[widget.userInput.length - 1] ==
+            widget.sampleText[widget.userInput.length - 1]) {
+      // Correct character - pulsating green
+      return Color.lerp(
+        Colors.green,
+        Colors.green[800]!,
+        animationValue * 0.4,
+      )!;
+    } else {
+      // Incorrect character - pulsating red
+      return Color.lerp(Colors.red, Colors.red[800]!, animationValue * 0.4)!;
+    }
+  }
+
+  Color _getLastCharacterBackgroundColor() {
+    final animationValue = _cursorAnimation.value;
+    if (widget.userInput.isNotEmpty &&
+        widget.userInput[widget.userInput.length - 1] ==
+            widget.sampleText[widget.userInput.length - 1]) {
+      // Correct character background
+      return Colors.green.withOpacity(
+        widget.isDarkMode
+            ? 0.15 + (animationValue * 0.1)
+            : 0.08 + (animationValue * 0.05),
+      );
+    } else {
+      // Incorrect character background
+      return Colors.red.withOpacity(
+        widget.isDarkMode
+            ? 0.15 + (animationValue * 0.1)
+            : 0.08 + (animationValue * 0.05),
+      );
+    }
   }
 }

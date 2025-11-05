@@ -3,6 +3,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/typing_provider.dart';
 import '../models/user_model.dart';
@@ -192,6 +193,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> signOut() async {
+    final SharedPreferences preferance = await SharedPreferences.getInstance();
     try {
       _isLoading = true;
       _isSignOut = true;
@@ -202,6 +204,8 @@ class AuthProvider with ChangeNotifier {
       await _supabase.auth.signOut();
       _user = null;
       _error = null;
+
+      await preferance.clear();
 
       debugPrint('User signed out successfully');
     } catch (e) {
