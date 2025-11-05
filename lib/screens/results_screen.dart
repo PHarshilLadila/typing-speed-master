@@ -162,7 +162,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                           isMobile,
                           isSmallMobile,
                         ),
-                        SizedBox(height: isDesktop ? 32.0 : 20.0),
+                        SizedBox(height: isDesktop ? 40.0 : 20.0),
                         _buildDetailedStats(
                           titleFontSize,
                           textFontSize,
@@ -570,78 +570,76 @@ class _ResultsScreenState extends State<ResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Detailed Statistics',
-            style: TextStyle(
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
-            ),
-          ),
-          SizedBox(height: isDesktop ? 20.0 : 16.0),
+          // Text(
+          //   'Detailed Statistics',
+          //   style: TextStyle(
+          //     fontSize: titleFontSize,
+          //     fontWeight: FontWeight.bold,
+          //     color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+          //   ),
+          // ),
+          // SizedBox(height: isDesktop ? 20.0 : 16.0),
 
-          if (isDesktop || isTablet)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                _buildStatItem(
-                  'Correct Characters',
-                  widget.result.correctChars.toString(),
-                  Colors.green,
-                  themeProvider.isDarkMode,
-                  isSmallMobile,
-                ),
-                _buildStatItem(
-                  'Incorrect Characters',
-                  widget.result.incorrectChars.toString(),
-                  Colors.red,
-                  themeProvider.isDarkMode,
-                  isSmallMobile,
-                ),
-                _buildStatItem(
-                  'Total Characters',
-                  widget.result.totalChars.toString(),
-                  Colors.blue,
-                  themeProvider.isDarkMode,
-                  isSmallMobile,
-                ),
-              ],
-            )
-          else
-            Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _buildStatItem(
-                      'Correct',
-                      widget.result.correctChars.toString(),
-                      Colors.green,
-                      themeProvider.isDarkMode,
-                      isSmallMobile,
-                    ),
-                    _buildStatItem(
-                      'Incorrect',
-                      widget.result.incorrectChars.toString(),
-                      Colors.red,
-                      themeProvider.isDarkMode,
-                      isSmallMobile,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 16),
-                _buildStatItem(
-                  'Total Characters',
-                  widget.result.totalChars.toString(),
-                  Colors.blue,
-                  themeProvider.isDarkMode,
-                  isSmallMobile,
-                ),
-              ],
-            ),
-
-          SizedBox(height: isDesktop ? 32.0 : 24.0),
-
+          // if (isDesktop || isTablet)
+          //   Row(
+          //     mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //     children: [
+          //       _buildStatItem(
+          //         'Correct Characters',
+          //         widget.result.correctChars.toString(),
+          //         Colors.green,
+          //         themeProvider.isDarkMode,
+          //         isSmallMobile,
+          //       ),
+          //       _buildStatItem(
+          //         'Incorrect Characters',
+          //         widget.result.incorrectChars.toString(),
+          //         Colors.red,
+          //         themeProvider.isDarkMode,
+          //         isSmallMobile,
+          //       ),
+          //       _buildStatItem(
+          //         'Total Characters',
+          //         widget.result.totalChars.toString(),
+          //         Colors.blue,
+          //         themeProvider.isDarkMode,
+          //         isSmallMobile,
+          //       ),
+          //     ],
+          //   )
+          // else
+          //   Column(
+          //     children: [
+          //       Row(
+          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //         children: [
+          //           _buildStatItem(
+          //             'Correct',
+          //             widget.result.correctChars.toString(),
+          //             Colors.green,
+          //             themeProvider.isDarkMode,
+          //             isSmallMobile,
+          //           ),
+          //           _buildStatItem(
+          //             'Incorrect',
+          //             widget.result.incorrectChars.toString(),
+          //             Colors.red,
+          //             themeProvider.isDarkMode,
+          //             isSmallMobile,
+          //           ),
+          //         ],
+          //       ),
+          //       SizedBox(height: 16),
+          //       _buildStatItem(
+          //         'Total Characters',
+          //         widget.result.totalChars.toString(),
+          //         Colors.blue,
+          //         themeProvider.isDarkMode,
+          //         isSmallMobile,
+          //       ),
+          //     ],
+          //   ),
+          // SizedBox(height: isDesktop ? 32.0 : 24.0),
           Text(
             'Performance Overview',
             style: TextStyle(
@@ -742,82 +740,191 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(height: isDesktop ? 20.0 : 16.0),
 
-          SizedBox(
-            height: chartHeight,
-            child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                labelStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[300]
-                          : Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-              ),
-              primaryYAxis: NumericAxis(
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-                labelStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[300]
-                          : Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-                majorGridLines: MajorGridLines(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[700]
-                          : Colors.grey[300],
-                  dashArray: const [5, 5],
-                ),
-              ),
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                header: '',
-                canShowMarker: true,
-                tooltipPosition: TooltipPosition.pointer,
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey[300]
-                        : Colors.grey[800],
-                textStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode ? Colors.black87 : Colors.white,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-              ),
-              series: <CartesianSeries>[
-                ColumnSeries<TypingStatData, String>(
-                  dataSource: _chartData,
-                  xValueMapper: (TypingStatData data, _) => data.label,
-                  yValueMapper: (TypingStatData data, _) => data.value,
-                  gradient: LinearGradient(
-                    colors:
-                        themeProvider.isDarkMode
-                            ? [Colors.green, Colors.lightGreenAccent]
-                            : [Colors.lightGreenAccent, Colors.green],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  dataLabelSettings: DataLabelSettings(
-                    isVisible: !isSmallMobile,
-                    textStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: chartHeight,
+                  child: SfCartesianChart(
+                    primaryXAxis: CategoryAxis(
+                      majorGridLines: const MajorGridLines(width: 0),
+                      labelStyle: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[300]
+                                : Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        fontSize: isSmallMobile ? 10 : 12,
+                      ),
+                    ),
+                    primaryYAxis: NumericAxis(
+                      axisLine: const AxisLine(width: 0),
+                      majorTickLines: const MajorTickLines(size: 0),
+                      labelStyle: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[300]
+                                : Colors.grey[700],
+                        fontWeight: FontWeight.w500,
+                        fontSize: isSmallMobile ? 10 : 12,
+                      ),
+                      majorGridLines: MajorGridLines(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[700]
+                                : Colors.grey[300],
+                        dashArray: const [5, 5],
+                      ),
+                    ),
+                    tooltipBehavior: TooltipBehavior(
+                      enable: true,
+                      header: '',
+                      canShowMarker: true,
+                      tooltipPosition: TooltipPosition.pointer,
                       color:
                           themeProvider.isDarkMode
-                              ? Colors.white
-                              : Colors.black87,
-                      fontSize: isSmallMobile ? 10 : 12,
+                              ? Colors.grey[300]
+                              : Colors.grey[800],
+                      textStyle: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.black87
+                                : Colors.white,
+                        fontSize: isSmallMobile ? 10 : 12,
+                      ),
+                    ),
+                    series: <CartesianSeries>[
+                      ColumnSeries<TypingStatData, String>(
+                        dataSource: _chartData,
+                        xValueMapper: (TypingStatData data, _) => data.label,
+                        yValueMapper: (TypingStatData data, _) => data.value,
+                        gradient: LinearGradient(
+                          colors:
+                              themeProvider.isDarkMode
+                                  ? [Colors.green, Colors.lightGreenAccent]
+                                  : [Colors.lightGreenAccent, Colors.green],
+                          begin: Alignment.bottomCenter,
+                          end: Alignment.topCenter,
+                        ),
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8),
+                        ),
+                        dataLabelSettings: DataLabelSettings(
+                          isVisible: !isSmallMobile,
+                          textStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black87,
+                            fontSize: isSmallMobile ? 10 : 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: chartHeight,
+                  child: SfCircularChart(
+                    tooltipBehavior: TooltipBehavior(
+                      enable: true,
+                      header: '',
+                      format: 'point.x : point.y',
+                      canShowMarker: true,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey[300]
+                              : Colors.grey[800],
+                      textStyle: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.black87
+                                : Colors.white,
+                        fontSize: isSmallMobile ? 10 : 12,
+                      ),
+                    ),
+                    series: <CircularSeries>[
+                      PieSeries<TypingStatData, String>(
+                        dataSource: _chartData,
+                        xValueMapper: (TypingStatData data, _) => data.label,
+                        yValueMapper: (TypingStatData data, _) => data.value,
+                        dataLabelSettings: DataLabelSettings(
+                          isVisible: true,
+                          textStyle: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.black87,
+                            fontSize: isSmallMobile ? 10 : 12,
+                          ),
+                          labelPosition: ChartDataLabelPosition.outside,
+                          connectorLineSettings: ConnectorLineSettings(
+                            length: '20%',
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.grey[300]
+                                    : Colors.grey[700],
+                          ),
+                          // Show both label and value in format: "Label: Value"
+                          builder: (
+                            dynamic data,
+                            dynamic point,
+                            dynamic series,
+                            int pointIndex,
+                            int seriesIndex,
+                          ) {
+                            return Text('${data.label}: ${data.value}');
+                          },
+                        ),
+                        // Different colors for each slice
+                        pointColorMapper: (TypingStatData data, int index) {
+                          // Define a color palette - you can customize these colors
+                          final List<Color> colorPalette = [
+                            Colors.amber,
+                            Color(0xff1b3665),
+                            Colors.purple,
+                          ];
+
+                          // Use modulo to cycle through colors if there are more data points than colors
+                          return colorPalette[index % colorPalette.length];
+                        },
+                        // Show actual values instead of percentages
+                        dataLabelMapper: (TypingStatData data, _) {
+                          '${data.label}\n${data.value}';
+                        },
+
+                        enableTooltip: true,
+                        // enableSmartLabels: true,
+                        // Optional: Add animation
+                        animationDuration: 1000,
+                        opacity: 5,
+                        strokeWidth: 0.5,
+                        // strokeColor:
+                        //     themeProvider.isDarkMode
+                        //         ? Colors.white
+                        //         : Colors.transparent,
+                      ),
+                    ],
+                    legend: Legend(
+                      isVisible: _chartData.length <= 8,
+                      position: LegendPosition.bottom,
+                      overflowMode: LegendItemOverflowMode.wrap,
+                      textStyle: TextStyle(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[300]
+                                : Colors.grey[700],
+                        fontSize: isSmallMobile ? 10 : 12,
+                      ),
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ],
       ),

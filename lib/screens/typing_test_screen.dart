@@ -130,6 +130,59 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
+  // void _completeTest() {
+  //   if (_startTime == null || !mounted) return;
+
+  //   _typingSampleTimer?.cancel();
+
+  //   final endTime = DateTime.now();
+  //   final duration = endTime.difference(_startTime!);
+  //   final words = _userInput.split(' ').where((word) => word.isNotEmpty).length;
+
+  //   final wpm = (words / (duration.inSeconds / 60)).round();
+
+  //   int correctChars = 0;
+  //   final sampleText = _getTargetText();
+
+  //   for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
+  //     if (_userInput[i] == sampleText[i]) correctChars++;
+  //   }
+
+  //   final accuracy =
+  //       sampleText.isNotEmpty ? (correctChars / sampleText.length) * 100 : 0;
+
+  //   final provider = Provider.of<TypingProvider>(context, listen: false);
+  //   final consistency = provider.calculateConsistency();
+
+  //   final result = TypingResult(
+  //     wpm: wpm,
+  //     accuracy: accuracy.toDouble(),
+  //     consistency: consistency,
+  //     correctChars: correctChars,
+  //     incorrectChars: _userInput.length - correctChars,
+  //     totalChars: _userInput.length,
+  //     duration: duration,
+  //     timestamp: DateTime.now(),
+  //     difficulty: provider.selectedDifficulty,
+  //     isWordBasedTest: _isWordBasedTest,
+  //     targetWords:
+  //         _isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
+  //   );
+
+  //   setState(() {
+  //     _testCompleted = true;
+  //     _testStarted = false;
+  //   });
+
+  //   dev.log('Saving typing result - WPM: $wpm, Accuracy: $accuracy');
+
+  //   provider.saveResult(result);
+
+  //   final resultsProvider = TypingTestResultsProvider.of(context);
+  //   if (resultsProvider != null) {
+  //     resultsProvider.showResults(result);
+  //   }
+  // }
   void _completeTest() {
     if (_startTime == null || !mounted) return;
 
@@ -144,12 +197,15 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     int correctChars = 0;
     final sampleText = _getTargetText();
 
+    // Count correct characters
     for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
       if (_userInput[i] == sampleText[i]) correctChars++;
     }
 
+    // FIXED: Calculate accuracy based on what user actually typed, not the full sample text
+    final totalTypedChars = _userInput.length;
     final accuracy =
-        sampleText.isNotEmpty ? (correctChars / sampleText.length) * 100 : 0;
+        totalTypedChars > 0 ? (correctChars / totalTypedChars) * 100 : 0.0;
 
     final provider = Provider.of<TypingProvider>(context, listen: false);
     final consistency = provider.calculateConsistency();
@@ -500,7 +556,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                       focusedBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: borderColor, width: 0.2),
                       ),
-                      hintText: 'Type the text shown above...',
+                      hintText:
+                          'Press the Enter or Space key to begin the test..',
                       hintStyle: TextStyle(
                         color:
                             themeProvider.isDarkMode
@@ -519,16 +576,19 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                               : Colors.black,
                     ),
                   ),
+                  SizedBox(height: spacing * 1),
+
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildInputField(
+                      themeProvider,
+                      cardColor ?? Colors.grey,
+                      inputBorderColor,
+                      subtitleColor ?? Colors.grey,
+                    ),
+                  ),
                 ],
               ),
-            ),
-            SizedBox(height: spacing * 1.25),
-
-            _buildInputField(
-              themeProvider,
-              cardColor ?? Colors.grey,
-              inputBorderColor,
-              subtitleColor ?? Colors.grey,
             ),
           ],
         ),
@@ -665,7 +725,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                             width: 0.2,
                           ),
                         ),
-                        hintText: 'Type the text shown above...',
+                        hintText:
+                            'Press the Enter or Space key to begin the test..',
                         hintStyle: TextStyle(
                           color:
                               themeProvider.isDarkMode
@@ -684,18 +745,18 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                                 : Colors.black,
                       ),
                     ),
+                    SizedBox(height: spacing),
+
+                    _buildInputField(
+                      themeProvider,
+                      cardColor ?? Colors.grey,
+                      inputBorderColor,
+                      subtitleColor ?? Colors.grey,
+                    ),
                   ],
                 ),
               ),
             ),
-          ),
-          SizedBox(height: spacing),
-
-          _buildInputField(
-            themeProvider,
-            cardColor ?? Colors.grey,
-            inputBorderColor,
-            subtitleColor ?? Colors.grey,
           ),
         ],
       ),
@@ -1335,34 +1396,37 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       children: [
         if (_testStarted || _testCompleted)
           Row(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _resetTest,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[700]
-                            : Colors.grey[200],
-                    foregroundColor:
-                        themeProvider.isDarkMode
-                            ? Colors.white
-                            : Colors.grey[800],
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+              TextButton(
+                onPressed: _resetTest,
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(
+                    themeProvider.isDarkMode ? Colors.white : Colors.black12,
                   ),
-                  child: const Text('Restart Test'),
+                ),
+                child: Text(
+                  'Restart Test',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
               ),
               const SizedBox(width: 12),
-              Expanded(
-                child: ElevatedButton(
-                  onPressed: _testStarted ? _completeTest : null,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.amber,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+              TextButton(
+                onPressed: _testStarted ? _completeTest : null,
+                style: const ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                ),
+                child: Text(
+                  'Complete Test',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
                   ),
-                  child: const Text('Complete Test'),
                 ),
               ),
             ],
