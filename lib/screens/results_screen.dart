@@ -570,76 +570,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Text(
-          //   'Detailed Statistics',
-          //   style: TextStyle(
-          //     fontSize: titleFontSize,
-          //     fontWeight: FontWeight.bold,
-          //     color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
-          //   ),
-          // ),
-          // SizedBox(height: isDesktop ? 20.0 : 16.0),
-
-          // if (isDesktop || isTablet)
-          //   Row(
-          //     mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //     children: [
-          //       _buildStatItem(
-          //         'Correct Characters',
-          //         widget.result.correctChars.toString(),
-          //         Colors.green,
-          //         themeProvider.isDarkMode,
-          //         isSmallMobile,
-          //       ),
-          //       _buildStatItem(
-          //         'Incorrect Characters',
-          //         widget.result.incorrectChars.toString(),
-          //         Colors.red,
-          //         themeProvider.isDarkMode,
-          //         isSmallMobile,
-          //       ),
-          //       _buildStatItem(
-          //         'Total Characters',
-          //         widget.result.totalChars.toString(),
-          //         Colors.blue,
-          //         themeProvider.isDarkMode,
-          //         isSmallMobile,
-          //       ),
-          //     ],
-          //   )
-          // else
-          //   Column(
-          //     children: [
-          //       Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //         children: [
-          //           _buildStatItem(
-          //             'Correct',
-          //             widget.result.correctChars.toString(),
-          //             Colors.green,
-          //             themeProvider.isDarkMode,
-          //             isSmallMobile,
-          //           ),
-          //           _buildStatItem(
-          //             'Incorrect',
-          //             widget.result.incorrectChars.toString(),
-          //             Colors.red,
-          //             themeProvider.isDarkMode,
-          //             isSmallMobile,
-          //           ),
-          //         ],
-          //       ),
-          //       SizedBox(height: 16),
-          //       _buildStatItem(
-          //         'Total Characters',
-          //         widget.result.totalChars.toString(),
-          //         Colors.blue,
-          //         themeProvider.isDarkMode,
-          //         isSmallMobile,
-          //       ),
-          //     ],
-          //   ),
-          // SizedBox(height: isDesktop ? 32.0 : 24.0),
           Text(
             'Performance Overview',
             style: TextStyle(
@@ -869,7 +799,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
                                     ? Colors.grey[300]
                                     : Colors.grey[700],
                           ),
-                          // Show both label and value in format: "Label: Value"
                           builder: (
                             dynamic data,
                             dynamic point,
@@ -880,33 +809,22 @@ class _ResultsScreenState extends State<ResultsScreen> {
                             return Text('${data.label}: ${data.value}');
                           },
                         ),
-                        // Different colors for each slice
                         pointColorMapper: (TypingStatData data, int index) {
-                          // Define a color palette - you can customize these colors
                           final List<Color> colorPalette = [
                             Colors.amber,
                             Color(0xff1b3665),
                             Colors.purple,
                           ];
 
-                          // Use modulo to cycle through colors if there are more data points than colors
                           return colorPalette[index % colorPalette.length];
                         },
-                        // Show actual values instead of percentages
                         dataLabelMapper: (TypingStatData data, _) {
-                          '${data.label}\n${data.value}';
+                          return '${data.label}\n${data.value}';
                         },
-
                         enableTooltip: true,
-                        // enableSmartLabels: true,
-                        // Optional: Add animation
                         animationDuration: 1000,
                         opacity: 5,
                         strokeWidth: 0.5,
-                        // strokeColor:
-                        //     themeProvider.isDarkMode
-                        //         ? Colors.white
-                        //         : Colors.transparent,
                       ),
                     ],
                     legend: Legend(
@@ -928,47 +846,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildStatItem(
-    String label,
-    String value,
-    Color color,
-    bool isDarkTheme,
-    bool isSmallMobile,
-  ) {
-    return Column(
-      children: [
-        Container(
-          padding: EdgeInsets.all(isSmallMobile ? 8 : 12),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            shape: BoxShape.circle,
-          ),
-          child: Text(
-            value,
-            style: TextStyle(
-              fontSize: isSmallMobile ? 12 : 16,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        SizedBox(
-          width: isSmallMobile ? 80 : 100,
-          child: Text(
-            label,
-            style: TextStyle(
-              fontSize: isSmallMobile ? 10 : 12,
-              color: Colors.grey[600],
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-          ),
-        ),
-      ],
     );
   }
 

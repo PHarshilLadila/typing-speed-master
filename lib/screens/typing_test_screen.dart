@@ -130,59 +130,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
-  // void _completeTest() {
-  //   if (_startTime == null || !mounted) return;
-
-  //   _typingSampleTimer?.cancel();
-
-  //   final endTime = DateTime.now();
-  //   final duration = endTime.difference(_startTime!);
-  //   final words = _userInput.split(' ').where((word) => word.isNotEmpty).length;
-
-  //   final wpm = (words / (duration.inSeconds / 60)).round();
-
-  //   int correctChars = 0;
-  //   final sampleText = _getTargetText();
-
-  //   for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
-  //     if (_userInput[i] == sampleText[i]) correctChars++;
-  //   }
-
-  //   final accuracy =
-  //       sampleText.isNotEmpty ? (correctChars / sampleText.length) * 100 : 0;
-
-  //   final provider = Provider.of<TypingProvider>(context, listen: false);
-  //   final consistency = provider.calculateConsistency();
-
-  //   final result = TypingResult(
-  //     wpm: wpm,
-  //     accuracy: accuracy.toDouble(),
-  //     consistency: consistency,
-  //     correctChars: correctChars,
-  //     incorrectChars: _userInput.length - correctChars,
-  //     totalChars: _userInput.length,
-  //     duration: duration,
-  //     timestamp: DateTime.now(),
-  //     difficulty: provider.selectedDifficulty,
-  //     isWordBasedTest: _isWordBasedTest,
-  //     targetWords:
-  //         _isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
-  //   );
-
-  //   setState(() {
-  //     _testCompleted = true;
-  //     _testStarted = false;
-  //   });
-
-  //   dev.log('Saving typing result - WPM: $wpm, Accuracy: $accuracy');
-
-  //   provider.saveResult(result);
-
-  //   final resultsProvider = TypingTestResultsProvider.of(context);
-  //   if (resultsProvider != null) {
-  //     resultsProvider.showResults(result);
-  //   }
-  // }
   void _completeTest() {
     if (_startTime == null || !mounted) return;
 
@@ -197,12 +144,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     int correctChars = 0;
     final sampleText = _getTargetText();
 
-    // Count correct characters
     for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
       if (_userInput[i] == sampleText[i]) correctChars++;
     }
 
-    // FIXED: Calculate accuracy based on what user actually typed, not the full sample text
     final totalTypedChars = _userInput.length;
     final accuracy =
         totalTypedChars > 0 ? (correctChars / totalTypedChars) * 100 : 0.0;

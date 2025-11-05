@@ -60,7 +60,7 @@ class AppConstants {
     Duration(seconds: 60),
     Duration(seconds: 120),
     Duration(seconds: 180),
-    Duration(seconds: 300), // 5 minutes
+    Duration(seconds: 300),
     Duration(seconds: 0), // No time limit - Word based test
   ];
 
