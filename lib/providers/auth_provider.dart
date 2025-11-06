@@ -82,10 +82,12 @@ class AuthProvider with ChangeNotifier {
 
       String redirectUrl;
       if (kIsWeb) {
-        final uri = Uri.parse(currentUrl);
-        redirectUrl = '${uri.origin}${uri.path}';
+        // final uri = Uri.parse(currentUrl);
+        // redirectUrl = '${uri.origin}${uri.path}';
+        redirectUrl = 'https://typingspeedmaster.vercel.app';
       } else {
-        redirectUrl = 'http://localhost:62621';
+        // redirectUrl = 'http://localhost:62621';
+        redirectUrl = 'https://typingspeedmaster.vercel.app';
       }
 
       debugPrint('Using redirect URL: $redirectUrl');
