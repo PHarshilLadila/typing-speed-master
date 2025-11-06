@@ -3,11 +3,9 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:provider/provider.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_difficulty_container.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_progress_indicator.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
-import 'package:typing_speed_master/providers/auth_provider.dart';
 
 class TypingResultCard extends StatelessWidget {
   final TypingResult result;
@@ -129,7 +127,7 @@ class TypingResultCard extends StatelessWidget {
     final cardHeight = _getCardHeight(context);
     final cardPadding = _getCardPadding(context);
     final elementSpacing = _getElementSpacing(context);
-    final authProvider = Provider.of<AuthProvider>(context);
+    // final authProvider = Provider.of<AuthProvider>(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Stack(
