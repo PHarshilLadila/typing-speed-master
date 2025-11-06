@@ -513,20 +513,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     CustomDialog.showSignOutDialog(
                       context: context,
                       onConfirm: () async {
-                        // 1️⃣ Close dialog first
                         Navigator.of(context, rootNavigator: true).pop();
-
-                        // 2️⃣ Wait for signOut to actually finish
                         await authProvider.signOut();
-
-                        // (Optional) if using Firebase:
-                        // await FirebaseAuth.instance.signOut();
-                        // await FirebaseAuth.instance.setPersistence(Persistence.NONE);
-
-                        // 3️⃣ Wait a bit to ensure everything is saved/cleared
                         await Future.delayed(Duration(milliseconds: 500));
-
-                        // 4️⃣ Reload the app (depending on platform)
                         if (kIsWeb) {
                           html.window.location.assign(
                             html.window.location.href,
@@ -534,7 +523,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         } else {
                           Restart.restartApp();
                         }
-
                         log("✅ User Sign Out Successful and App Restarted");
                       },
                     );

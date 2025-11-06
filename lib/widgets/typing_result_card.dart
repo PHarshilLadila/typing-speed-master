@@ -239,7 +239,6 @@ class TypingResultCard extends StatelessWidget {
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  // 'Accuracy (User : ${authProvider.user!.fullName ?? "N/A"})',
                                   'Accuracy',
                                   style: TextStyle(
                                     fontSize: subtitleFontSize - 1,

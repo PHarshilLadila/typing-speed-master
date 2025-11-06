@@ -192,31 +192,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> signOut() async {
-  //   final SharedPreferences preferance = await SharedPreferences.getInstance();
-  //   try {
-  //     _isLoading = true;
-  //     _isSignOut = true;
-  //     notifyListeners();
-
-  //     await Future.delayed(const Duration(milliseconds: 100));
-
-  //     await _supabase.auth.signOut();
-  //     _user = null;
-  //     _error = null;
-
-  //     await preferance.clear();
-
-  //     debugPrint('User signed out successfully');
-  //   } catch (e) {
-  //     _error = 'Failed to sign out: $e';
-  //     debugPrint('Sign out error: $e');
-  //   } finally {
-  //     _isLoading = false;
-  //     _isSignOut = false;
-  //     notifyListeners();
-  //   }
-  // }
   Future<void> signOut() async {
     final SharedPreferences preference = await SharedPreferences.getInstance();
     try {
@@ -230,10 +205,8 @@ class AuthProvider with ChangeNotifier {
       _user = null;
       _error = null;
 
-      // Only clear your app data, not Supabase auth data
       await preference.remove('user');
       await preference.remove('typing_results');
-      // Add any other app-specific keys
 
       debugPrint('User signed out successfully');
     } catch (e) {

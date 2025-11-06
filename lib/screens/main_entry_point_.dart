@@ -41,8 +41,6 @@ class _MainEntryPointState extends State<MainEntryPoint> {
 
   void _onMenuClick(int index) {
     setState(() {
-      // _selectedIndex = index;
-      // _currentPage = null;
       _selectedIndex = index;
       _currentPage = _pages[index];
     });
@@ -55,17 +53,13 @@ class _MainEntryPointState extends State<MainEntryPoint> {
         result: result,
         onBackToTest: () {
           setState(() {
-            // _currentPage = null;
-            // _selectedIndex = 0;
-            _currentPage = _pages[0]; // Back to typing test
+            _currentPage = _pages[0];
             _selectedIndex = 0;
           });
         },
         onBackToDashboard: () {
           setState(() {
-            // _currentPage = null;
-            // _selectedIndex = 1;
-            _currentPage = _pages[1]; // Back to dashboard
+            _currentPage = _pages[1];
             _selectedIndex = 1;
           });
         },
@@ -81,17 +75,8 @@ class _MainEntryPointState extends State<MainEntryPoint> {
         final themeProvider = Provider.of<ThemeProvider>(context);
         final authProvider = Provider.of<AuthProvider>(context);
 
-        // final Widget bodyContent = _currentPage ?? _pages[_selectedIndex];
-
         final Widget bodyContent = _currentPage!;
 
-        // final Widget finalBodyContent =
-        //     _currentPage == null
-        //         ? TypingTestResultsProvider(
-        //           showResultsScreen: _showResultsScreen,
-        //           child: bodyContent,
-        //         )
-        //         : bodyContent;
         final Widget finalBodyContent =
             _currentPage is ResultsScreen
                 ? bodyContent

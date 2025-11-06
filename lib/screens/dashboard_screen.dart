@@ -21,15 +21,8 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen> {
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Access providers here instead
     final provider = Provider.of<TypingProvider>(context, listen: false);
     provider.getAllRecentResults();
   }

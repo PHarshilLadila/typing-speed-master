@@ -153,7 +153,6 @@ class TypingProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      // Check if user is logged in
       final session = _supabase.auth.currentSession;
       _isUserLoggedIn = session != null;
 
@@ -164,7 +163,6 @@ class TypingProvider with ChangeNotifier {
       }
     } catch (e) {
       dev.log('Error loading results: $e');
-      // Fallback to local storage
       await _loadResultsFromLocal();
     }
 

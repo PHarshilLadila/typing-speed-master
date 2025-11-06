@@ -17,15 +17,8 @@ class HistoryScreen extends StatefulWidget {
 
 class _HistoryScreenState extends State<HistoryScreen> {
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Access providers here instead
     final provider = Provider.of<TypingProvider>(context, listen: false);
     provider.getAllRecentResults();
   }

@@ -128,11 +128,8 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-
-                  // ProfileDropdown(),
                   ProfileDropdown(
                     onProfileAction: () {
-                      // This ensures the profile page reflects latest changes
                       if (selectedIndex != 3) {
                         onMenuClick(3);
                       }
@@ -380,52 +377,22 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
-                // onPressed: () {
-                //   _hideProfileOverlay();
-                //   if (authProvider.isLoggedIn) {
-                //     CustomDialog.showSignOutDialog(
-                //       context: context,
-                //       onConfirm: () {
-                //         authProvider.signOut();
-                //         widget.onProfileAction();
-                //       },
-                //     );
-                //   } else {
-                //     // authProvider.signInWithGoogle();
-                //     authProvider.signInWithGoogle().then((_) {
-                //       // After sign in, navigate to profile page
-                //       widget.onProfileAction();
-                //     });
-                //   }
-                // },
                 onPressed: () {
                   _hideProfileOverlay();
                   if (authProvider.isLoggedIn) {
                     CustomDialog.showSignOutDialog(
                       context: context,
                       onConfirm: () async {
-                        // 1️⃣ Close dialog first
                         Navigator.of(context, rootNavigator: true).pop();
 
-                        // 2️⃣ Wait for signOut to actually finish
                         await authProvider.signOut();
-
-                        // (Optional) if using Firebase:
-                        // await FirebaseAuth.instance.signOut();
-                        // await FirebaseAuth.instance.setPersistence(Persistence.NONE);
-
-                        // 3️⃣ Wait a bit to ensure everything is saved/cleared
                         await Future.delayed(Duration(milliseconds: 500));
-
-                        // 4️⃣ Reload the app (depending on platform)
                         if (kIsWeb) {
                           html.window.location.assign(
                             html.window.location.href,
                           );
-                          log("✅");
                         } else {
                           Restart.restartApp();
-                          log("✅✅✅");
                         }
 
                         log("✅ User Sign Out Successful and App Restarted");
