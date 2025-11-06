@@ -39,7 +39,7 @@ class AppDarkTheme {
         hintStyle: const TextStyle(color: Colors.grey),
       ),
       cardColor: Colors.grey[800],
-      bottomAppBarTheme: BottomAppBarTheme(color: Colors.grey[800]),
+      // bottomAppBarTheme: BottomAppBarTheme(color: Colors.grey[800]),
       // dialogTheme: DialogTheme(backgroundColor: Colors.grey[800]),
     );
   }
