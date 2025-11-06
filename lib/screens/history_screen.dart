@@ -158,22 +158,39 @@ class _HistoryScreenState extends State<HistoryScreen> {
             children:
                 recentResults
                     .map(
-                      (result) => TypingResultCard(
-                        result: result,
-                        subtitleFontSize: _getResponsiveSubtitleFontSize(
-                          context,
-                        ),
-                        isDarkMode: themeProvider.isDarkMode,
-                        isHistory: true,
-                        onViewDetails: () {
-                          log('View details for ${result.difficulty}');
-                          final resultsProvider = TypingTestResultsProvider.of(
-                            context,
-                          );
-                          if (resultsProvider != null) {
-                            resultsProvider.showResults(result);
-                          }
-                        },
+                      (result) => Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Expanded(
+                            flex: 1,
+                            child: Text(
+                              '${recentResults.indexOf(result) + 1}',
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 23,
+                              ),
+                            ),
+                          ),
+                          Expanded(
+                            flex: 40,
+                            child: TypingResultCard(
+                              result: result,
+                              subtitleFontSize: _getResponsiveSubtitleFontSize(
+                                context,
+                              ),
+                              isDarkMode: themeProvider.isDarkMode,
+                              isHistory: true,
+                              onViewDetails: () {
+                                log('View details for ${result.difficulty}');
+                                final resultsProvider =
+                                    TypingTestResultsProvider.of(context);
+                                if (resultsProvider != null) {
+                                  resultsProvider.showResults(result);
+                                }
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     )
                     .toList(),
