@@ -1,0 +1,14 @@
+[phases]
+setup = """
+    apt-get update
+    apt-get install -y curl git unzip xz-utils zip libglu1-mesa clang cmake
+"""
+build = """
+    git clone https://github.com/flutter/flutter.git --depth 1 -b stable
+    export PATH="$PATH:$(pwd)/flutter/bin"
+    flutter doctor
+    flutter build web --release --web-renderer canvaskit
+"""
+
+[start]
+cmd = "python3 -m http.server 8080 --directory build/web"
