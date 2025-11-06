@@ -1,8 +1,13 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
@@ -123,7 +128,16 @@ class CustomAppBar extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 16),
-                  ProfileDropdown(),
+
+                  // ProfileDropdown(),
+                  ProfileDropdown(
+                    onProfileAction: () {
+                      // This ensures the profile page reflects latest changes
+                      if (selectedIndex != 3) {
+                        onMenuClick(3);
+                      }
+                    },
+                  ),
                 ],
               ),
             ),
@@ -134,7 +148,9 @@ class CustomAppBar extends StatelessWidget {
 }
 
 class ProfileDropdown extends StatefulWidget {
-  const ProfileDropdown({super.key});
+  final VoidCallback onProfileAction;
+
+  const ProfileDropdown({super.key, required this.onProfileAction});
 
   @override
   State<ProfileDropdown> createState() => _ProfileDropdownState();
@@ -364,17 +380,61 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(
+                // onPressed: () {
+                //   _hideProfileOverlay();
+                //   if (authProvider.isLoggedIn) {
+                //     CustomDialog.showSignOutDialog(
+                //       context: context,
+                //       onConfirm: () {
+                //         authProvider.signOut();
+                //         widget.onProfileAction();
+                //       },
+                //     );
+                //   } else {
+                //     // authProvider.signInWithGoogle();
+                //     authProvider.signInWithGoogle().then((_) {
+                //       // After sign in, navigate to profile page
+                //       widget.onProfileAction();
+                //     });
+                //   }
+                // },
                 onPressed: () {
                   _hideProfileOverlay();
                   if (authProvider.isLoggedIn) {
                     CustomDialog.showSignOutDialog(
                       context: context,
-                      onConfirm: () {
-                        authProvider.signOut();
+                      onConfirm: () async {
+                        // 1️⃣ Close dialog first
+                        Navigator.of(context, rootNavigator: true).pop();
+
+                        // 2️⃣ Wait for signOut to actually finish
+                        await authProvider.signOut();
+
+                        // (Optional) if using Firebase:
+                        // await FirebaseAuth.instance.signOut();
+                        // await FirebaseAuth.instance.setPersistence(Persistence.NONE);
+
+                        // 3️⃣ Wait a bit to ensure everything is saved/cleared
+                        await Future.delayed(Duration(milliseconds: 500));
+
+                        // 4️⃣ Reload the app (depending on platform)
+                        if (kIsWeb) {
+                          html.window.location.assign(
+                            html.window.location.href,
+                          );
+                          log("✅");
+                        } else {
+                          Restart.restartApp();
+                          log("✅✅✅");
+                        }
+
+                        log("✅ User Sign Out Successful and App Restarted");
                       },
                     );
                   } else {
-                    authProvider.signInWithGoogle();
+                    authProvider.signInWithGoogle().then((_) {
+                      widget.onProfileAction();
+                    });
                   }
                 },
                 style: OutlinedButton.styleFrom(

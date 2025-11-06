@@ -13,6 +13,7 @@ class TypingResultCard extends StatelessWidget {
   final bool isDarkMode;
   final VoidCallback? onViewDetails;
   final bool isHistory;
+  final String? indexOfNumbers;
 
   const TypingResultCard({
     super.key,
@@ -21,6 +22,7 @@ class TypingResultCard extends StatelessWidget {
     this.isDarkMode = false,
     this.onViewDetails,
     this.isHistory = true,
+    this.indexOfNumbers,
   });
 
   Color getDifficultyColor(String difficulty) {
@@ -127,7 +129,6 @@ class TypingResultCard extends StatelessWidget {
     final cardHeight = _getCardHeight(context);
     final cardPadding = _getCardPadding(context);
     final elementSpacing = _getElementSpacing(context);
-    // final authProvider = Provider.of<AuthProvider>(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       child: Stack(
@@ -148,120 +149,110 @@ class TypingResultCard extends StatelessWidget {
               ),
             ),
           ),
-          Container(
-            height: cardHeight,
-            width: double.infinity,
-            padding: cardPadding,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: borderColor),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                SizedBox(
-                  width: progressSize,
-                  height: progressSize,
-                  child: AnimatedProgressIndicator(
-                    value: result.wpm / 100,
-                    subtitleFontSize: subtitleFontSize,
-                    textColor: textColor,
-                    subtitleTextColor: subtitleTextColor ?? Colors.pink,
-                    progressBackgroundColor:
-                        progressBackgroundColor ?? Colors.pink,
-                    size: progressSize,
-                  ),
-                ),
-                SizedBox(width: elementSpacing),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF66BB6A).withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(5.0),
-                              child: Icon(
-                                FontAwesomeIcons.circleDot,
-                                color: const Color(0xFF66BB6A),
-                                size: subtitleFontSize - 3,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${result.accuracy.toStringAsFixed(1)}%',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize,
-                              fontWeight: FontWeight.bold,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              // 'Accuracy (User : ${authProvider.user!.fullName ?? "N/A"})',
-                              'Accuracy',
-                              style: TextStyle(
-                                fontSize: subtitleFontSize - 1,
-                                color: subtitleTextColor,
-                              ),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
+          Stack(
+            children: [
+              isHistory
+                  ? Positioned(
+                    top: 1,
+                    left: 1,
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: isDarkMode ? Colors.white24 : Colors.black12,
+                        shape: BoxShape.rectangle,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(17),
+                          bottomLeft: Radius.circular(2),
+                          bottomRight: Radius.circular(2),
+                          topRight: Radius.circular(2),
+                        ),
                       ),
-                      const SizedBox(height: 6),
-                      Row(
+                      child: Text(
+                        "$indexOfNumbers",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: isDarkMode ? Colors.white : Colors.black,
+                        ),
+                      ),
+                    ),
+                  )
+                  : SizedBox.shrink(),
+              Container(
+                height: cardHeight,
+                width: double.infinity,
+                padding: cardPadding,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: borderColor),
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    SizedBox(
+                      width: progressSize,
+                      height: progressSize,
+                      child: AnimatedProgressIndicator(
+                        value: result.wpm / 100,
+                        subtitleFontSize: subtitleFontSize,
+                        textColor: textColor,
+                        subtitleTextColor: subtitleTextColor ?? Colors.pink,
+                        progressBackgroundColor:
+                            progressBackgroundColor ?? Colors.pink,
+                        size: progressSize,
+                      ),
+                    ),
+                    SizedBox(width: elementSpacing),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              color: iconBackgroundColor,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(4.0),
-                              child: Icon(
-                                Icons.access_time,
-                                size: subtitleFontSize - 1,
-                                color: iconColor,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           Row(
                             children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: const Color(
+                                    0xFF66BB6A,
+                                  ).withOpacity(0.1),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(5.0),
+                                  child: Icon(
+                                    FontAwesomeIcons.circleDot,
+                                    color: const Color(0xFF66BB6A),
+                                    size: subtitleFontSize - 3,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
                               Text(
-                                '${result.duration.inSeconds - 1}s',
+                                '${result.accuracy.toStringAsFixed(1)}%',
                                 style: TextStyle(
-                                  fontSize: subtitleFontSize - 2,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: subtitleFontSize,
+                                  fontWeight: FontWeight.bold,
                                   color: textColor,
                                 ),
                               ),
                               const SizedBox(width: 4),
-                              Text(
-                                'Duration',
-                                style: TextStyle(
-                                  fontSize: subtitleFontSize - 2,
-                                  color: subtitleTextColor,
+                              Expanded(
+                                child: Text(
+                                  // 'Accuracy (User : ${authProvider.user!.fullName ?? "N/A"})',
+                                  'Accuracy',
+                                  style: TextStyle(
+                                    fontSize: subtitleFontSize - 1,
+                                    color: subtitleTextColor,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                             ],
                           ),
-                        ],
-                      ),
-                      SizedBox(height: isHistory ? 6 : 0),
-                      isHistory
-                          ? Row(
+                          const SizedBox(height: 6),
+                          Row(
                             children: [
                               Container(
                                 decoration: BoxDecoration(
@@ -271,49 +262,93 @@ class TypingResultCard extends StatelessWidget {
                                 child: Padding(
                                   padding: const EdgeInsets.all(4.0),
                                   child: Icon(
-                                    FontAwesomeIcons.chartBar,
+                                    Icons.access_time,
                                     size: subtitleFontSize - 1,
                                     color: iconColor,
                                   ),
                                 ),
                               ),
                               const SizedBox(width: 8),
-                              TextButton(
-                                onPressed:
-                                    onViewDetails ?? () => log("View Details"),
-                                style: const ButtonStyle(
-                                  backgroundColor: WidgetStatePropertyAll(
-                                    Colors.amber,
+                              Row(
+                                children: [
+                                  Text(
+                                    '${result.duration.inSeconds - 1}s',
+                                    style: TextStyle(
+                                      fontSize: subtitleFontSize - 2,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
                                   ),
-                                ),
-                                child: Text(
-                                  'View Details',
-                                  style: TextStyle(
-                                    fontSize: subtitleFontSize - 5,
-                                    fontWeight: FontWeight.bold,
-                                    color:
-                                        isDarkMode
-                                            ? Colors.white
-                                            : Colors.black,
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Duration',
+                                    style: TextStyle(
+                                      fontSize: subtitleFontSize - 2,
+                                      color: subtitleTextColor,
+                                    ),
                                   ),
-                                ),
+                                ],
                               ),
                             ],
-                          )
-                          : const SizedBox.shrink(),
-                    ],
-                  ),
+                          ),
+                          SizedBox(height: isHistory ? 6 : 0),
+                          isHistory
+                              ? Row(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      color: iconBackgroundColor,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(4.0),
+                                      child: Icon(
+                                        FontAwesomeIcons.chartBar,
+                                        size: subtitleFontSize - 1,
+                                        color: iconColor,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  TextButton(
+                                    onPressed:
+                                        onViewDetails ??
+                                        () => log("View Details"),
+                                    style: const ButtonStyle(
+                                      backgroundColor: WidgetStatePropertyAll(
+                                        Colors.amber,
+                                      ),
+                                    ),
+                                    child: Text(
+                                      'View Details',
+                                      style: TextStyle(
+                                        fontSize: subtitleFontSize - 5,
+                                        fontWeight: FontWeight.bold,
+                                        color:
+                                            isDarkMode
+                                                ? Colors.white
+                                                : Colors.black,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              )
+                              : const SizedBox.shrink(),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    AnimatedDifficultyContainer(
+                      difficultyColor: difficultyColor,
+                      difficultyGradientColor: difficultyGradientColor,
+                      difficultyIcon: difficultyIcon,
+                      difficulty: result.difficulty,
+                      subtitleFontSize: subtitleFontSize,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                AnimatedDifficultyContainer(
-                  difficultyColor: difficultyColor,
-                  difficultyGradientColor: difficultyGradientColor,
-                  difficultyIcon: difficultyIcon,
-                  difficulty: result.difficulty,
-                  subtitleFontSize: subtitleFontSize,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
           Positioned(
             right: 0,

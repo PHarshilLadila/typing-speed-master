@@ -12,8 +12,27 @@ import '../providers/typing_provider.dart';
 import '../widgets/stats_card.dart';
 import '../widgets/accuracy_chart.dart';
 
-class DashboardScreen extends StatelessWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
+
+  @override
+  State<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends State<DashboardScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Access providers here instead
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    provider.getAllRecentResults();
+  }
 
   @override
   Widget build(BuildContext context) {

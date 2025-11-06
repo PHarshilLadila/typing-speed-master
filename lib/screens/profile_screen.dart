@@ -1,10 +1,15 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:developer';
+import 'dart:html' as html;
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:restart_app/restart_app.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
@@ -507,8 +512,30 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   onPressed: () {
                     CustomDialog.showSignOutDialog(
                       context: context,
-                      onConfirm: () {
-                        authProvider.signOut();
+                      onConfirm: () async {
+                        // 1️⃣ Close dialog first
+                        Navigator.of(context, rootNavigator: true).pop();
+
+                        // 2️⃣ Wait for signOut to actually finish
+                        await authProvider.signOut();
+
+                        // (Optional) if using Firebase:
+                        // await FirebaseAuth.instance.signOut();
+                        // await FirebaseAuth.instance.setPersistence(Persistence.NONE);
+
+                        // 3️⃣ Wait a bit to ensure everything is saved/cleared
+                        await Future.delayed(Duration(milliseconds: 500));
+
+                        // 4️⃣ Reload the app (depending on platform)
+                        if (kIsWeb) {
+                          html.window.location.assign(
+                            html.window.location.href,
+                          );
+                        } else {
+                          Restart.restartApp();
+                        }
+
+                        log("✅ User Sign Out Successful and App Restarted");
                       },
                     );
                   },

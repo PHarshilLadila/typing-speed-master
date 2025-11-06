@@ -16,6 +16,20 @@ class HistoryScreen extends StatefulWidget {
 }
 
 class _HistoryScreenState extends State<HistoryScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Access providers here instead
+    final provider = Provider.of<TypingProvider>(context, listen: false);
+    provider.getAllRecentResults();
+  }
+
   EdgeInsets _getResponsivePadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
@@ -158,39 +172,23 @@ class _HistoryScreenState extends State<HistoryScreen> {
             children:
                 recentResults
                     .map(
-                      (result) => Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: Text(
-                              '${recentResults.indexOf(result) + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 23,
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 40,
-                            child: TypingResultCard(
-                              result: result,
-                              subtitleFontSize: _getResponsiveSubtitleFontSize(
-                                context,
-                              ),
-                              isDarkMode: themeProvider.isDarkMode,
-                              isHistory: true,
-                              onViewDetails: () {
-                                log('View details for ${result.difficulty}');
-                                final resultsProvider =
-                                    TypingTestResultsProvider.of(context);
-                                if (resultsProvider != null) {
-                                  resultsProvider.showResults(result);
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                      (result) => TypingResultCard(
+                        result: result,
+                        subtitleFontSize: _getResponsiveSubtitleFontSize(
+                          context,
+                        ),
+                        isDarkMode: themeProvider.isDarkMode,
+                        isHistory: true,
+                        onViewDetails: () {
+                          log('View details for ${result.difficulty}');
+                          final resultsProvider = TypingTestResultsProvider.of(
+                            context,
+                          );
+                          if (resultsProvider != null) {
+                            resultsProvider.showResults(result);
+                          }
+                        },
+                        indexOfNumbers: '${recentResults.indexOf(result) + 1}',
                       ),
                     )
                     .toList(),
@@ -227,7 +225,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Improve your typing speed and accuracy',
+                'Here Your Fingers’ History Lives!',
                 style: TextStyle(
                   fontSize: subtitleFontSize,
                   color: subtitleColor,
@@ -249,7 +247,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         child: Column(
           children: [
             _buildHeader(context, 24, 18),
-            const SizedBox(height: 40),
+            const SizedBox(height: 30),
             _buildRecentResults(
               context,
               _getResponsiveSubtitleFontSize(context),
