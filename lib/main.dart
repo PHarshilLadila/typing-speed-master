@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
@@ -12,12 +13,17 @@ import 'providers/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await dotenv.load(fileName: ".env");
 
-  await Supabase.initialize(
-    url: "https://uxksujxjnrjgdufeapfz.supabase.co",
-    anonKey:
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV4a3N1anhqbnJqZ2R1ZmVhcGZ6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjE4MzI4MzUsImV4cCI6MjA3NzQwODgzNX0.dZkGyvlHmy_lOr5IrQmxDM-a8gGYhgREBA2pzatgTFo",
-  );
+  final supabaseURL = dotenv.env['SUPABASE_URL'];
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+
+  if (supabaseURL == null || supabaseAnonKey == null) {
+    throw Exception("Missing Supabase credentials in .env file");
+  }
+
+  await Supabase.initialize(url: supabaseURL, anonKey: supabaseAnonKey);
+
   runApp(const TypingSpeedTesterApp());
 }
 

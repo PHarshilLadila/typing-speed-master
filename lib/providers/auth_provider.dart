@@ -82,12 +82,12 @@ class AuthProvider with ChangeNotifier {
 
       String redirectUrl;
       if (kIsWeb) {
-        // final uri = Uri.parse(currentUrl);
-        // redirectUrl = '${uri.origin}${uri.path}';
-        redirectUrl = 'https://typingspeedmaster.vercel.app';
+        // final uri = Uri.parse(currentUrl); // for local
+        // redirectUrl = '${uri.origin}${uri.path}'; // for local (Also update the URL configuration in the Authentication section of the Supabase Studio.)
+        redirectUrl = 'https://typingspeedmaster.vercel.app'; // for production
       } else {
-        // redirectUrl = 'http://localhost:62621';
-        redirectUrl = 'https://typingspeedmaster.vercel.app';
+        // redirectUrl = 'http://localhost:62621'; // for local
+        redirectUrl = 'https://typingspeedmaster.vercel.app'; // for production
       }
 
       debugPrint('Using redirect URL: $redirectUrl');
