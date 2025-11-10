@@ -1,16 +1,16 @@
-# Typing Speed Test
+# [Typing Speed Test](https://typingspeedmaster.vercel.app/)
 
 A professional, fully responsive web application built with Flutter for testing and improving your typing speed. Track your progress, analyze your performance, and compete with yourself through comprehensive statistics and analytics.
 
 ![Flutter](https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white)
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![Supabase](https://img.shields.io/badge/Supabase-FFCA28?style=for-the-badge&logo=supabase&logoColor=black)
 ![Web](https://img.shields.io/badge/Web-4285F4?style=for-the-badge&logo=google-chrome&logoColor=white)
 
 ## 🚀 Features
 
 ### Core Functionality
 - **Real-time Typing Test** - Test your typing speed with live feedback
-- **Multiple Difficulty Levels** - Choose from Easy, Medium, Hard, and Expert modes
+- **Multiple Difficulty Levels** - Choose from Easy, Medium and Hard modes
 - **Accurate Metrics** - Track Words Per Minute (WPM), accuracy percentage, and consistency
 - **Time Options** - Select test duration: 30s, 60s, 120s, or 300s
 - **Live Statistics** - View real-time performance metrics during your test
@@ -27,14 +27,14 @@ A professional, fully responsive web application built with Flutter for testing 
 - **Persistent Data** - All your test results are saved for future reference
 - **Fully Responsive** - Optimized for desktop, tablet, and mobile devices
 - **Clean Interface** - Modern, intuitive design for distraction-free typing
-- **Dark/Light Mode** - Choose your preferred theme (if implemented)
+- **Dark/Light Mode** - Choose your preferred theme
 
 ## 🎯 How It Works
 
 ### Getting Started
 
 1. **Visit the Application**
-   - Open the web application in your browser
+   - Open the web application in your browser - https://typingspeedmaster.vercel.app
    - No installation required - runs entirely in your browser
 
 2. **Sign In (Optional)**
@@ -143,8 +143,7 @@ Optimized for:
 
 For questions, issues, or feedback:
 - Open an issue on GitHub
-- Contact: [your-email@example.com]
-- Documentation: [project-wiki-link]
+- Contact: harshilgajipaea.ladila@gmail.com
 
 ## 📄 License
 
