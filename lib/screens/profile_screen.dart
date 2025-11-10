@@ -349,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       children: [
         _buildTag('ID: ${user.id.substring(0, 8)}...', isDark),
         _buildTag('Intermediate', isDark),
-        _buildTag('7 Day Streak 🔥', isDark),
+        _buildTag('Streak Maintained 🔥', isDark),
       ],
     );
   }
