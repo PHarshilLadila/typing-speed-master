@@ -58,3 +58,5 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
     );
   }
 }
+
+// Updated on Mac
