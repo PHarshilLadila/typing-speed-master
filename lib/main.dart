@@ -46,7 +46,7 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return MaterialApp(
-            title: 'Typing Speed Tester',
+            title: 'Typing Speed Master',
             theme: AppLightTheme.theme,
             darkTheme: AppDarkTheme.theme,
             themeMode: themeProvider.themeMode,
@@ -58,5 +58,3 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
     );
   }
 }
-
-// Updated on Mac
