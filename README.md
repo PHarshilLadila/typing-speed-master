@@ -47,14 +47,13 @@ A professional, fully responsive web application built with Flutter for testing 
    - Customize any additional settings
 
 4. **Start Typing**
-   - Click "Start Test" or begin typing
+   - Press Enter or Space to begin your typing test!
    - Type the displayed text as quickly and accurately as possible
    - Watch your metrics update in real-time
 
 5. **View Results**
    - See your WPM, accuracy, and consistency scores
    - Navigate to the dashboard for detailed analytics
-   - Compare with your previous attempts
 
 ### Understanding Your Metrics
 
@@ -77,7 +76,6 @@ A professional, fully responsive web application built with Flutter for testing 
 - **Easy**: Common words, simple sentences
 - **Medium**: Standard vocabulary, varied sentence structure
 - **Hard**: Complex words, technical terms
-- **Expert**: Advanced vocabulary, challenging combinations
 
 ## 📊 Dashboard Features
 
@@ -86,35 +84,15 @@ Your personal dashboard provides:
 - **Overview Statistics**: Total tests taken, average WPM, best score
 - **Performance Graphs**: Visual representation of your progress over time
 - **Recent Tests**: Quick access to your latest typing sessions
-- **Achievements**: Milestones and personal bests
-- **Comparison Tools**: See how you improve across difficulty levels
 - **Time Analysis**: Performance breakdown by time of day
 
 ## 🔒 Privacy & Data
 
-- Your typing test data is securely stored in Firebase
+- Your typing test data is securely stored in Supabase
 - Google authentication ensures your data is protected
 - Data is used solely for your personal analytics
 - No typing content is stored, only performance metrics
 - Delete your data anytime from account settings
-
-## 💡 Tips for Better Typing
-
-1. **Proper Posture**: Sit with your back straight and feet flat on the floor
-2. **Home Row Position**: Keep fingers on ASDF and JKL; keys
-3. **Look at the Screen**: Avoid looking at the keyboard
-4. **Practice Regularly**: Consistent practice improves muscle memory
-5. **Focus on Accuracy**: Speed will naturally increase with accuracy
-6. **Take Breaks**: Prevent fatigue with regular breaks
-
-## 🌐 Browser Compatibility
-
-Optimized for:
-- Google Chrome (Recommended)
-- Mozilla Firefox
-- Safari
-- Microsoft Edge
-- Opera
 
 ## 📱 Device Support
 
@@ -122,7 +100,7 @@ Optimized for:
 - **Tablet**: Fully responsive with touch support
 - **Mobile**: Adapted interface for smaller screens
 
-## 🆘 Troubleshooting
+## Troubleshooting
 
 **Authentication Issues**
 - Ensure pop-ups are enabled for Google sign-in
@@ -149,9 +127,9 @@ For questions, issues, or feedback:
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
-- Built with Flutter and Firebase
+- Built with Flutter and Supabase
 - Inspired by typing test platforms worldwide
 - Community feedback and contributions
 
