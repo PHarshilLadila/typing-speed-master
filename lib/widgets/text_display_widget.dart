@@ -97,7 +97,7 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
   }
 
   Widget _buildAnimatedText() {
-    return SelectableText.rich(
+    return Text.rich(
       TextSpan(children: _buildAnimatedTextSpans()),
       style: TextStyle(
         fontSize: 24,

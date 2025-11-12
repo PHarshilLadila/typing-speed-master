@@ -6,6 +6,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/widgets/charecter_analysis_widget.dart';
 import '../models/typing_result.dart';
 import '../widgets/stats_card.dart';
 
@@ -136,7 +137,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     : isSmallMobile
                     ? 16.0
                     : 20.0;
-
+            final themeProvider = Provider.of<ThemeProvider>(context);
             return Stack(
               children: [
                 Padding(
@@ -168,6 +169,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                           textFontSize,
                           chartHeight,
                           statItemSpacing,
+                          isDesktop,
+                          isTablet,
+                          isMobile,
+                          isSmallMobile,
+                        ),
+                        SizedBox(height: isDesktop ? 32.0 : 20.0),
+                        _buildErrorAnalysisSection(
+                          themeProvider,
                           isDesktop,
                           isTablet,
                           isMobile,
@@ -942,6 +951,63 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildErrorAnalysisSection(
+    ThemeProvider themeProvider,
+    bool isDesktop,
+    bool isTablet,
+    bool isMobile,
+    bool isSmallMobile,
+  ) {
+    return Container(
+      width: double.infinity,
+      padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.black12 : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color:
+              themeProvider.isDarkMode ? Colors.grey[800]! : Colors.grey[200]!,
+        ),
+        boxShadow: [
+          if (!themeProvider.isDarkMode)
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
+            ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Text Comparison',
+            style: TextStyle(
+              fontSize:
+                  isDesktop
+                      ? 24.0
+                      : isTablet
+                      ? 20.0
+                      : 18.0,
+              fontWeight: FontWeight.bold,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+            ),
+          ),
+          SizedBox(height: isDesktop ? 24.0 : 16.0),
+
+          CharecterAnalysisWidget(
+            originalText: widget.result.originalText,
+            userInput: widget.result.userInput,
+            incorrectCharPositions: widget.result.incorrectCharPositions,
+            isDarkMode: themeProvider.isDarkMode,
+          ),
+
+          SizedBox(height: isDesktop ? 16.0 : 12.0),
+        ],
+      ),
     );
   }
 }

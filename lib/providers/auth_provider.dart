@@ -300,15 +300,15 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  Future<void> triggerDataSync() async {
-    try {
-      dev.log('Triggering data sync after login');
+  // Future<void> triggerDataSync() async {
+  //   try {
+  //     dev.log('Triggering data sync after login');
 
-      await Future.delayed(Duration(seconds: 2));
-    } catch (e) {
-      debugPrint('Error triggering data sync: $e');
-    }
-  }
+  //     await Future.delayed(Duration(seconds: 2));
+  //   } catch (e) {
+  //     debugPrint('Error triggering data sync: $e');
+  //   }
+  // }
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }

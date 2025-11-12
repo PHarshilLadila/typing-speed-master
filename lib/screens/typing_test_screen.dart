@@ -141,33 +141,37 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     final wpm = (words / (duration.inSeconds / 60)).round();
 
-    int correctChars = 0;
-    final sampleText = _getTargetText();
-
-    for (int i = 0; i < _userInput.length && i < sampleText.length; i++) {
-      if (_userInput[i] == sampleText[i]) correctChars++;
-    }
-
-    final totalTypedChars = _userInput.length;
-    final accuracy =
-        totalTypedChars > 0 ? (correctChars / totalTypedChars) * 100 : 0.0;
-
     final provider = Provider.of<TypingProvider>(context, listen: false);
+    final originalText = provider.currentOriginalText;
+
+    final incorrectCharPositions = provider.calculateIncorrectCharPositions(
+      _userInput,
+      originalText,
+    );
+
+    int correctChars = _userInput.length - incorrectCharPositions.length;
+    int incorrectChars = incorrectCharPositions.length;
+    int totalChars = _userInput.length;
+
+    final accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0.0;
     final consistency = provider.calculateConsistency();
 
     final result = TypingResult(
       wpm: wpm,
-      accuracy: accuracy.toDouble(),
+      accuracy: accuracy,
       consistency: consistency,
       correctChars: correctChars,
-      incorrectChars: _userInput.length - correctChars,
-      totalChars: _userInput.length,
+      incorrectChars: incorrectChars,
+      totalChars: totalChars,
       duration: duration,
       timestamp: DateTime.now(),
       difficulty: provider.selectedDifficulty,
       isWordBasedTest: _isWordBasedTest,
       targetWords:
           _isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
+      incorrectCharPositions: incorrectCharPositions,
+      originalText: originalText,
+      userInput: _userInput,
     );
 
     setState(() {
@@ -175,7 +179,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _testStarted = false;
     });
 
-    dev.log('Saving typing result - WPM: $wpm, Accuracy: $accuracy');
+    dev.log(
+      'Saving typing result - WPM: $wpm, Accuracy: $accuracy, Errors: $incorrectChars',
+    );
 
     provider.saveResult(result);
 
