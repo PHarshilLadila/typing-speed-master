@@ -15,6 +15,7 @@ class TypingProvider with ChangeNotifier {
   Duration _selectedDuration = Duration(seconds: 60);
   List<String> _currentTextPool = [];
   int _currentTextIndex = 0;
+  Random _random = Random();
 
   List<int> typingSpeedSamples = [];
   List<DateTime> typingTimestamps = [];
@@ -54,17 +55,32 @@ class TypingProvider with ChangeNotifier {
   }
 
   void _initializeTextPool() {
-    _currentTextPool = List.from(
-      AppConstants.sampleTextsByDifficulty[_selectedDifficulty] ?? [],
-    );
+    final availableTexts =
+        AppConstants.sampleTextsByDifficulty[_selectedDifficulty] ?? [];
+
+    if (availableTexts.isEmpty) {
+      _currentTextPool = [
+        "No text available for this difficulty. Please select another difficulty level.",
+      ];
+    } else {
+      _currentTextPool = List.from(availableTexts);
+      _currentTextPool.shuffle(_random);
+    }
+
     _currentTextIndex = 0;
     _currentOriginalText = getCurrentText();
+    dev.log(
+      'Initialized text pool for $_selectedDifficulty with ${_currentTextPool.length} texts',
+    );
   }
 
   void setDifficulty(String difficulty) {
-    _selectedDifficulty = difficulty;
-    _initializeTextPool();
-    notifyListeners();
+    if (_selectedDifficulty != difficulty) {
+      _selectedDifficulty = difficulty;
+      dev.log('Difficulty changed to: $difficulty');
+      _initializeTextPool();
+      notifyListeners();
+    }
   }
 
   void setDuration(Duration duration) {
@@ -75,6 +91,10 @@ class TypingProvider with ChangeNotifier {
   String getCurrentText() {
     if (_currentTextPool.isEmpty) {
       _initializeTextPool();
+    }
+
+    if (_currentTextIndex >= _currentTextPool.length) {
+      _currentTextIndex = 0;
     }
 
     String baseText = _currentTextPool[_currentTextIndex];
@@ -102,7 +122,21 @@ class TypingProvider with ChangeNotifier {
   void moveToNextText() {
     _currentTextIndex = (_currentTextIndex + 1) % _currentTextPool.length;
     _currentOriginalText = getCurrentText();
+    dev.log(
+      'Moved to next text. Index: $_currentTextIndex, Difficulty: $_selectedDifficulty',
+    );
     notifyListeners();
+  }
+
+  void getRandomText() {
+    if (_currentTextPool.isNotEmpty) {
+      _currentTextIndex = _random.nextInt(_currentTextPool.length);
+      _currentOriginalText = getCurrentText();
+      dev.log(
+        'Selected random text. Index: $_currentTextIndex, Difficulty: $_selectedDifficulty',
+      );
+      notifyListeners();
+    }
   }
 
   void updateUserInput(String userInput) {
