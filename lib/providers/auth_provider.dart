@@ -59,7 +59,6 @@ class AuthProvider with ChangeNotifier {
         final typingProvider = _getTypingProvider();
         if (typingProvider != null) {
           await typingProvider.verifySupabaseConnection();
-          // await typingProvider.syncLocalResultsToSupabase();
         }
       } else {
         _user = null;
@@ -275,17 +274,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> syncUserData() async {
-  //   try {
-  //     final typingProvider = _getTypingProvider();
-  //     if (typingProvider != null) {
-  //       await typingProvider.syncLocalResultsToSupabase();
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error syncing user data: $e');
-  //   }
-  // }
-
   TypingProvider? _getTypingProvider() {
     try {
       final context = navigatorKey.currentContext;
@@ -297,16 +285,6 @@ class AuthProvider with ChangeNotifier {
     }
     return null;
   }
-
-  // Future<void> triggerDataSync() async {
-  //   try {
-  //     dev.log('Triggering data sync after login');
-
-  //     await Future.delayed(Duration(seconds: 2));
-  //   } catch (e) {
-  //     debugPrint('Error triggering data sync: $e');
-  //   }
-  // }
 
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 }

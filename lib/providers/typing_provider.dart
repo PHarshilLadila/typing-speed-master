@@ -48,9 +48,7 @@ class TypingProvider with ChangeNotifier {
       dev.log('Auth state changed: User logged in: $_isUserLoggedIn');
 
       if (_isUserLoggedIn) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          // syncLocalResultsToSupabase();
-        });
+        WidgetsBinding.instance.addPostFrameCallback((_) {});
       }
     });
   }
@@ -341,8 +339,6 @@ class TypingProvider with ChangeNotifier {
     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
     try {
-      // await _saveResultToLocal(result);
-
       if (_isUserLoggedIn) {
         await _saveResultToSupabase(result);
       }
@@ -353,51 +349,11 @@ class TypingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Future<void> _saveResultToLocal(TypingResult result) async {
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final jsonString = json.encode(_results.map((r) => r.toMap()).toList());
-  //     await prefs.setString('typing_results', jsonString);
-  //     dev.log('Result saved to local storage');
-  //   } catch (e) {
-  //     dev.log('Error saving result to local: $e');
-  //   }
-  // }
-
-  // Future<void> deleteHistoryEntry(TypingResult result) async {
-  //   try {
-  //     // Remove locally
-  //     _results.remove(result);
-  //     await _saveAllResultsToLocal();
-
-  //     if (_isUserLoggedIn) {
-  //       final user = _supabase.auth.currentUser;
-
-  //       if (user != null) {
-  //         // Delete from Supabase using both `user_id` and `id`
-  //         final response = await _supabase
-  //             .from('typing_results')
-  //             .delete()
-  //             .match({'user_id': user.id, 'id': result.id.toString()});
-
-  //         dev.log('Deleted history entry from Supabase for user: ${user.id}');
-  //         dev.log('Supabase delete response: $response');
-  //       }
-  //     }
-
-  //     notifyListeners();
-  //   } catch (e) {
-  //     dev.log("Error deleting history entry: $e");
-  //   }
-  // }
-
   Future<void> deleteHistoryEntry(TypingResult result) async {
     try {
-      // Remove locally first
       _results.remove(result);
       await _saveAllResultsToLocal();
 
-      // Notify UI immediately for better UX
       notifyListeners();
 
       if (_isUserLoggedIn) {
@@ -408,25 +364,22 @@ class TypingProvider with ChangeNotifier {
             'Attempting to delete from Supabase - User: ${user.id}, Result ID: ${result.id}',
           );
 
-          // Option 1: Delete with select (returns deleted records)
           final response =
               await _supabase
                   .from('typing_results')
                   .delete()
                   .eq('id', result.id!)
-                  .eq('user_id', user.id) // Additional safety check
+                  .eq('user_id', user.id)
                   .select();
 
           dev.log('Supabase delete response: $response');
 
-          // SUCCESS: When using .select(), Supabase returns the deleted records
           if (response.isNotEmpty) {
             dev.log(
               'Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
             );
           } else if (response.isEmpty) {
             dev.log('No record found to delete');
-            // This means the record didn't exist in Supabase (might be local only)
           } else {
             dev.log('Unexpected null response from Supabase delete');
           }
@@ -439,12 +392,10 @@ class TypingProvider with ChangeNotifier {
     } catch (e) {
       dev.log("Error deleting history entry: $e");
 
-      // Re-add the result if deletion failed
       _results.add(result);
       await _saveAllResultsToLocal();
       notifyListeners();
 
-      // Show error to user
       dev.log('Failed to delete: ${e.toString()}');
     }
   }
@@ -460,59 +411,6 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> _saveResultToSupabase(TypingResult result) async {
-  //   try {
-  //     final user = _supabase.auth.currentUser;
-  //     if (user == null) {
-  //       dev.log('No user found, skipping Supabase save');
-  //       return;
-  //     }
-
-  //     final session = _supabase.auth.currentSession;
-  //     if (session == null) {
-  //       dev.log('No active session, skipping Supabase save');
-  //       return;
-  //     }
-
-  //     final resultData = {
-  //       'user_id': user.id,
-  //       'wpm': result.wpm,
-  //       'accuracy': result.accuracy,
-  //       'consistency': result.consistency,
-  //       'correct_chars': result.correctChars,
-  //       'incorrect_chars': result.incorrectChars,
-  //       'total_chars': result.totalChars,
-  //       'duration_in_seconds': result.duration.inSeconds,
-  //       'difficulty': result.difficulty,
-  //       'is_word_based_test': result.isWordBasedTest,
-  //       'target_words': result.targetWords,
-  //       'timestamp': result.timestamp.toIso8601String(),
-  //       'incorrect_char_positions': result.incorrectCharPositions,
-  //       'original_text': result.originalText,
-  //       'user_input': result.userInput,
-  //     };
-
-  //     dev.log('Attempting to save to Supabase: $resultData');
-
-  //     final response =
-  //         await _supabase.from('typing_results').insert(resultData).select();
-
-  //     dev.log('Supabase insert response: $response');
-
-  //     if (response.isNotEmpty) {
-  //       dev.log(
-  //         'Result saved to Supabase successfully with ID: ${response[0]['id']}',
-  //       );
-  //     } else {
-  //       dev.log('Supabase insert returned empty response');
-  //     }
-  //   } catch (e) {
-  //     dev.log('Error saving result to Supabase: $e');
-  //     if (e is PostgrestException) {
-  //       dev.log('Postgrest error details: ${e.message}');
-  //     }
-  //   }
-  // }
   Future<void> _saveResultToSupabase(TypingResult result) async {
     try {
       final user = _supabase.auth.currentUser;
@@ -556,7 +454,6 @@ class TypingProvider with ChangeNotifier {
         final savedResult = response[0];
         final supabaseId = savedResult['id']?.toString();
 
-        // Update the local result with the Supabase ID
         final updatedResult = TypingResult(
           id: supabaseId,
           userId: user.id,
@@ -576,7 +473,6 @@ class TypingProvider with ChangeNotifier {
           userInput: result.userInput,
         );
 
-        // Replace the local result with the updated one containing the ID
         final index = _results.indexWhere(
           (r) => r.timestamp == result.timestamp && r.id == null,
         );
@@ -616,38 +512,6 @@ class TypingProvider with ChangeNotifier {
       dev.log('Supabase connection test failed: $e');
     }
   }
-
-  // Future<void> syncLocalResultsToSupabase() async {
-  //   if (!_isUserLoggedIn) {
-  //     dev.log('User not logged in, skipping sync');
-  //     return;
-  //   }
-
-  //   try {
-  //     final prefs = await SharedPreferences.getInstance();
-  //     final resultsString = prefs.getString('typing_results');
-
-  //     if (resultsString != null) {
-  //       final List<dynamic> jsonList = json.decode(resultsString);
-  //       final localResults =
-  //           jsonList.map((json) => TypingResult.fromMap(json)).toList();
-
-  //       dev.log('Syncing ${localResults.length} local results to Supabase');
-
-  //       for (final result in localResults) {
-  //         await _saveResultToSupabase(result);
-  //       }
-
-  //       dev.log(
-  //         'Successfully synced ${localResults.length} local results to Supabase',
-  //       );
-
-  //       await _loadResultsFromSupabase();
-  //     }
-  //   } catch (e) {
-  //     dev.log('Error syncing local results to Supabase: $e');
-  //   }
-  // }
 
   void clearHistory() async {
     _results.clear();
@@ -709,8 +573,8 @@ class TypingProvider with ChangeNotifier {
     }
 
     return TypingResult(
-      id: json['id']?.toString(), // Add this line
-      userId: json['user_id']?.toString(), // Add this line
+      id: json['id']?.toString(),
+      userId: json['user_id']?.toString(),
       wpm: json['wpm'],
       accuracy: (json['accuracy'] as num).toDouble(),
       consistency: (json['consistency'] as num).toDouble(),
