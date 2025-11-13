@@ -335,28 +335,6 @@ class TypingResultCard extends StatelessWidget {
                                 ],
                               )
                               : const SizedBox.shrink(),
-                          // Spacer(),
-                          // Center(
-                          //   child: OutlinedButton(
-                          //     onPressed: () {},
-                          //     style: OutlinedButton.styleFrom(
-                          //       backgroundColor: Colors.red.withOpacity(0.2),
-                          //       foregroundColor: Colors.white,
-                          //       side: BorderSide.none,
-                          //       shape: RoundedRectangleBorder(
-                          //         borderRadius: BorderRadius.only(
-                          //           topLeft: Radius.circular(8),
-                          //           topRight: Radius.circular(8),
-                          //         ),
-                          //       ),
-                          //       padding: const EdgeInsets.symmetric(
-                          //         vertical: 12,
-                          //         horizontal: 16,
-                          //       ),
-                          //     ),
-                          //     child: Text("Remove from history"),
-                          //   ),
-                          // ),
                         ],
                       ),
                     ),
