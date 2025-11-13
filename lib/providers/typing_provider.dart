@@ -393,9 +393,6 @@ class TypingProvider with ChangeNotifier {
 
   Future<void> deleteHistoryEntry(TypingResult result) async {
     try {
-      // Store the index for potential rollback
-      final index = _results.indexOf(result);
-
       // Remove locally first
       _results.remove(result);
       await _saveAllResultsToLocal();
@@ -423,11 +420,11 @@ class TypingProvider with ChangeNotifier {
           dev.log('Supabase delete response: $response');
 
           // SUCCESS: When using .select(), Supabase returns the deleted records
-          if (response != null && response.isNotEmpty) {
+          if (response.isNotEmpty) {
             dev.log(
               '✅ Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
             );
-          } else if (response != null && response.isEmpty) {
+          } else if (response.isEmpty) {
             dev.log('❌ No record found to delete');
             // This means the record didn't exist in Supabase (might be local only)
           } else {

@@ -458,19 +458,15 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                   behavior: SnackBarBehavior.floating,
                                   backgroundColor:
                                       isDarkMode
-                                          ? Colors
-                                              .grey[850] // Dark theme background
-                                          : Colors
-                                              .white, // Light theme background
+                                          ? Colors.grey[850]
+                                          : Colors.white,
                                   content: Text(
                                     'Deleted history entry',
                                     style: TextStyle(
                                       color:
                                           isDarkMode
-                                              ? Colors
-                                                  .white // Light text on dark background
-                                              : Colors
-                                                  .black, // Dark text on light background
+                                              ? Colors.white
+                                              : Colors.black,
                                     ),
                                   ),
                                 ),
