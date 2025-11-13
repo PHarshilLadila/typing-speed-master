@@ -16,6 +16,8 @@ class AppConstants {
       "walking near the river feels peaceful when the sound of flowing water mixes with the singing of birds and the whisper of leaves moving with the wind creating a simple calm moment in the busy rhythm of life",
       "flowers bloom across the meadow filling the air with sweet scents and bright colors as bees buzz from one petal to another working hard and enjoying the sunny day full of beauty and peace everywhere",
       "the mountain stands tall above the clouds covered in snow while below the valley shines with green fields and quiet streams where people walk and enjoy nature feeling small but happy in the wide world",
+      "the quick brown fox jumps over the lazy dog again and the lazy dog just sleeps there in the warm sun near the big old tree by the very red barn on the far side of the green field where we like to play with friends",
+      "our good friends every day after we finish all of our school work and have a good snack from the large blue bag that my mother packed for us with apples and juice and some cake that she made just for this exact kind of afternoon when the sky is clear and the air is soft and we can run and laugh for a long time until the sun starts to go down behind the hills and the day becomes a cool evening that feels just right for a slow walk back home.",
     ],
 
     'Medium': [
