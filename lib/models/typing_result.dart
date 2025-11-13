@@ -74,6 +74,9 @@
 // }
 
 class TypingResult {
+  final String? id; // Supabase UUID (nullable for local results)
+  final String? userId; // Optional, stored for clarity
+
   final int wpm;
   final double accuracy;
   final double consistency;
@@ -86,10 +89,11 @@ class TypingResult {
   final bool isWordBasedTest;
   final int? targetWords;
   final List<int> incorrectCharPositions;
-  final String originalText; // Store the original text
-  final String userInput; // Store the user's typed input
-
+  final String originalText;
+  final String userInput;
   TypingResult({
+    this.id,
+    this.userId,
     required this.wpm,
     required this.accuracy,
     required this.consistency,
@@ -108,6 +112,8 @@ class TypingResult {
 
   Map<String, dynamic> toMap() {
     return {
+      'id': id,
+      'userId': userId,
       'wpm': wpm,
       'accuracy': accuracy,
       'consistency': consistency,
@@ -127,9 +133,11 @@ class TypingResult {
 
   factory TypingResult.fromMap(Map<String, dynamic> map) {
     return TypingResult(
+      id: map['id']?.toString(), // optional
+      userId: map['userId'],
       wpm: map['wpm'],
-      accuracy: map['accuracy'].toDouble(),
-      consistency: map['consistency'].toDouble(),
+      accuracy: (map['accuracy'] ?? 0).toDouble(),
+      consistency: (map['consistency'] ?? 0).toDouble(),
       correctChars: map['correctChars'],
       incorrectChars: map['incorrectChars'],
       totalChars: map['totalChars'],
@@ -148,6 +156,8 @@ class TypingResult {
 
   Map<String, dynamic> toSupabaseJson() {
     return {
+      'id': id,
+      'user_id': userId,
       'wpm': wpm,
       'accuracy': accuracy,
       'consistency': consistency,

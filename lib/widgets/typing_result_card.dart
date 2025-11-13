@@ -14,6 +14,7 @@ class TypingResultCard extends StatelessWidget {
   final VoidCallback? onViewDetails;
   final bool isHistory;
   final String? indexOfNumbers;
+  final void Function()? onTap;
 
   const TypingResultCard({
     super.key,
@@ -23,6 +24,7 @@ class TypingResultCard extends StatelessWidget {
     this.onViewDetails,
     this.isHistory = true,
     this.indexOfNumbers,
+    this.onTap,
   });
 
   Color getDifficultyColor(String difficulty) {
@@ -82,16 +84,16 @@ class TypingResultCard extends StatelessWidget {
     } else if (width < 768) {
       return isHistory ? 125 : 100;
     } else {
-      return isHistory ? 135 : 110;
+      return isHistory ? 145 : 110;
     }
   }
 
   EdgeInsets _getCardPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < 380) {
-      return const EdgeInsets.symmetric(horizontal: 12);
+      return const EdgeInsets.symmetric(horizontal: 12, vertical: 12);
     } else {
-      return const EdgeInsets.symmetric(horizontal: 20);
+      return const EdgeInsets.only(left: 20, right: 20);
     }
   }
 
@@ -271,7 +273,7 @@ class TypingResultCard extends StatelessWidget {
                               Row(
                                 children: [
                                   Text(
-                                    '${result.duration.inSeconds - 1}s',
+                                    '${result.duration.inSeconds}s',
                                     style: TextStyle(
                                       fontSize: subtitleFontSize - 2,
                                       fontWeight: FontWeight.w600,
@@ -333,16 +335,63 @@ class TypingResultCard extends StatelessWidget {
                                 ],
                               )
                               : const SizedBox.shrink(),
+                          // Spacer(),
+                          // Center(
+                          //   child: OutlinedButton(
+                          //     onPressed: () {},
+                          //     style: OutlinedButton.styleFrom(
+                          //       backgroundColor: Colors.red.withOpacity(0.2),
+                          //       foregroundColor: Colors.white,
+                          //       side: BorderSide.none,
+                          //       shape: RoundedRectangleBorder(
+                          //         borderRadius: BorderRadius.only(
+                          //           topLeft: Radius.circular(8),
+                          //           topRight: Radius.circular(8),
+                          //         ),
+                          //       ),
+                          //       padding: const EdgeInsets.symmetric(
+                          //         vertical: 12,
+                          //         horizontal: 16,
+                          //       ),
+                          //     ),
+                          //     child: Text("Remove from history"),
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
                     const SizedBox(width: 8),
-                    AnimatedDifficultyContainer(
-                      difficultyColor: difficultyColor,
-                      difficultyGradientColor: difficultyGradientColor,
-                      difficultyIcon: difficultyIcon,
-                      difficulty: result.difficulty,
-                      subtitleFontSize: subtitleFontSize,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        AnimatedDifficultyContainer(
+                          difficultyColor: difficultyColor,
+                          difficultyGradientColor: difficultyGradientColor,
+                          difficultyIcon: difficultyIcon,
+                          difficulty: result.difficulty,
+                          subtitleFontSize: subtitleFontSize,
+                        ),
+                        isHistory ? SizedBox(height: 12) : SizedBox.shrink(),
+                        isHistory
+                            ? InkWell(
+                              onTap: onTap,
+                              child: Container(
+                                width: 60,
+                                height: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Icon(
+                                  FontAwesomeIcons.trashCan,
+                                  size: 18,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            )
+                            : SizedBox.shrink(),
+                      ],
                     ),
                   ],
                 ),

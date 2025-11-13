@@ -73,17 +73,40 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     super.dispose();
   }
 
+  // void _startTest() {
+  //   if (!mounted) return;
+
+  //   setState(() {
+  //     _testStarted = true;
+  //     _startTime = DateTime.now();
+  //     _userInput = '';
+  //     _wordsTyped = 0;
+  //     _lastProcessedLength = 0;
+  //     _textController.clear();
+  //     _remainingTime = _testDuration;
+  //   });
+
+  //   final provider = Provider.of<TypingProvider>(context, listen: false);
+  //   provider.resetConsistencyTracking();
+  //   _lastSampleCharCount = 0;
+
+  //   _startTypingSampleTimer();
+
+  //   if (!_isWordBasedTest) {
+  //     _startTimer();
+  //   }
+  // }
+
   void _startTest() {
     if (!mounted) return;
 
     setState(() {
       _testStarted = true;
       _startTime = DateTime.now();
-      _userInput = '';
       _wordsTyped = 0;
       _lastProcessedLength = 0;
-      _textController.clear();
       _remainingTime = _testDuration;
+      // Note: _userInput અને _textController.clear() ને remove કર્યું છે
     });
 
     final provider = Provider.of<TypingProvider>(context, listen: false);
@@ -196,14 +219,60 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     return provider.getCurrentText();
   }
 
+  // void _onTextChanged(String value) {
+  //   if (_isProcessingInput) return;
+
+  //   _isProcessingInput = true;
+
+  //   try {
+  //     if (!_testStarted && value.isNotEmpty) {
+  //       _startTest();
+  //     }
+
+  //     if (value != _userInput) {
+  //       final words = value.split(' ').where((word) => word.isNotEmpty).length;
+
+  //       if (words != _wordsTyped || value.length != _lastProcessedLength) {
+  //         setState(() {
+  //           _userInput = value;
+  //           _wordsTyped = words;
+  //           _lastProcessedLength = value.length;
+  //         });
+  //       } else {
+  //         _userInput = value;
+  //       }
+
+  //       final sampleText = _getTargetText();
+
+  //       if (_isWordBasedTest) {
+  //         if (words >= AppConstants.wordBasedTestWordCount) {
+  //           _completeTest();
+  //         }
+  //       } else {
+  //         if (value.length >= sampleText.length) {
+  //           _completeTest();
+  //         }
+  //       }
+  //     }
+  //   } finally {
+  //     _isProcessingInput = false;
+  //   }
+  // }
+
   void _onTextChanged(String value) {
     if (_isProcessingInput) return;
 
     _isProcessingInput = true;
 
     try {
-      if (!_testStarted && value.isNotEmpty) {
+      // જો test start થયો નથી અને user એ typing start કરી છે
+      if (!_testStarted && value.trim().isNotEmpty) {
+        // પહેલા _userInput set કરો, પછી test start કરો
+        _userInput = value;
         _startTest();
+        // Return કરો જેથી નીચેનો code ફરીથી run ન થાય
+        _isProcessingInput = false;
+        return;
       }
 
       if (value != _userInput) {
@@ -236,6 +305,21 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     }
   }
 
+  // void _resetTest() {
+  //   _typingSampleTimer?.cancel();
+
+  //   setState(() {
+  //     _testStarted = false;
+  //     _testCompleted = false;
+  //     _userInput = '';
+  //     _wordsTyped = 0;
+  //     _lastProcessedLength = 0;
+  //     _textController.clear();
+  //     _remainingTime = _testDuration;
+  //   });
+
+  //   _textFocusNode.requestFocus();
+  // }
   void _resetTest() {
     _typingSampleTimer?.cancel();
 
@@ -245,10 +329,11 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       _userInput = '';
       _wordsTyped = 0;
       _lastProcessedLength = 0;
-      _textController.clear();
       _remainingTime = _testDuration;
     });
 
+    // આ બે lines નો ક્રમ બદલ્યો છે - પહેલા clear, પછી focus
+    _textController.clear();
     _textFocusNode.requestFocus();
   }
 
@@ -407,7 +492,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               isDesktop,
               isSmallMobile,
             ),
-            SizedBox(height: spacing * 2.5),
+            SizedBox(height: spacing * 1.5),
 
             _buildTimerAndStats(
               themeProvider,
