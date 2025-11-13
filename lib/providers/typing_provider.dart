@@ -422,13 +422,13 @@ class TypingProvider with ChangeNotifier {
           // SUCCESS: When using .select(), Supabase returns the deleted records
           if (response.isNotEmpty) {
             dev.log(
-              '✅ Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
+              'Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
             );
           } else if (response.isEmpty) {
-            dev.log('❌ No record found to delete');
+            dev.log('No record found to delete');
             // This means the record didn't exist in Supabase (might be local only)
           } else {
-            dev.log('❌ Unexpected null response from Supabase delete');
+            dev.log('Unexpected null response from Supabase delete');
           }
         } else {
           dev.log(
@@ -437,7 +437,7 @@ class TypingProvider with ChangeNotifier {
         }
       }
     } catch (e) {
-      dev.log("❌ Error deleting history entry: $e");
+      dev.log("Error deleting history entry: $e");
 
       // Re-add the result if deletion failed
       _results.add(result);

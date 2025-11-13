@@ -74,8 +74,8 @@
 // }
 
 class TypingResult {
-  final String? id; // Supabase UUID (nullable for local results)
-  final String? userId; // Optional, stored for clarity
+  final String? id;
+  final String? userId;
 
   final int wpm;
   final double accuracy;
@@ -133,7 +133,7 @@ class TypingResult {
 
   factory TypingResult.fromMap(Map<String, dynamic> map) {
     return TypingResult(
-      id: map['id']?.toString(), // optional
+      id: map['id']?.toString(),
       userId: map['userId'],
       wpm: map['wpm'],
       accuracy: (map['accuracy'] ?? 0).toDouble(),
