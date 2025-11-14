@@ -20,22 +20,38 @@ class CharecterAnalysisWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [_buildSideBySideComparison()],
+      children: [charecterAnalysisSideBySideComparison()],
     );
   }
 
-  Widget _buildSideBySideComparison() {
+  Widget charecterAnalysisSideBySideComparison() {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(child: _buildTextColumn('Original Text', originalText, false)),
+        Expanded(
+          child: charecterAnalysisTextColumn(
+            'Original Text',
+            originalText,
+            false,
+          ),
+        ),
         const SizedBox(width: 16),
-        Expanded(child: _buildTextColumn('Your Typed Text', userInput, true)),
+        Expanded(
+          child: charecterAnalysisTextColumn(
+            'Your Typed Text',
+            userInput,
+            true,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildTextColumn(String title, String text, bool showErrors) {
+  Widget charecterAnalysisTextColumn(
+    String title,
+    String text,
+    bool showErrors,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -52,7 +68,7 @@ class CharecterAnalysisWidget extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDarkMode ? Colors.black : Colors.white,
+            color: isDarkMode ? Colors.grey[900] : Colors.white,
             borderRadius: BorderRadius.circular(6),
             border: Border.all(
               color: isDarkMode ? Colors.grey[600]! : Colors.grey[300]!,
@@ -60,14 +76,14 @@ class CharecterAnalysisWidget extends StatelessWidget {
           ),
           child:
               showErrors
-                  ? _buildCharacterWiseHighlightedText()
-                  : _buildOriginalTextWithUnderlineAndErrors(),
+                  ? charecterAnalysisCharacterWiseHighlightedText()
+                  : charecterAnalysisOriginalTextWithUnderlineAndErrors(),
         ),
       ],
     );
   }
 
-  Widget _buildOriginalTextWithUnderlineAndErrors() {
+  Widget charecterAnalysisOriginalTextWithUnderlineAndErrors() {
     List<TextSpan> spans = [];
 
     for (int i = 0; i < originalText.length; i++) {
@@ -106,7 +122,7 @@ class CharecterAnalysisWidget extends StatelessWidget {
     return RichText(text: TextSpan(children: spans));
   }
 
-  Widget _buildCharacterWiseHighlightedText() {
+  Widget charecterAnalysisCharacterWiseHighlightedText() {
     List<InlineSpan> children = [];
 
     for (int i = 0; i < userInput.length; i++) {

@@ -397,7 +397,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             foregroundColor: isDark ? Colors.white : Colors.grey[800],
             elevation: 2,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(8),
               side: BorderSide(
                 color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
               ),

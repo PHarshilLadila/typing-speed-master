@@ -513,7 +513,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         borderSide: BorderSide(color: borderColor, width: 0.2),
                       ),
                       hintText:
-                          'Press the Enter or Space key to begin the test..',
+                          'Ready? Start typing from the very first letter to begin your test.',
                       hintStyle: TextStyle(
                         color:
                             themeProvider.isDarkMode
@@ -682,7 +682,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                           ),
                         ),
                         hintText:
-                            'Press the Enter or Space key to begin the test..',
+                            'Ready? Start typing from the very first letter to begin your test.',
                         hintStyle: TextStyle(
                           color:
                               themeProvider.isDarkMode
