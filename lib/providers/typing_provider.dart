@@ -15,7 +15,7 @@ class TypingProvider with ChangeNotifier {
   Duration _selectedDuration = Duration(seconds: 60);
   List<String> _currentTextPool = [];
   int _currentTextIndex = 0;
-  Random _random = Random();
+  Random random = Random();
 
   List<int> typingSpeedSamples = [];
   List<DateTime> typingTimestamps = [];
@@ -64,7 +64,7 @@ class TypingProvider with ChangeNotifier {
       ];
     } else {
       _currentTextPool = List.from(availableTexts);
-      _currentTextPool.shuffle(_random);
+      _currentTextPool.shuffle(random);
     }
 
     _currentTextIndex = 0;
@@ -130,7 +130,7 @@ class TypingProvider with ChangeNotifier {
 
   void getRandomText() {
     if (_currentTextPool.isNotEmpty) {
-      _currentTextIndex = _random.nextInt(_currentTextPool.length);
+      _currentTextIndex = random.nextInt(_currentTextPool.length);
       _currentOriginalText = getCurrentText();
       dev.log(
         'Selected random text. Index: $_currentTextIndex, Difficulty: $_selectedDifficulty',

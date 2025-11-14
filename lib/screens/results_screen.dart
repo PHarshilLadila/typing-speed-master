@@ -5,6 +5,7 @@ import 'package:confetti/confetti.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/charecter_analysis_widget.dart';
 import '../models/typing_result.dart';
@@ -29,28 +30,28 @@ class ResultsScreen extends StatefulWidget {
 }
 
 class _ResultsScreenState extends State<ResultsScreen> {
-  late ConfettiController _confettiController;
-  late List<TypingStatData> _chartData;
-  late List<TypingStatData> _chartDataPerformance;
+  late ConfettiController confettiController;
+  late List<TypingStatData> chartData;
+  late List<TypingStatData> chartDataPerformance;
 
   @override
   void initState() {
     super.initState();
-    _confettiController = ConfettiController(
+    confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
 
     if (widget.result.wpm > 40 && widget.result.accuracy > 90) {
-      _confettiController.play();
+      confettiController.play();
     }
 
-    _chartData = [
+    chartData = [
       TypingStatData('Correct', widget.result.correctChars.toDouble()),
       TypingStatData('Incorrect', widget.result.incorrectChars.toDouble()),
       TypingStatData('Total', widget.result.totalChars.toDouble()),
     ];
 
-    _chartDataPerformance = [
+    chartDataPerformance = [
       TypingStatData(
         'WPM',
         double.parse(widget.result.wpm.toDouble().toStringAsFixed(2)),
@@ -74,7 +75,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   @override
   void dispose() {
-    _confettiController.dispose();
+    confettiController.dispose();
     super.dispose();
   }
 
@@ -147,7 +148,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         if (!widget.isViewDetails)
-                          _buildHeader(
+                          resultHeader(
                             headerFontSize,
                             textFontSize,
                             isDesktop,
@@ -157,14 +158,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                           ),
                         if (!widget.isViewDetails)
                           SizedBox(height: isDesktop ? 32.0 : 20.0),
-                        _buildStatsSection(
+                        resultStatsSection(
                           isDesktop,
                           isTablet,
                           isMobile,
                           isSmallMobile,
                         ),
                         SizedBox(height: isDesktop ? 40.0 : 20.0),
-                        _buildDetailedStats(
+                        resultDetailedStats(
                           titleFontSize,
                           textFontSize,
                           chartHeight,
@@ -175,7 +176,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                           isSmallMobile,
                         ),
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
-                        _buildErrorAnalysisSection(
+                        resultErrorAnalysisSection(
                           themeProvider,
                           isDesktop,
                           isTablet,
@@ -191,7 +192,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   Align(
                     alignment: Alignment.topCenter,
                     child: ConfettiWidget(
-                      confettiController: _confettiController,
+                      confettiController: confettiController,
                       blastDirectionality: BlastDirectionality.explosive,
                       shouldLoop: false,
                       colors: const [
@@ -211,7 +212,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  Widget _buildHeader(
+  Widget resultHeader(
     double headerFontSize,
     double textFontSize,
     bool isDesktop,
@@ -246,7 +247,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          _buildActionButtons(isDesktop, isTablet, isMobile, isSmallMobile),
+          resultActionButtons(isDesktop, isTablet, isMobile, isSmallMobile),
         ],
       );
     }
@@ -288,7 +289,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         if (!isSmallMobile)
           widget.isViewDetails
               ? SizedBox.shrink()
-              : _buildActionButtons(
+              : resultActionButtons(
                 isDesktop,
                 isTablet,
                 isMobile,
@@ -298,7 +299,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  Widget _buildStatsSection(
+  Widget resultStatsSection(
     bool isDesktop,
     bool isTablet,
     bool isMobile,
@@ -556,7 +557,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     }
   }
 
-  Widget _buildDetailedStats(
+  Widget resultDetailedStats(
     double titleFontSize,
     double textFontSize,
     double chartHeight,
@@ -650,7 +651,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ),
               series: <CartesianSeries>[
                 ColumnSeries<TypingStatData, String>(
-                  dataSource: _chartDataPerformance,
+                  dataSource: chartDataPerformance,
                   xValueMapper: (TypingStatData data, _) => data.label,
                   yValueMapper: (TypingStatData data, _) => data.value,
                   gradient: LinearGradient(
@@ -745,7 +746,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     ),
                     series: <CartesianSeries>[
                       ColumnSeries<TypingStatData, String>(
-                        dataSource: _chartData,
+                        dataSource: chartData,
                         xValueMapper: (TypingStatData data, _) => data.label,
                         yValueMapper: (TypingStatData data, _) => data.value,
                         gradient: LinearGradient(
@@ -798,7 +799,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                     ),
                     series: <CircularSeries>[
                       PieSeries<TypingStatData, String>(
-                        dataSource: _chartData,
+                        dataSource: chartData,
                         xValueMapper: (TypingStatData data, _) => data.label,
                         yValueMapper: (TypingStatData data, _) => data.value,
                         dataLabelSettings: DataLabelSettings(
@@ -848,7 +849,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
                       ),
                     ],
                     legend: Legend(
-                      isVisible: _chartData.length <= 8,
+                      isVisible: chartData.length <= 8,
                       position: LegendPosition.bottom,
                       overflowMode: LegendItemOverflowMode.wrap,
                       textStyle: TextStyle(
@@ -869,7 +870,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  Widget _buildActionButtons(
+  Widget resultActionButtons(
     bool isDesktop,
     bool isTablet,
     bool isMobile,
@@ -965,7 +966,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     );
   }
 
-  Widget _buildErrorAnalysisSection(
+  Widget resultErrorAnalysisSection(
     ThemeProvider themeProvider,
     bool isDesktop,
     bool isTablet,
@@ -1021,11 +1022,4 @@ class _ResultsScreenState extends State<ResultsScreen> {
       ),
     );
   }
-}
-
-class TypingStatData {
-  final String label;
-  final double value;
-
-  TypingStatData(this.label, this.value);
 }

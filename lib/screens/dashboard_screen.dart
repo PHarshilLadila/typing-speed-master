@@ -77,7 +77,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  statsLayout(context),
+                  dashboardStatsLayout(context),
                   const SizedBox(height: 26),
                   recentTypingResults(context, subtitleFontSize),
                 ],
@@ -89,7 +89,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget statsLayout(BuildContext context) {
+  Widget dashboardStatsLayout(BuildContext context) {
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final screenWidth = MediaQuery.of(context).size.width;

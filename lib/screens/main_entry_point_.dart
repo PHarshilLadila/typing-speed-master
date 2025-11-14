@@ -19,14 +19,14 @@ class MainEntryPoint extends StatefulWidget {
   const MainEntryPoint({super.key});
 
   @override
-  State<MainEntryPoint> createState() => _MainEntryPointState();
+  State<MainEntryPoint> createState() => MainEntryPointState();
 }
 
-class _MainEntryPointState extends State<MainEntryPoint> {
-  int _selectedIndex = 0;
-  Widget? _currentPage;
+class MainEntryPointState extends State<MainEntryPoint> {
+  int selectedIndex = 0;
+  Widget? currentPage;
 
-  final List<Widget> _pages = [
+  final List<Widget> pages = [
     const TypingTestScreen(),
     const DashboardScreen(),
     const HistoryScreen(),
@@ -36,31 +36,31 @@ class _MainEntryPointState extends State<MainEntryPoint> {
   @override
   void initState() {
     super.initState();
-    _currentPage = _pages[_selectedIndex];
+    currentPage = pages[selectedIndex];
   }
 
-  void _onMenuClick(int index) {
+  void onMenuClick(int index) {
     setState(() {
-      _selectedIndex = index;
-      _currentPage = _pages[index];
+      selectedIndex = index;
+      currentPage = pages[index];
     });
   }
 
-  void _showResultsScreen(TypingResult result) {
+  void showResultsScreen(TypingResult result) {
     setState(() {
-      _currentPage = ResultsScreen(
+      currentPage = ResultsScreen(
         key: ValueKey(result.timestamp),
         result: result,
         onBackToTest: () {
           setState(() {
-            _currentPage = _pages[0];
-            _selectedIndex = 0;
+            currentPage = pages[0];
+            selectedIndex = 0;
           });
         },
         onBackToDashboard: () {
           setState(() {
-            _currentPage = _pages[1];
-            _selectedIndex = 1;
+            currentPage = pages[1];
+            selectedIndex = 1;
           });
         },
       );
@@ -75,13 +75,13 @@ class _MainEntryPointState extends State<MainEntryPoint> {
         final themeProvider = Provider.of<ThemeProvider>(context);
         final authProvider = Provider.of<AuthProvider>(context);
 
-        final Widget bodyContent = _currentPage!;
+        final Widget bodyContent = currentPage!;
 
         final Widget finalBodyContent =
-            _currentPage is ResultsScreen
+            currentPage is ResultsScreen
                 ? bodyContent
                 : TypingTestResultsProvider(
-                  showResultsScreen: _showResultsScreen,
+                  showResultsScreen: showResultsScreen,
                   child: bodyContent,
                 );
 
@@ -89,8 +89,8 @@ class _MainEntryPointState extends State<MainEntryPoint> {
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(70),
             child: CustomAppBar(
-              selectedIndex: _selectedIndex,
-              onMenuClick: _onMenuClick,
+              selectedIndex: selectedIndex,
+              onMenuClick: onMenuClick,
               isMobile: isMobile,
               isDarkMode: themeProvider.isDarkMode,
             ),
@@ -302,11 +302,10 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                   label: "Typing Test",
                                   isDarkMode: themeProvider.isDarkMode,
                                   selected:
-                                      _selectedIndex == 0 &&
-                                      _currentPage == null,
+                                      selectedIndex == 0 && currentPage == null,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _onMenuClick(0);
+                                    onMenuClick(0);
                                   },
                                 ),
                                 DrawerTile(
@@ -315,11 +314,10 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                   isDarkMode: themeProvider.isDarkMode,
 
                                   selected:
-                                      _selectedIndex == 1 &&
-                                      _currentPage == null,
+                                      selectedIndex == 1 && currentPage == null,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _onMenuClick(1);
+                                    onMenuClick(1);
                                   },
                                 ),
                                 DrawerTile(
@@ -328,11 +326,10 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                   isDarkMode: themeProvider.isDarkMode,
 
                                   selected:
-                                      _selectedIndex == 2 &&
-                                      _currentPage == null,
+                                      selectedIndex == 2 && currentPage == null,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _onMenuClick(2);
+                                    onMenuClick(2);
                                   },
                                 ),
                                 DrawerTile(
@@ -341,11 +338,10 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                                   isDarkMode: themeProvider.isDarkMode,
 
                                   selected:
-                                      _selectedIndex == 3 &&
-                                      _currentPage == null,
+                                      selectedIndex == 3 && currentPage == null,
                                   onTap: () {
                                     Navigator.pop(context);
-                                    _onMenuClick(3);
+                                    onMenuClick(3);
                                   },
                                 ),
                               ],
@@ -437,13 +433,13 @@ class _MainEntryPointState extends State<MainEntryPoint> {
                     ),
                   )
                   : null,
-          body: _buildBody(finalBodyContent),
+          body: buildBody(finalBodyContent),
         );
       },
     );
   }
 
-  Widget _buildBody(Widget bodyContent) {
+  Widget buildBody(Widget bodyContent) {
     return bodyContent;
   }
 }

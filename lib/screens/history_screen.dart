@@ -23,7 +23,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     provider.getAllRecentResults();
   }
 
-  EdgeInsets _getResponsivePadding(BuildContext context) {
+  EdgeInsets getResponsivePadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 1200) {
@@ -35,7 +35,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  double _getResponsiveSubtitleFontSize(BuildContext context) {
+  double getResponsiveSubtitleFontSize(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 1200) {
@@ -47,7 +47,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  EdgeInsets _getCardPadding(BuildContext context) {
+  EdgeInsets getCardPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 768) {
@@ -57,7 +57,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  double _getResponsiveIconSize(BuildContext context) {
+  double getResponsiveIconSize(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 768) {
@@ -67,7 +67,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  double _getEmptyStateTopPadding(BuildContext context) {
+  double getEmptyStateTopPadding(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
 
     if (height > 800) {
@@ -77,7 +77,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  double _getEmptyStateWidth(BuildContext context) {
+  double getEmptyStateWidth(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 768) {
@@ -89,7 +89,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
-  Widget _buildRecentResults(BuildContext context, double subtitleFontSize) {
+  Widget historyListResults(BuildContext context, double subtitleFontSize) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Consumer<TypingProvider>(
@@ -113,11 +113,11 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Center(
                 child: Padding(
                   padding: EdgeInsets.only(
-                    top: _getEmptyStateTopPadding(context),
+                    top: getEmptyStateTopPadding(context),
                   ),
                   child: Container(
-                    width: _getEmptyStateWidth(context),
-                    padding: _getCardPadding(context),
+                    width: getEmptyStateWidth(context),
+                    padding: getCardPadding(context),
                     decoration: BoxDecoration(
                       color: cardColor,
                       borderRadius: BorderRadius.circular(16),
@@ -138,7 +138,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                       children: [
                         Icon(
                           Icons.assignment,
-                          size: _getResponsiveIconSize(context),
+                          size: getResponsiveIconSize(context),
                           color: iconColor,
                         ),
                         SizedBox(height: 12),
@@ -171,7 +171,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         .map(
                           (result) => TypingResultCard(
                             result: result,
-                            subtitleFontSize: _getResponsiveSubtitleFontSize(
+                            subtitleFontSize: getResponsiveSubtitleFontSize(
                               context,
                             ),
                             isDarkMode: themeProvider.isDarkMode,
@@ -219,16 +219,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Widget _buildHeader(
+  Widget historyHeader(
     BuildContext context,
     double titleFontSize,
     double subtitleFontSize,
   ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final titleColor =
-        themeProvider.isDarkMode ? Colors.white : Colors.grey[800];
-    final subtitleColor =
-        themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -272,15 +268,12 @@ class _HistoryScreenState extends State<HistoryScreen> {
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Padding(
-        padding: _getResponsivePadding(context),
+        padding: getResponsivePadding(context),
         child: Column(
           children: [
-            _buildHeader(context, 24, 18),
+            historyHeader(context, 24, 18),
             const SizedBox(height: 30),
-            _buildRecentResults(
-              context,
-              _getResponsiveSubtitleFontSize(context),
-            ),
+            historyListResults(context, getResponsiveSubtitleFontSize(context)),
           ],
         ),
       ),

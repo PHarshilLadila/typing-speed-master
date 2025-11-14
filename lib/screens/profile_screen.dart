@@ -34,12 +34,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return _buildProfileUI(context, authProvider, isDark);
+        return profileUI(context, authProvider, isDark);
       },
     );
   }
 
-  Widget _buildProfileUI(
+  Widget profileUI(
     BuildContext context,
     AuthProvider authProvider,
     bool isDark,
@@ -57,7 +57,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           padding: EdgeInsets.all(40),
           child: Column(
             children: [
-              _buildHeader(context, isMobile, isTablet),
+              profileHeader(context, isMobile, isTablet),
               const SizedBox(height: 40),
 
               Container(
@@ -78,7 +78,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-                child: _buildProfileContent(
+                child: profileContent(
                   context,
                   authProvider,
                   isDark,
@@ -90,7 +90,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 32),
 
               if (authProvider.isLoggedIn)
-                _buildDangerZone(
+                profileDangerZone(
                   context,
                   authProvider,
                   isDark,
@@ -106,12 +106,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isMobile, bool isTablet) {
+  Widget profileHeader(BuildContext context, bool isMobile, bool isTablet) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    final titleColor =
-        themeProvider.isDarkMode ? Colors.white : Colors.grey[800];
-    final subtitleColor =
-        themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600];
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -150,7 +146,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildProfileContent(
+  Widget profileContent(
     BuildContext context,
     AuthProvider authProvider,
     bool isDark,
@@ -163,9 +159,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return Column(
       children: [
         if (isMobile)
-          _buildMobileLayout(authProvider, isDark, isMobile, textColor, user)
+          profileMobileLayout(authProvider, isDark, isMobile, textColor, user)
         else
-          _buildDesktopLayout(
+          profileDesktopLayout(
             authProvider,
             isDark,
             isMobile,
@@ -177,7 +173,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildMobileLayout(
+  Widget profileMobileLayout(
     AuthProvider authProvider,
     bool isDark,
     bool isMobile,
@@ -186,18 +182,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   ) {
     return Column(
       children: [
-        _buildAvatar(user, isDark, isMobile ? 80.0 : 100.0),
+        profileAvatar(user, isDark, isMobile ? 80.0 : 100.0),
         const SizedBox(height: 20),
 
-        _buildUserInfo(authProvider, user, textColor, isMobile, true, isDark),
+        profileUserInfo(authProvider, user, textColor, isMobile, true, isDark),
         const SizedBox(height: 24),
 
-        _buildActionButton(authProvider, isDark, isMobile),
+        profileActionButton(authProvider, isDark, isMobile),
       ],
     );
   }
 
-  Widget _buildDesktopLayout(
+  Widget profileDesktopLayout(
     AuthProvider authProvider,
     bool isDark,
     bool isMobile,
@@ -209,14 +205,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _buildAvatar(user, isDark, isTablet ? 100.0 : 120.0),
+        profileAvatar(user, isDark, isTablet ? 100.0 : 120.0),
         const SizedBox(width: 24),
 
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildUserInfo(
+              profileUserInfo(
                 authProvider,
                 user,
                 textColor,
@@ -227,17 +223,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 20),
 
               if (authProvider.isLoggedIn && user != null)
-                _buildUserTags(user, isDark, isMobile),
+                profileUserTags(user, isDark, isMobile),
             ],
           ),
         ),
 
-        _buildActionButton(authProvider, isDark, isMobile),
+        profileActionButton(authProvider, isDark, isMobile),
       ],
     );
   }
 
-  Widget _buildAvatar(UserModel? user, bool isDark, double size) {
+  Widget profileAvatar(UserModel? user, bool isDark, double size) {
     return Container(
       width: size,
       height: size,
@@ -255,17 +251,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   imageUrl: user.avatarUrl!,
                   fit: BoxFit.cover,
                   placeholder:
-                      (context, url) => _buildPlaceholderAvatar(isDark, size),
+                      (context, url) => profilePlaceholderAvatar(isDark, size),
                   errorWidget:
                       (context, url, error) =>
-                          _buildPlaceholderAvatar(isDark, size),
+                          profilePlaceholderAvatar(isDark, size),
                 )
-                : _buildPlaceholderAvatar(isDark, size),
+                : profilePlaceholderAvatar(isDark, size),
       ),
     );
   }
 
-  Widget _buildUserInfo(
+  Widget profileUserInfo(
     AuthProvider authProvider,
     UserModel? user,
     Color textColor,
@@ -344,19 +340,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildUserTags(UserModel user, bool isDark, bool isMobile) {
+  Widget profileUserTags(UserModel user, bool isDark, bool isMobile) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        _buildTag('ID: ${user.id.substring(0, 8)}...', isDark),
-        _buildTag('Intermediate', isDark),
-        _buildTag('Streak Maintained 🔥', isDark),
+        profileTags('ID: ${user.id.substring(0, 8)}...', isDark),
+        profileTags('Intermediate', isDark),
+        profileTags('Streak Maintained 🔥', isDark),
       ],
     );
   }
 
-  Widget _buildActionButton(
+  Widget profileActionButton(
     AuthProvider authProvider,
     bool isDark,
     bool isMobile,
@@ -366,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: isMobile ? double.infinity : null,
         child: TextButton(
           onPressed: () {
-            _showEditProfileDialog(context, authProvider);
+            showEditProfileDialog(context, authProvider);
           },
           style: TextButton.styleFrom(
             backgroundColor:
@@ -431,7 +427,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
-  Widget _buildDangerZone(
+  Widget profileDangerZone(
     BuildContext context,
     AuthProvider authProvider,
     bool isDark,
@@ -553,7 +549,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildPlaceholderAvatar(bool isDark, double size) {
+  Widget profilePlaceholderAvatar(bool isDark, double size) {
     return Container(
       color: isDark ? Colors.grey[800] : Colors.blue.shade100,
       child: Center(
@@ -566,7 +562,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildTag(String text, bool isDark) {
+  Widget profileTags(String text, bool isDark) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
@@ -587,7 +583,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  void _showEditProfileDialog(BuildContext context, AuthProvider authProvider) {
+  void showEditProfileDialog(BuildContext context, AuthProvider authProvider) {
     final user = authProvider.user;
     final nameController = TextEditingController(text: user?.fullName ?? '');
 
