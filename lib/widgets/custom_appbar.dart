@@ -1,10 +1,10 @@
 // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 
 import 'dart:developer';
+import 'dart:html' as html;
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
-import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
@@ -48,7 +48,7 @@ class CustomAppBar extends StatelessWidget {
                 Icon(Icons.keyboard, color: Colors.amber, size: 26),
                 SizedBox(width: 6),
                 Padding(
-                  padding: EdgeInsets.only(right: 48.0),
+                  padding: EdgeInsets.only(right: isMobile ? 16.0 : 40.0),
                   child: Text(
                     "TypeMaster",
                     style: TextStyle(
@@ -61,83 +61,105 @@ class CustomAppBar extends StatelessWidget {
               ],
             ),
           ),
-          if (!isMobile)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  CustomNavItem(
-                    icon: Icons.keyboard,
-                    label: "Test",
-                    selected: selectedIndex == 0,
-                    onTap: () => onMenuClick(0),
-                    isDarkTheme: isDarkMode,
-                  ),
-                  const SizedBox(width: 12),
-                  CustomNavItem(
-                    icon: Icons.dashboard_outlined,
-                    label: "Dashboard",
-                    selected: selectedIndex == 1,
-                    onTap: () => onMenuClick(1),
-                    isDarkTheme: isDarkMode,
-                  ),
-                  const SizedBox(width: 12),
-                  CustomNavItem(
-                    icon: Icons.history_toggle_off_outlined,
-                    label: "History",
-                    selected: selectedIndex == 2,
-                    onTap: () => onMenuClick(2),
-                    isDarkTheme: isDarkMode,
-                  ),
-                  const SizedBox(width: 12),
-                  CustomNavItem(
-                    icon: Icons.person_outline,
-                    label: "Profile",
-                    selected: selectedIndex == 3,
-                    onTap: () => onMenuClick(3),
-                    isDarkTheme: isDarkMode,
-                  ),
-                ],
-              ),
-            ),
+
+          if (!isMobile) appbarNavigationItems(context),
+
           Spacer(),
-          if (!isMobile)
-            Padding(
-              padding: const EdgeInsets.only(top: 12),
-              child: Row(
-                children: [
-                  IconButton.filled(
-                    onPressed: () {
-                      Provider.of<ThemeProvider>(
-                        context,
-                        listen: false,
-                      ).toggleTheme();
-                    },
-                    icon: Consumer<ThemeProvider>(
-                      builder: (context, themeProvider, child) {
-                        return Icon(
-                          themeProvider.isDarkMode
-                              ? Icons.light_mode
-                              : Icons.dark_mode,
-                          color:
-                              themeProvider.isDarkMode
-                                  ? Colors.amber
-                                  : Colors.grey[700],
-                        );
-                      },
-                    ),
-                  ),
-                  SizedBox(width: 16),
-                  ProfileDropdown(
-                    onProfileAction: () {
-                      if (selectedIndex != 3) {
-                        onMenuClick(3);
-                      }
-                    },
-                  ),
-                ],
-              ),
+
+          if (!isMobile) appbarRightSideItems(context),
+        ],
+      ),
+    );
+  }
+
+  Widget appbarNavigationItems(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final availableWidth = mediaQuery.size.width - 200;
+    final hasSpaceForNav = availableWidth > 400;
+
+    if (!hasSpaceForNav) {
+      return SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CustomNavItem(
+            icon: Icons.keyboard,
+            label: "Test",
+            selected: selectedIndex == 0,
+            onTap: () => onMenuClick(0),
+            isDarkTheme: isDarkMode,
+          ),
+          const SizedBox(width: 8),
+          CustomNavItem(
+            icon: Icons.dashboard_outlined,
+            label: "Dashboard",
+            selected: selectedIndex == 1,
+            onTap: () => onMenuClick(1),
+            isDarkTheme: isDarkMode,
+          ),
+          const SizedBox(width: 8),
+          CustomNavItem(
+            icon: Icons.history_toggle_off_outlined,
+            label: "History",
+            selected: selectedIndex == 2,
+            onTap: () => onMenuClick(2),
+            isDarkTheme: isDarkMode,
+          ),
+          const SizedBox(width: 8),
+          CustomNavItem(
+            icon: Icons.person_outline,
+            label: "Profile",
+            selected: selectedIndex == 3,
+            onTap: () => onMenuClick(3),
+            isDarkTheme: isDarkMode,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget appbarRightSideItems(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final availableWidth = mediaQuery.size.width - 200;
+    final hasSpaceForRightSide = availableWidth > 150;
+
+    if (!hasSpaceForRightSide) {
+      return SizedBox.shrink();
+    }
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Row(
+        mainAxisSize: MainAxisSize.max,
+        children: [
+          IconButton.filled(
+            onPressed: () {
+              Provider.of<ThemeProvider>(context, listen: false).toggleTheme();
+            },
+            icon: Consumer<ThemeProvider>(
+              builder: (context, themeProvider, child) {
+                return Icon(
+                  themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.amber
+                          : Colors.grey[700],
+                );
+              },
             ),
+          ),
+          SizedBox(width: 8),
+          ProfileDropdown(
+            onProfileAction: () {
+              if (selectedIndex != 3) {
+                onMenuClick(3);
+              }
+            },
+          ),
         ],
       ),
     );
@@ -150,22 +172,22 @@ class ProfileDropdown extends StatefulWidget {
   const ProfileDropdown({super.key, required this.onProfileAction});
 
   @override
-  State<ProfileDropdown> createState() => _ProfileDropdownState();
+  State<ProfileDropdown> createState() => ProfileDropdownState();
 }
 
-class _ProfileDropdownState extends State<ProfileDropdown> {
-  final LayerLink _layerLink = LayerLink();
-  OverlayEntry? _overlayEntry;
+class ProfileDropdownState extends State<ProfileDropdown> {
+  final LayerLink layerLink = LayerLink();
+  OverlayEntry? overlayEntry;
 
-  void _showProfileOverlay() {
+  void showProfileOverlay() {
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
 
-    _overlayEntry = OverlayEntry(
+    overlayEntry = OverlayEntry(
       builder:
           (context) => GestureDetector(
-            onTap: _hideProfileOverlay,
+            onTap: hideProfileOverlay,
             behavior: HitTestBehavior.translucent,
             child: Container(
               color: Colors.transparent,
@@ -177,7 +199,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                         MediaQuery.of(context).size.width -
                         offset.dx -
                         size.width,
-                    child: _buildProfileCard(),
+                    child: appbarProfileCard(),
                   ),
                 ],
               ),
@@ -185,15 +207,15 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
           ),
     );
 
-    Overlay.of(context).insert(_overlayEntry!);
+    Overlay.of(context).insert(overlayEntry!);
   }
 
-  void _hideProfileOverlay() {
-    _overlayEntry?.remove();
-    _overlayEntry = null;
+  void hideProfileOverlay() {
+    overlayEntry?.remove();
+    overlayEntry = null;
   }
 
-  Widget _buildProfileCard() {
+  Widget appbarProfileCard() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final themeProvide = Provider.of<ThemeProvider>(context);
     bool isDarkTheme = themeProvide.isDarkMode;
@@ -364,7 +386,6 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                   ),
                 ],
               ),
-
               const SizedBox(height: 16),
               Divider(
                 height: 1,
@@ -378,7 +399,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () {
-                  _hideProfileOverlay();
+                  hideProfileOverlay();
                   if (authProvider.isLoggedIn) {
                     CustomDialog.showSignOutDialog(
                       context: context,
@@ -399,9 +420,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                       },
                     );
                   } else {
-                    authProvider.signInWithGoogle().then((_) {
-                      widget.onProfileAction();
-                    });
+                    authProvider.signInWithGoogle();
                   }
                 },
                 style: OutlinedButton.styleFrom(
@@ -444,7 +463,7 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
 
   @override
   void dispose() {
-    _overlayEntry?.remove();
+    overlayEntry?.remove();
     super.dispose();
   }
 
@@ -453,21 +472,21 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
     final authProvider = Provider.of<AuthProvider>(context);
 
     return CompositedTransformTarget(
-      link: _layerLink,
+      link: layerLink,
       child: GestureDetector(
-        onTap: _showProfileOverlay,
+        onTap: showProfileOverlay,
         child:
             authProvider.isLoggedIn && authProvider.user?.avatarUrl != null
                 ? ClipOval(
                   child: CachedNetworkImage(
                     imageUrl: authProvider.user!.avatarUrl!,
-                    width: 48,
-                    height: 48,
+                    width: 40,
+                    height: 40,
                     fit: BoxFit.cover,
                     placeholder:
                         (context, url) => Container(
-                          width: 48,
-                          height: 48,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             color: Colors.amber.shade100,
                             shape: BoxShape.circle,
@@ -480,8 +499,8 @@ class _ProfileDropdownState extends State<ProfileDropdown> {
                         ),
                     errorWidget:
                         (context, url, error) => Container(
-                          width: 48,
-                          height: 48,
+                          width: 40,
+                          height: 40,
                           decoration: BoxDecoration(
                             color: Colors.amber.shade100,
                             shape: BoxShape.circle,
