@@ -3,6 +3,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/providers/typing_provider.dart';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
@@ -12,15 +13,121 @@ class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  State<HistoryScreen> createState() => HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class HistoryScreenState extends State<HistoryScreen> {
+  String selectedSortOption = 'new_to_old';
+  String selectedFilterDifficulty = 'all';
+  String selectedFilterDuration = 'all';
+
+  final Map<String, String> _sortOptions = {
+    'new_to_old': 'Newest First',
+    'old_to_new': 'Oldest First',
+    'high_to_low_wpm': 'High to Low WPM',
+    'low_to_high_wpm': 'Low to High WPM',
+    'high_to_low_accuracy': 'High to Low Accuracy',
+    'low_to_high_accuracy': 'Low to High Accuracy',
+    'easy_to_hard': 'Easy to Hard',
+    'hard_to_easy': 'Hard to Easy',
+    'long_to_short_duration': 'Long to Short Duration',
+    'short_to_long_duration': 'Short to Long Duration',
+  };
+
+  final Map<String, String> difficultyOptions = {
+    'all': 'All Difficulties',
+    'Easy': 'Easy',
+    'Medium': 'Medium',
+    'Hard': 'Hard',
+  };
+
+  final Map<String, String> durationOptions = {
+    'all': 'All Durations',
+    '30': '30 Seconds',
+    '60': '60 Seconds',
+    '120': '120 Seconds',
+    'word_based': 'Word Based',
+  };
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     final provider = Provider.of<TypingProvider>(context, listen: false);
     provider.getAllRecentResults();
+  }
+
+  List<TypingResult> getFilteredAndSortedResults(List<TypingResult> results) {
+    List<TypingResult> filteredResults =
+        results.where((result) {
+          if (selectedFilterDifficulty != 'all' &&
+              result.difficulty != selectedFilterDifficulty) {
+            return false;
+          }
+
+          if (selectedFilterDuration != 'all') {
+            if (selectedFilterDuration == 'word_based' &&
+                !result.isWordBasedTest) {
+              return false;
+            } else if (selectedFilterDuration != 'word_based') {
+              final durationSeconds = result.duration.inSeconds;
+              final selectedDuration = int.tryParse(selectedFilterDuration);
+              if (selectedDuration != null &&
+                  durationSeconds != selectedDuration) {
+                return false;
+              }
+            }
+          }
+
+          return true;
+        }).toList();
+    switch (selectedSortOption) {
+      case 'new_to_old':
+        filteredResults.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+        break;
+      case 'old_to_new':
+        filteredResults.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+        break;
+      case 'high_to_low_wpm':
+        filteredResults.sort((a, b) => b.wpm.compareTo(a.wpm));
+        break;
+      case 'low_to_high_wpm':
+        filteredResults.sort((a, b) => a.wpm.compareTo(b.wpm));
+        break;
+      case 'high_to_low_accuracy':
+        filteredResults.sort((a, b) => b.accuracy.compareTo(a.accuracy));
+        break;
+      case 'low_to_high_accuracy':
+        filteredResults.sort((a, b) => a.accuracy.compareTo(b.accuracy));
+        break;
+      case 'easy_to_hard':
+        final difficultyOrder = {'Easy': 1, 'Medium': 2, 'Hard': 3};
+        filteredResults.sort(
+          (a, b) => difficultyOrder[a.difficulty]!.compareTo(
+            difficultyOrder[b.difficulty]!,
+          ),
+        );
+        break;
+      case 'hard_to_easy':
+        final difficultyOrder = {'Easy': 1, 'Medium': 2, 'Hard': 3};
+        filteredResults.sort(
+          (a, b) => difficultyOrder[b.difficulty]!.compareTo(
+            difficultyOrder[a.difficulty]!,
+          ),
+        );
+        break;
+      case 'long_to_short_duration':
+        filteredResults.sort(
+          (a, b) => b.duration.inSeconds.compareTo(a.duration.inSeconds),
+        );
+        break;
+      case 'short_to_long_duration':
+        filteredResults.sort(
+          (a, b) => a.duration.inSeconds.compareTo(b.duration.inSeconds),
+        );
+        break;
+    }
+
+    return filteredResults;
   }
 
   EdgeInsets getResponsivePadding(BuildContext context) {
@@ -89,12 +196,195 @@ class _HistoryScreenState extends State<HistoryScreen> {
     }
   }
 
+  Widget historyFilterAndSortOptions(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    if (isMobile) {
+      return Column(
+        children: [
+          historySortDropdown(context, isDarkMode),
+          const SizedBox(height: 12),
+          historyFilterRow(context, isDarkMode),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Expanded(child: historyFilterRow(context, isDarkMode)),
+          const SizedBox(width: 16),
+          historySortDropdown(context, isDarkMode),
+        ],
+      );
+    }
+  }
+
+  Widget historySortDropdown(BuildContext context, bool isDarkMode) {
+    return Container(
+      width: MediaQuery.of(context).size.width < 768 ? double.infinity : 200,
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade600 : Colors.grey.shade300,
+        ),
+      ),
+      child: DropdownButton<String>(
+        value: selectedSortOption,
+        isExpanded: true,
+        underline: const SizedBox(),
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
+        style: TextStyle(
+          color: isDarkMode ? Colors.white : Colors.black,
+          fontSize: 14,
+        ),
+        dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedSortOption = newValue!;
+          });
+        },
+        items:
+            _sortOptions.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key,
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
+    );
+  }
+
+  Widget historyFilterRow(BuildContext context, bool isDarkMode) {
+    final isMobile = MediaQuery.of(context).size.width < 768;
+
+    if (isMobile) {
+      return Column(
+        children: [
+          historyDifficultyFilter(context, isDarkMode),
+          const SizedBox(height: 12),
+          historyDurationFilter(context, isDarkMode),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Expanded(child: historyDifficultyFilter(context, isDarkMode)),
+          const SizedBox(width: 12),
+          Expanded(child: historyDurationFilter(context, isDarkMode)),
+        ],
+      );
+    }
+  }
+
+  Widget historyDifficultyFilter(BuildContext context, bool isDarkMode) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade600 : Colors.grey.shade300,
+        ),
+      ),
+      child: DropdownButton<String>(
+        value: selectedFilterDifficulty,
+        isExpanded: true,
+        underline: const SizedBox(),
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
+        style: TextStyle(
+          color: isDarkMode ? Colors.white : Colors.black,
+          fontSize: 14,
+        ),
+        dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedFilterDifficulty = newValue!;
+          });
+        },
+        items:
+            difficultyOptions.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key,
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
+    );
+  }
+
+  Widget historyDurationFilter(BuildContext context, bool isDarkMode) {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 12),
+      decoration: BoxDecoration(
+        color: isDarkMode ? Colors.grey[800] : Colors.grey[100],
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDarkMode ? Colors.grey.shade600 : Colors.grey.shade300,
+        ),
+      ),
+      child: DropdownButton<String>(
+        value: selectedFilterDuration,
+        isExpanded: true,
+        underline: const SizedBox(),
+        icon: Icon(
+          Icons.arrow_drop_down,
+          color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+        ),
+        style: TextStyle(
+          color: isDarkMode ? Colors.white : Colors.black,
+          fontSize: 14,
+        ),
+        dropdownColor: isDarkMode ? Colors.grey[800] : Colors.white,
+        onChanged: (String? newValue) {
+          setState(() {
+            selectedFilterDuration = newValue!;
+          });
+        },
+        items:
+            durationOptions.entries.map((entry) {
+              return DropdownMenuItem<String>(
+                value: entry.key,
+                child: Text(
+                  entry.value,
+                  style: TextStyle(
+                    color: isDarkMode ? Colors.white : Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+              );
+            }).toList(),
+      ),
+    );
+  }
+
   Widget historyListResults(BuildContext context, double subtitleFontSize) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Consumer<TypingProvider>(
       builder: (context, provider, _) {
-        final recentResults = provider.getAllRecentResults();
+        final allResults = provider.getAllRecentResults();
+        final filteredResults = getFilteredAndSortedResults(allResults);
 
         final cardColor =
             themeProvider.isDarkMode ? Colors.grey[800] : Colors.white;
@@ -108,8 +398,25 @@ class _HistoryScreenState extends State<HistoryScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(height: 12),
-            if (recentResults.isEmpty)
+            historyFilterAndSortOptions(context),
+            const SizedBox(height: 20),
+
+            if (filteredResults.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Text(
+                  'Showing ${filteredResults.length} result${filteredResults.length == 1 ? '' : 's'}',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.grey[400]
+                            : Colors.grey[600],
+                  ),
+                ),
+              ),
+
+            if (filteredResults.isEmpty)
               Center(
                 child: Padding(
                   padding: EdgeInsets.only(
@@ -143,7 +450,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         SizedBox(height: 12),
                         Text(
-                          'No tests completed yet',
+                          allResults.isEmpty
+                              ? 'No tests completed yet'
+                              : 'No results match your filters',
                           style: TextStyle(
                             fontSize: subtitleFontSize,
                             fontWeight: FontWeight.w600,
@@ -152,7 +461,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         ),
                         SizedBox(height: 12),
                         Text(
-                          'Start your first typing test to see results here',
+                          allResults.isEmpty
+                              ? 'Start your first typing test to see results here'
+                              : 'Try changing your filter or sort options',
                           style: TextStyle(
                             fontSize: subtitleFontSize - 2,
                             color: textColor,
@@ -167,7 +478,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             else
               Column(
                 children:
-                    recentResults
+                    filteredResults
                         .map(
                           (result) => TypingResultCard(
                             result: result,
@@ -185,7 +496,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                               }
                             },
                             indexOfNumbers:
-                                '${recentResults.indexOf(result) + 1}',
+                                '${filteredResults.indexOf(result) + 1}',
                             onTap: () async {
                               await provider.deleteHistoryEntry(result);
                               final isDarkMode = themeProvider.isDarkMode;
@@ -246,7 +557,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                'Here Your Fingers’ History Lives!',
+                "Here Your Fingers' History Lives!",
                 style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w500,
