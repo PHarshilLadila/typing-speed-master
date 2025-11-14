@@ -3,8 +3,10 @@ import 'dart:math';
 import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:typing_speed_master/providers/auth_provider.dart';
 import '../models/typing_result.dart';
 import '../utils/constants.dart';
 
@@ -368,6 +370,21 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
+  // Future<void> saveResult(TypingResult result) async {
+  //   _results.add(result);
+  //   _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
+
+  //   try {
+  //     if (_isUserLoggedIn) {
+  //       await _saveResultToSupabase(result);
+  //     }
+  //   } catch (e) {
+  //     dev.log('Error saving result: $e');
+  //   }
+
+  //   notifyListeners();
+  // }
+  // In TypingProvider's saveResult method
   Future<void> saveResult(TypingResult result) async {
     _results.add(result);
     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -375,12 +392,41 @@ class TypingProvider with ChangeNotifier {
     try {
       if (_isUserLoggedIn) {
         await _saveResultToSupabase(result);
+
+        // Update user stats using direct method (more reliable)
+        dev.log('🔄 Attempting to update user stats via direct method...');
+        await _updateUserStatsDirectly(result);
+
+        // Also try the AuthProvider method as backup
+        final authProvider = _getAuthProvider();
+        if (authProvider != null) {
+          dev.log('✅ AuthProvider found, calling updateUserStats as backup');
+          await authProvider.updateUserStats(result);
+        } else {
+          dev.log('AuthProvider is null - using direct method only');
+        }
+      } else {
+        dev.log('User not logged in - skipping user stats update');
       }
     } catch (e) {
       dev.log('Error saving result: $e');
     }
 
     notifyListeners();
+  }
+
+  AuthProvider? _getAuthProvider() {
+    try {
+      final context = navigatorKey.currentContext;
+      if (context != null && context.mounted) {
+        return Provider.of<AuthProvider>(context, listen: false);
+      } else {
+        dev.log('Context is null or not mounted');
+      }
+    } catch (e) {
+      dev.log('Error getting auth provider: $e');
+    }
+    return null;
   }
 
   Future<void> deleteHistoryEntry(TypingResult result) async {
@@ -650,5 +696,137 @@ class TypingProvider with ChangeNotifier {
     _currentUserInput = '';
     resetConsistencyTracking();
     _currentOriginalText = getCurrentText();
+  }
+
+  Future<void> _updateUserStatsDirectly(TypingResult result) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        dev.log('No user found for stats update');
+        return;
+      }
+
+      dev.log('🔄 Starting direct stats update for user: ${user.id}');
+
+      // First, get current user stats with retry logic
+      Map<String, dynamic> currentProfile;
+      try {
+        final response =
+            await _supabase
+                .from('profiles')
+                .select()
+                .eq('id', user.id)
+                .single();
+
+        currentProfile = response;
+        dev.log('✅ Current profile fetched: ${currentProfile['email']}');
+      } catch (e) {
+        dev.log('Error fetching current profile: $e');
+        return;
+      }
+
+      final today = DateTime.now();
+      final yesterday = today.subtract(const Duration(days: 1));
+
+      int currentStreak = currentProfile['current_streak'] ?? 0;
+      int longestStreak = currentProfile['longest_streak'] ?? 0;
+      DateTime? lastActivityDate =
+          currentProfile['last_activity_date'] != null
+              ? DateTime.parse(currentProfile['last_activity_date'])
+              : null;
+
+      dev.log(
+        '📅 Streak calculation - Last activity: $lastActivityDate, Today: $today',
+      );
+
+      // Calculate streak
+      if (lastActivityDate != null) {
+        if (_isSameDay(lastActivityDate, today)) {
+          dev.log('🔄 Already updated today, keeping streak: $currentStreak');
+        } else if (_isSameDay(lastActivityDate, yesterday)) {
+          currentStreak++;
+          dev.log('🔥 Consecutive day! New streak: $currentStreak');
+        } else {
+          currentStreak = 1;
+          dev.log('💥 Streak broken! Reset to: $currentStreak');
+        }
+      } else {
+        currentStreak = 1;
+        dev.log('🎯 First activity! Starting streak: $currentStreak');
+      }
+
+      longestStreak =
+          currentStreak > longestStreak ? currentStreak : longestStreak;
+
+      // Calculate averages
+      final previousTotalTests = currentProfile['total_tests'] ?? 0;
+      final previousTotalWords = currentProfile['total_words'] ?? 0;
+      final previousAverageWpm =
+          (currentProfile['average_wpm'] ?? 0).toDouble();
+      final previousAverageAccuracy =
+          (currentProfile['average_accuracy'] ?? 0).toDouble();
+
+      final totalTests = previousTotalTests + 1;
+      final totalWords = previousTotalWords + result.wpm;
+      final averageWpm =
+          ((previousAverageWpm * previousTotalTests) + result.wpm) / totalTests;
+      final averageAccuracy =
+          ((previousAverageAccuracy * previousTotalTests) + result.accuracy) /
+          totalTests;
+
+      dev.log('🧮 Stats calculation:');
+      dev.log('   - Tests: $previousTotalTests → $totalTests');
+      dev.log(
+        '   - WPM: ${previousAverageWpm.toStringAsFixed(1)} → ${averageWpm.toStringAsFixed(1)}',
+      );
+      dev.log(
+        '   - Accuracy: ${previousAverageAccuracy.toStringAsFixed(1)} → ${averageAccuracy.toStringAsFixed(1)}',
+      );
+
+      final updates = {
+        'current_streak': currentStreak,
+        'longest_streak': longestStreak,
+        'last_activity_date': today.toIso8601String(),
+        'total_tests': totalTests,
+        'total_words': totalWords,
+        'average_wpm': averageWpm,
+        'average_accuracy': averageAccuracy,
+        'updated_at': today.toIso8601String(),
+      };
+
+      dev.log('💾 Direct update to Supabase: $updates');
+
+      final response =
+          await _supabase
+              .from('profiles')
+              .update(updates)
+              .eq('id', user.id)
+              .select();
+
+      dev.log(
+        '✅ Direct update response: ${response.isNotEmpty ? "SUCCESS" : "EMPTY"}',
+      );
+
+      if (response.isNotEmpty) {
+        dev.log('🎉 User stats updated successfully in Supabase!');
+
+        // Force refresh the user profile in AuthProvider
+        final authProvider = _getAuthProvider();
+        if (authProvider != null) {
+          await authProvider.fetchUserProfile(user.id);
+          dev.log('🔄 Forced profile refresh in AuthProvider');
+        }
+      }
+    } catch (e) {
+      dev.log('💥 Error in direct stats update: $e');
+      if (e is PostgrestException) {
+        dev.log('💥 Postgrest error: ${e.message}');
+      }
+    }
+  }
+
+  // Helper to compare two dates by year/month/day only.
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 }

@@ -39,11 +39,28 @@ class MainEntryPointState extends State<MainEntryPoint> {
     currentPage = pages[selectedIndex];
   }
 
+  // void onMenuClick(int index) {
+  //   setState(() {
+  //     selectedIndex = index;
+  //     currentPage = pages[index];
+  //   });
+  // }
   void onMenuClick(int index) {
     setState(() {
       selectedIndex = index;
       currentPage = pages[index];
+
+      if (index == 3) {
+        _refreshProfileData();
+      }
     });
+  }
+
+  Future<void> _refreshProfileData() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    if (authProvider.isLoggedIn && authProvider.user != null) {
+      await authProvider.fetchUserProfile(authProvider.user!.id);
+    }
   }
 
   void showResultsScreen(TypingResult result) {

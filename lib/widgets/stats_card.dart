@@ -9,6 +9,8 @@ class StatsCard extends StatefulWidget {
   final Color color;
   final IconData icon;
   final bool isDarkMode;
+  final double width;
+  final bool isProfile;
 
   const StatsCard({
     super.key,
@@ -18,6 +20,8 @@ class StatsCard extends StatefulWidget {
     required this.color,
     required this.icon,
     required this.isDarkMode,
+    this.width = double.infinity,
+    this.isProfile = false,
   });
 
   @override
@@ -77,6 +81,7 @@ class _StatsCardState extends State<StatsCard>
       onEnter: (_) => _handleHover(true),
       onExit: (_) => _handleHover(false),
       child: Container(
+        width: widget.width,
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
           color: backgroundColor.withOpacity(0.1),
@@ -85,6 +90,10 @@ class _StatsCardState extends State<StatsCard>
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment:
+              widget.isProfile
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.start,
           children: [
             Row(
               children: [
@@ -132,7 +141,7 @@ class _StatsCardState extends State<StatsCard>
                 Text(
                   widget.value,
                   style: TextStyle(
-                    fontSize: 28,
+                    fontSize: widget.isProfile ? 20 : 28,
                     fontWeight: FontWeight.bold,
                     color: valueColor,
                   ),
