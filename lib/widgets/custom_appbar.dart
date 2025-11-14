@@ -35,7 +35,22 @@ class CustomAppBar extends StatelessWidget {
       backgroundColor: isDarkMode ? Colors.black38 : Colors.white,
       elevation: 0.5,
       excludeHeaderSemantics: true,
-      automaticallyImplyLeading: isMobile,
+      leading:
+          isMobile
+              ? Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.menu,
+                    color: isDarkMode ? Colors.white : Colors.black,
+                  ),
+                  onPressed: () {
+                    Scaffold.of(context).openDrawer();
+                  },
+                ),
+              )
+              : null,
+      centerTitle: true,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.center,
