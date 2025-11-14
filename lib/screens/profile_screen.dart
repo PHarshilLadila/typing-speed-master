@@ -123,22 +123,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Text(
                 'Profile',
                 style: TextStyle(
-                  fontSize:
-                      isMobile
-                          ? 22
-                          : isTablet
-                          ? 26
-                          : 28,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: titleColor,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Manage your account and preferences',
                 style: TextStyle(
-                  fontSize: isMobile ? 14 : 16,
-                  color: subtitleColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
                 ),
               ),
             ],

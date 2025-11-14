@@ -108,11 +108,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             "Track your performance insights",
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color:
                   themeProvider.isDarkMode
                       ? Colors.grey[400]
@@ -185,11 +186,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             "Track your performance insights",
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color:
                   themeProvider.isDarkMode
                       ? Colors.grey[400]
@@ -289,11 +291,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             "Track your performance insights",
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color:
                   themeProvider.isDarkMode
                       ? Colors.grey[400]
@@ -390,11 +393,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
               color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
+          const SizedBox(height: 4),
           Text(
             "Track your performance insights",
             style: TextStyle(
               fontSize: 20,
-              fontWeight: FontWeight.bold,
+              fontWeight: FontWeight.w500,
               color:
                   themeProvider.isDarkMode
                       ? Colors.grey[400]

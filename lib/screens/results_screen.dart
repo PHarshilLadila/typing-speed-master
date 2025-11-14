@@ -228,17 +228,21 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Text(
             widget.isViewDetails ? "View Results" : 'Test Completed!',
             style: TextStyle(
-              fontSize: headerFontSize,
+              fontSize: 26,
               fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 4),
           Text(
             'Great job! Here are your results',
             style: TextStyle(
-              fontSize: textFontSize - 2,
-              color: Colors.grey[600],
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
             ),
           ),
           const SizedBox(height: 16),
@@ -258,17 +262,24 @@ class _ResultsScreenState extends State<ResultsScreen> {
               Text(
                 widget.isViewDetails ? "View Results" : 'Test Completed!',
                 style: TextStyle(
-                  fontSize: headerFontSize,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4),
               Text(
                 'Great job! Here are your results',
                 style: TextStyle(
-                  fontSize: textFontSize,
-                  color: Colors.grey[600],
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
                 ),
               ),
             ],

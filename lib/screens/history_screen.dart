@@ -240,17 +240,24 @@ class _HistoryScreenState extends State<HistoryScreen> {
               Text(
                 'History',
                 style: TextStyle(
-                  fontSize: titleFontSize,
+                  fontSize: 26,
                   fontWeight: FontWeight.bold,
-                  color: titleColor,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 'Here Your Fingers’ History Lives!',
                 style: TextStyle(
-                  fontSize: subtitleFontSize,
-                  color: subtitleColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w500,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[400]
+                          : Colors.grey[600],
                 ),
               ),
             ],
