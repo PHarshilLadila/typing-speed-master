@@ -879,6 +879,8 @@ class _ResultsScreenState extends State<ResultsScreen> {
     bool isMobile,
     bool isSmallMobile,
   ) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     if (isSmallMobile) {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -902,7 +904,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             child: TextButton(
               onPressed: widget.onBackToDashboard,
               style: TextButton.styleFrom(
-                backgroundColor: Colors.amber,
+                backgroundColor: themeProvider.primaryColor,
                 padding: EdgeInsets.symmetric(vertical: 12),
               ),
               child: Text(
@@ -910,7 +912,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color:
+                      themeProvider.primaryColor == Colors.amber ||
+                              themeProvider.primaryColor == Colors.yellow ||
+                              themeProvider.primaryColor == Colors.lime
+                          ? Colors.black
+                          : Colors.white,
                 ),
               ),
             ),
@@ -937,7 +944,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           TextButton(
             onPressed: widget.onBackToDashboard,
             style: TextButton.styleFrom(
-              backgroundColor: Colors.amber,
+              backgroundColor: themeProvider.primaryColor,
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: Text(
@@ -945,7 +952,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color:
+                    themeProvider.primaryColor == Colors.amber ||
+                            themeProvider.primaryColor == Colors.yellow ||
+                            themeProvider.primaryColor == Colors.lime
+                        ? Colors.black
+                        : Colors.white,
               ),
             ),
           ),
@@ -971,7 +983,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         TextButton(
           onPressed: widget.onBackToDashboard,
           style: TextButton.styleFrom(
-            backgroundColor: Colors.amber,
+            backgroundColor: themeProvider.primaryColor,
             padding: EdgeInsets.symmetric(
               horizontal: isTablet ? 20 : 24,
               vertical: isTablet ? 12 : 16,
@@ -982,7 +994,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
             style: TextStyle(
               fontSize: isTablet ? 14 : 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color:
+                  themeProvider.primaryColor == Colors.amber ||
+                          themeProvider.primaryColor == Colors.yellow ||
+                          themeProvider.primaryColor == Colors.lime
+                      ? Colors.black
+                      : Colors.white,
             ),
           ),
         ),
