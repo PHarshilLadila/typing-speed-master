@@ -696,6 +696,7 @@ class TypingProvider with ChangeNotifier {
     _currentUserInput = '';
     resetConsistencyTracking();
     _currentOriginalText = getCurrentText();
+    notifyListeners();
   }
 
   Future<void> _updateUserStatsDirectly(TypingResult result) async {

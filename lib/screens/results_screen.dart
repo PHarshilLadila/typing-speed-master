@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/providers/typing_provider.dart';
 import 'package:typing_speed_master/widgets/charecter_analysis_widget.dart';
 import '../models/typing_result.dart';
 import '../widgets/stats_card.dart';
@@ -16,6 +17,7 @@ class ResultsScreen extends StatefulWidget {
   final VoidCallback onBackToTest;
   final VoidCallback onBackToDashboard;
   final bool isViewDetails;
+  final bool shouldSaveResult;
 
   const ResultsScreen({
     super.key,
@@ -23,6 +25,7 @@ class ResultsScreen extends StatefulWidget {
     required this.onBackToTest,
     required this.onBackToDashboard,
     this.isViewDetails = false,
+    this.shouldSaveResult = true,
   });
 
   @override
@@ -33,6 +36,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
   late ConfettiController confettiController;
   late List<TypingStatData> chartData;
   late List<TypingStatData> chartDataPerformance;
+  bool _hasSavedResult = false;
 
   @override
   void initState() {
@@ -882,7 +886,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
         children: [
           Expanded(
             child: IconButton.filled(
-              onPressed: widget.onBackToTest,
+              onPressed: () {
+                final typingProvider = Provider.of<TypingProvider>(
+                  context,
+                  listen: false,
+                );
+                typingProvider.resetCurrentTest();
+                widget.onBackToTest();
+              },
               icon: Icon(FontAwesomeIcons.undoAlt, size: 20),
             ),
           ),
@@ -913,7 +924,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
       return Column(
         children: [
           IconButton.filled(
-            onPressed: widget.onBackToTest,
+            onPressed: () {
+              final typingProvider = Provider.of<TypingProvider>(
+                context,
+                listen: false,
+              );
+              typingProvider.resetCurrentTest();
+              widget.onBackToTest();
+            },
             icon: Icon(FontAwesomeIcons.undoAlt),
           ),
           const SizedBox(height: 8),
@@ -939,7 +957,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return Row(
       children: [
         IconButton.filled(
-          onPressed: widget.onBackToTest,
+          onPressed: () {
+            final typingProvider = Provider.of<TypingProvider>(
+              context,
+              listen: false,
+            );
+            typingProvider.resetCurrentTest();
+            widget.onBackToTest();
+          },
           icon: Icon(FontAwesomeIcons.undoAlt),
           iconSize: isTablet ? 20 : 24,
         ),
