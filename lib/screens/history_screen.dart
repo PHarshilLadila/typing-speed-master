@@ -7,6 +7,7 @@ import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/providers/typing_provider.dart';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
+import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/typing_result_card.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -498,26 +499,35 @@ class HistoryScreenState extends State<HistoryScreen> {
                             indexOfNumbers:
                                 '${filteredResults.indexOf(result) + 1}',
                             onTap: () async {
-                              await provider.deleteHistoryEntry(result);
-                              final isDarkMode = themeProvider.isDarkMode;
+                              CustomDialog.showSignOutDialog(
+                                title: "Delete This History?",
+                                content:
+                                    "Are you sure you want to delete this history?",
+                                confirmText: "Delete",
+                                context: context,
+                                onConfirm: () async {
+                                  await provider.deleteHistoryEntry(result);
+                                  final isDarkMode = themeProvider.isDarkMode;
 
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  behavior: SnackBarBehavior.floating,
-                                  backgroundColor:
-                                      isDarkMode
-                                          ? Colors.grey[850]
-                                          : Colors.white,
-                                  content: Text(
-                                    'Deleted history entry',
-                                    style: TextStyle(
-                                      color:
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      behavior: SnackBarBehavior.floating,
+                                      backgroundColor:
                                           isDarkMode
-                                              ? Colors.white
-                                              : Colors.black,
+                                              ? Colors.grey[850]
+                                              : Colors.white,
+                                      content: Text(
+                                        'History Deleted successfully..!',
+                                        style: TextStyle(
+                                          color:
+                                              isDarkMode
+                                                  ? Colors.white
+                                                  : Colors.black,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
+                                  );
+                                },
                               );
                             },
                           ),

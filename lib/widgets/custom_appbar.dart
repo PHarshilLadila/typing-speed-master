@@ -273,62 +273,14 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                                 isDark: isDarkTheme,
                                 size: 60,
                               ),
-                          // Container(
-                          //   width: 60,
-                          //   height: 60,
-                          //   decoration: BoxDecoration(
-                          //     color:
-                          //         isDarkTheme
-                          //             ? Colors.amber.shade800
-                          //             : Colors.amber.shade100,
-                          //     shape: BoxShape.circle,
-                          //   ),
-                          //   child: Icon(
-                          //     Icons.person,
-                          //     color:
-                          //         isDarkTheme
-                          //             ? Colors.amber.shade100
-                          //             : Colors.amber.shade800,
-                          //     size: 30,
-                          //   ),
-                          // ),
                           errorWidget:
                               (context, url, error) => ProfilePlaceHolderAvatar(
                                 isDark: isDarkTheme,
                                 size: 60,
                               ),
-                          //  Container(
-                          //   width: 60,
-                          //   height: 60,
-                          //   decoration: BoxDecoration(
-                          //     color:
-                          //         isDarkTheme
-                          //             ? Colors.amber.shade800
-                          //             : Colors.amber.shade100,
-                          //     shape: BoxShape.circle,
-                          //   ),
-                          //   child: Icon(
-                          //     Icons.person,
-                          //     color:
-                          //         isDarkTheme
-                          //             ? Colors.amber.shade100
-                          //             : Colors.amber.shade800,
-                          //     size: 30,
-                          //   ),
-                          // ),
                         ),
                       )
                       : ProfilePlaceHolderAvatar(isDark: isDarkTheme, size: 60),
-                  // CircleAvatar(
-                  //   backgroundColor:
-                  //       isDarkTheme ? Colors.amber.shade800 : Colors.amber,
-                  //   radius: 30,
-                  //   child: Icon(
-                  //     Icons.person,
-                  //     color: Colors.white,
-                  //     size: 30,
-                  //   ),
-                  // ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -373,18 +325,6 @@ class ProfileDropdownState extends State<ProfileDropdown> {
               Row(
                 children: [
                   ProfilePlaceHolderAvatar(isDark: isDarkTheme, size: 50),
-                  // SizedBox(
-                  //   width: 50,
-                  //   height: 50,
-                  //   child: CircleAvatar(
-                  //     backgroundColor:
-                  //         isDarkTheme
-                  //             ? Colors.grey.shade600
-                  //             : Colors.grey.shade600,
-                  //     radius: 18,
-                  //     child: Icon(Icons.person, color: Colors.white, size: 28),
-                  //   ),
-                  // ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -519,48 +459,17 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                           isDark: themeProvider.isDarkMode,
                           size: 40,
                         ),
-                    // Container(
-                    //   width: 40,
-                    //   height: 40,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.amber.shade100,
-                    //     shape: BoxShape.circle,
-                    //   ),
-                    //   child: Icon(
-                    //     Icons.person,
-                    //     color: Colors.amber.shade800,
-                    //     size: 24,
-                    //   ),
-                    // ),
                     errorWidget:
                         (context, url, error) => ProfilePlaceHolderAvatar(
                           isDark: themeProvider.isDarkMode,
                           size: 40,
                         ),
-                    // Container(
-                    //   width: 40,
-                    //   height: 40,
-                    //   decoration: BoxDecoration(
-                    //     color: Colors.amber.shade100,
-                    //     shape: BoxShape.circle,
-                    //   ),
-                    //   child: Icon(
-                    //     Icons.person,
-                    //     color: Colors.amber.shade800,
-                    //     size: 24,
-                    //   ),
-                    // ),
                   ),
                 )
                 : ProfilePlaceHolderAvatar(
                   isDark: themeProvider.isDarkMode,
                   size: 40,
                 ),
-        // CircleAvatar(
-        //   backgroundColor: Colors.amber,
-        //   radius: 18,
-        //   child: Icon(Icons.person, color: Colors.white),
-        // ),
       ),
     );
   }
