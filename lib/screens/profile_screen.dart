@@ -2,7 +2,9 @@
 
 import 'dart:developer';
 import 'dart:html' as html;
+import 'dart:math';
 
+import 'package:fl_heatmap/fl_heatmap.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -33,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadProfileData();
+    _initExampleData();
   }
 
   @override
@@ -63,10 +66,74 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
+  HeatmapItem? selectedItem;
+
+  late HeatmapData heatmapDataPower;
+
+  void _initExampleData() {
+    const rows = [
+      '2022',
+      '2021',
+      '2020',
+      '2019',
+      '2018',
+      '2017',
+      '2016',
+      '2015',
+    ];
+    const columns = [
+      'Jan',
+      'Feb',
+      'Mär',
+      'Apr',
+      'Mai',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Dez',
+    ];
+    final r = Random();
+    const String unit = 'kWh';
+    final items = [
+      for (int row = 0; row < rows.length; row++)
+        for (int col = 0; col < columns.length; col++)
+          if (!(row == 3 &&
+              col <
+                  2)) // Do not add the very first item (incomplete data edge case)
+            HeatmapItem(
+              value: r.nextDouble() * 6,
+              style:
+                  row == 0 && col > 1
+                      ? HeatmapItemStyle.hatched
+                      : HeatmapItemStyle.filled,
+              unit: unit,
+              xAxisLabel: columns[col],
+              yAxisLabel: rows[row],
+            ),
+    ];
+    heatmapDataPower = HeatmapData(
+      rows: rows,
+      columns: columns,
+      radius: 6.0,
+      items: items,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
+    final title =
+        selectedItem != null
+            ? '${selectedItem!.value.toStringAsFixed(2)} ${selectedItem!.unit}'
+            : '--- ${heatmapDataPower.items.first.unit}';
+    final subtitle =
+        selectedItem != null
+            ? '${selectedItem!.xAxisLabel} ${selectedItem!.yAxisLabel}'
+            : '---';
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
@@ -422,13 +489,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ),
 
                 if (authProvider.isLoggedIn) SizedBox(height: 32),
-                profileDangerZone(
-                  context,
-                  authProvider,
-                  isDark,
-                  isMobile,
-                  isTablet,
-                ),
+                if (authProvider.isLoggedIn)
+                  profileDangerZone(
+                    context,
+                    authProvider,
+                    isDark,
+                    isMobile,
+                    isTablet,
+                  ),
 
                 const SizedBox(height: 24),
               ],
@@ -1031,7 +1099,9 @@ class _ProfileScreenState extends State<ProfileScreen>
                         } else {
                           Restart.restartApp();
                         }
-                        log("✅ User Sign Out Successful and App Restarted");
+                        debugPrint(
+                          "✅ User Sign Out Successful and App Restarted",
+                        );
                       },
                     );
                   },
@@ -1271,6 +1341,25 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
               // Colors - Blue, Green, Teal, Orange, Red, Purple
             ],
+          ),
+          SizedBox(height: 24),
+          Center(
+            child: SizedBox(
+              width: 300,
+              height: 200,
+              child: Heatmap(
+                onItemSelectedListener: (HeatmapItem? selectedItem) {
+                  debugPrint(
+                    'Item ${selectedItem?.yAxisLabel}/${selectedItem?.xAxisLabel} with value ${selectedItem?.value} selected',
+                  );
+                  setState(() {
+                    this.selectedItem = selectedItem;
+                  });
+                },
+                rowsVisible: 5,
+                heatmapData: heatmapDataPower,
+              ),
+            ),
           ),
           // if (user.totalTests > 0) ...[
           //   SizedBox(height: 22),
