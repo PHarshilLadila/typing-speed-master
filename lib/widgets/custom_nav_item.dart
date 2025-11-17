@@ -23,7 +23,6 @@ class CustomNavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    // here manage the selected and unselected tab colors with dark and light screen
 
     return InkWell(
       borderRadius: BorderRadius.circular(8),
@@ -36,7 +35,7 @@ class CustomNavItem extends StatelessWidget {
               selected
                   ? isDarkTheme
                       ? Colors.white.withOpacity(0.2)
-                      : Colors.black
+                      : themeProvider.primaryColor
                   : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
         ),
@@ -46,7 +45,13 @@ class CustomNavItem extends StatelessWidget {
               icon,
               color:
                   selected
-                      ? Colors.white
+                      ? isDarkTheme
+                          ? Colors.white
+                          : (themeProvider.primaryColor == Colors.amber ||
+                              themeProvider.primaryColor == Colors.yellow ||
+                              themeProvider.primaryColor == Colors.lime)
+                          ? Colors.black
+                          : Colors.white
                       : isDarkTheme
                       ? Colors.white
                       : Colors.black87,
@@ -60,6 +65,10 @@ class CustomNavItem extends StatelessWidget {
                     selected
                         ? isDarkTheme
                             ? Colors.white
+                            : (themeProvider.primaryColor == Colors.amber ||
+                                themeProvider.primaryColor == Colors.yellow ||
+                                themeProvider.primaryColor == Colors.lime)
+                            ? Colors.black
                             : Colors.white
                         : isDarkTheme
                         ? Colors.white

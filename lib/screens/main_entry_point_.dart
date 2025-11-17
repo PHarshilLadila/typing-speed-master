@@ -39,12 +39,6 @@ class MainEntryPointState extends State<MainEntryPoint> {
     currentPage = pages[selectedIndex];
   }
 
-  // void onMenuClick(int index) {
-  //   setState(() {
-  //     selectedIndex = index;
-  //     currentPage = pages[index];
-  //   });
-  // }
   void onMenuClick(int index) {
     setState(() {
       selectedIndex = index;

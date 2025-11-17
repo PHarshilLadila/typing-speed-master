@@ -125,92 +125,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> fetchUserProfile(String userId) async {
-  //   try {
-  //     if (_isSignOut) return;
-
-  //     debugPrint('Fetching profile for user: $userId');
-
-  //     final response =
-  //         await _supabase
-  //             .from('profiles')
-  //             .select()
-  //             .eq('id', userId)
-  //             .maybeSingle();
-
-  //     if (response != null) {
-  //       _user = UserModel.fromJson(response);
-  //       debugPrint('Profile fetched successfully: ${_user?.email}');
-  //     } else {
-  //       debugPrint('No profile found, creating new one...');
-  //       await _createUserProfile(userId);
-  //     }
-  //     _error = null;
-  //   } catch (e) {
-  //     debugPrint('Error fetching profile: $e');
-
-  //     if (e is PostgrestException) {
-  //       if (e.code == 'PGRST116' || e.code == 'PGRST205') {
-  //         debugPrint('Profile table issue, creating profile...');
-  //         await _createUserProfile(userId);
-  //       } else {
-  //         _error = 'Database error: ${e.message}';
-  //       }
-  //     } else {
-  //       _error = 'Failed to fetch user profile: $e';
-  //     }
-  //   }
-  //   notifyListeners();
-  // }
-
-  // Future<void> _createUserProfile(String userId) async {
-  //   try {
-  //     if (_isSignOut) return;
-
-  //     final user = _supabase.auth.currentUser;
-  //     if (user != null) {
-  //       debugPrint('Creating profile for user: ${user.email}');
-
-  //       final userMetadata = user.userMetadata ?? {};
-  //       final appMetadata = user.appMetadata;
-
-  //       String? fullName =
-  //           userMetadata['full_name'] ??
-  //           userMetadata['name'] ??
-  //           appMetadata['full_name'] ??
-  //           appMetadata['name'];
-
-  //       String? avatarUrl =
-  //           userMetadata['avatar_url'] ??
-  //           userMetadata['picture'] ??
-  //           appMetadata['avatar_url'] ??
-  //           appMetadata['picture'];
-
-  //       final email = user.email ?? 'unknown@email.com';
-  //       final defaultName = email.split('@').first;
-
-  //       final newProfile = {
-  //         'id': userId,
-  //         'email': email,
-  //         'full_name': fullName ?? defaultName,
-  //         'avatar_url': avatarUrl,
-  //         'created_at': DateTime.now().toIso8601String(),
-  //         'updated_at': DateTime.now().toIso8601String(),
-  //       };
-
-  //       await _supabase.from('profiles').insert(newProfile);
-  //       _user = UserModel.fromJson(newProfile);
-  //       _error = null;
-
-  //       debugPrint('Profile created successfully for: ${_user?.email}');
-  //     }
-  //   } catch (e) {
-  //     debugPrint('Error creating profile: $e');
-  //     _error = 'Failed to create user profile: $e';
-  //   }
-  //   notifyListeners();
-  // }
-
   Future<void> signOut() async {
     final SharedPreferences preference = await SharedPreferences.getInstance();
     try {
@@ -321,7 +235,6 @@ class AuthProvider with ChangeNotifier {
       dev.log('📊 Starting stats update for user: ${_user!.id}');
       dev.log('📅 Today: $today, Last activity: ${_user!.lastActivityDate}');
 
-      // Calculate new streak
       int newCurrentStreak = _user!.currentStreak;
       final lastActivity = _user!.lastActivityDate;
 
@@ -331,21 +244,17 @@ class AuthProvider with ChangeNotifier {
             '🔄 Already updated today, keeping current streak: $newCurrentStreak',
           );
         } else if (_isSameDay(lastActivity, yesterday)) {
-          // Consecutive day - increment streak
           newCurrentStreak++;
           dev.log('🔥 Consecutive day! New streak: $newCurrentStreak');
         } else {
-          // Streak broken - reset to 1
           newCurrentStreak = 1;
           dev.log('💥 Streak broken! Reset to: $newCurrentStreak');
         }
       } else {
-        // First activity
         newCurrentStreak = 1;
         dev.log('🎯 First activity! Starting streak: $newCurrentStreak');
       }
 
-      // Update longest streak if needed
       final newLongestStreak =
           newCurrentStreak > _user!.longestStreak
               ? newCurrentStreak
@@ -355,7 +264,6 @@ class AuthProvider with ChangeNotifier {
         '📈 Current streak: $newCurrentStreak, Longest streak: $newLongestStreak',
       );
 
-      // Calculate new averages
       final newTotalTests = _user!.totalTests + 1;
       final newTotalWords = _user!.totalWords + result.wpm;
       final newAverageWpm =
@@ -397,7 +305,6 @@ class AuthProvider with ChangeNotifier {
       dev.log('✅ Supabase update response: $response');
 
       if (response.isNotEmpty) {
-        // Update local user model
         _user = _user!.copyWith(
           currentStreak: newCurrentStreak,
           longestStreak: newLongestStreak,
@@ -434,47 +341,7 @@ class AuthProvider with ChangeNotifier {
         date1.day == date2.day;
   }
 
-  // Update the fetchUserProfile method to include new fields
-  // Future<void> fetchUserProfile(String userId) async {
-  //   try {
-  //     if (_isSignOut) return;
-
-  //     debugPrint('Fetching profile for user: $userId');
-
-  //     final response =
-  //         await _supabase
-  //             .from('profiles')
-  //             .select()
-  //             .eq('id', userId)
-  //             .maybeSingle();
-
-  //     if (response != null) {
-  //       _user = UserModel.fromJson(response);
-  //       debugPrint(
-  //         'Profile fetched successfully: ${_user?.email}, Level: ${_user?.level}, Streak: ${_user?.currentStreak}',
-  //       );
-  //     } else {
-  //       debugPrint('No profile found, creating new one...');
-  //       await _createUserProfile(userId);
-  //     }
-  //     _error = null;
-  //   } catch (e) {
-  //     debugPrint('Error fetching profile: $e');
-
-  //     // If it's a unique constraint violation, the profile already exists - try to fetch it again
-  //     if (e is PostgrestException && e.code == '23505') {
-  //       debugPrint('Profile already exists, fetching again...');
-  //       await _fetchExistingProfile(userId);
-  //     } else if (e is PostgrestException) {
-  //       _error = 'Database error: ${e.message}';
-  //     } else {
-  //       _error = 'Failed to fetch user profile: $e';
-  //     }
-  //   }
-  //   notifyListeners();
-  // }
   Future<void> fetchUserProfile(String userId) async {
-    // Debounce rapid calls
     final now = DateTime.now();
     if (_lastProfileFetchTime != null &&
         now.difference(_lastProfileFetchTime!) < _profileFetchDebounceTime) {
@@ -521,7 +388,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // New method to handle existing profile fetch
   Future<void> _fetchExistingProfile(String userId) async {
     try {
       final response =
@@ -534,7 +400,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  // Update _createUserProfile to handle duplicates gracefully
   Future<void> _createUserProfile(String userId) async {
     try {
       if (_isSignOut) return;
@@ -543,7 +408,6 @@ class AuthProvider with ChangeNotifier {
       if (user != null) {
         debugPrint('Creating profile for user: ${user.email}');
 
-        // First, check if profile was created by another process
         final existingProfile =
             await _supabase
                 .from('profiles')
@@ -602,7 +466,6 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       debugPrint('Error creating profile: $e');
 
-      // If profile already exists, fetch it
       if (e is PostgrestException && e.code == '23505') {
         debugPrint('Profile already exists, fetching instead...');
         await _fetchExistingProfile(userId);

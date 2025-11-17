@@ -47,8 +47,6 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
         builder: (context, themeProvider, child) {
           return MaterialApp(
             title: 'Typing Speed Master',
-            // theme: AppLightTheme.theme,
-            // darkTheme: AppDarkTheme.theme,
             theme: AppLightTheme.getTheme(
               primaryColor: themeProvider.primaryColor,
             ),

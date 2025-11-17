@@ -636,7 +636,13 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                       style: TextStyle(
                         fontSize: isMobile ? 14 : 16,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color:
+                            themeProvider.primaryColor == Colors.amber ||
+                                    themeProvider.primaryColor ==
+                                        Colors.yellow ||
+                                    themeProvider.primaryColor == Colors.lime
+                                ? Colors.black
+                                : Colors.white,
                       ),
                     ),
                   ),
@@ -713,11 +719,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                     ),
                     SizedBox(height: spacing),
 
-                    typingTestInputField(
-                      themeProvider,
-                      cardColor ?? Colors.grey,
-                      inputBorderColor,
-                      subtitleColor ?? Colors.grey,
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: typingTestInputField(
+                        themeProvider,
+                        cardColor ?? Colors.grey,
+                        inputBorderColor,
+                        subtitleColor ?? Colors.grey,
+                      ),
                     ),
                   ],
                 ),
@@ -1368,7 +1377,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     Color subtitleColor,
   ) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.end,
       children: [
         if (testStarted || testCompleted)
           Row(
@@ -1393,15 +1402,22 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               const SizedBox(width: 12),
               TextButton(
                 onPressed: testStarted ? completeTest : null,
-                style: const ButtonStyle(
-                  backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                style: ButtonStyle(
+                  backgroundColor: MaterialStatePropertyAll(
+                    themeProvider.primaryColor,
+                  ),
                 ),
                 child: Text(
                   'Complete Test',
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
-                    color: Colors.black,
+                    color:
+                        themeProvider.primaryColor == Colors.amber ||
+                                themeProvider.primaryColor == Colors.yellow ||
+                                themeProvider.primaryColor == Colors.lime
+                            ? Colors.black
+                            : Colors.white,
                   ),
                 ),
               ),

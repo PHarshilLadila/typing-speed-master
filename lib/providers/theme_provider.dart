@@ -1,40 +1,3 @@
-// import 'package:flutter/material.dart';
-// import 'package:typing_speed_master/service/theme_service.dart';
-
-// class ThemeProvider with ChangeNotifier {
-//   final ThemeService _themeService = ThemeService();
-
-//   bool _isDarkMode = false;
-//   ThemeMode _themeMode = ThemeMode.light;
-
-//   bool get isDarkMode => _isDarkMode;
-//   ThemeMode get themeMode => _themeMode;
-
-//   ThemeProvider() {
-//     _loadTheme();
-//   }
-
-//   Future<void> _loadTheme() async {
-//     _isDarkMode = await _themeService.getThemeMode();
-//     _themeMode = _isDarkMode ? ThemeMode.dark : ThemeMode.light;
-//     notifyListeners();
-//   }
-
-//   Future<void> toggleTheme() async {
-//     _isDarkMode = !_isDarkMode;
-//     _themeMode = _isDarkMode ? ThemeMode.dark : ThemeMode.light;
-//     await _themeService.setThemeMode(_isDarkMode);
-//     notifyListeners();
-//   }
-
-//   Future<void> setTheme(bool isDark) async {
-//     _isDarkMode = isDark;
-//     _themeMode = isDark ? ThemeMode.dark : ThemeMode.light;
-//     await _themeService.setThemeMode(_isDarkMode);
-//     notifyListeners();
-//   }
-// }
-// providers/theme_provider.dart
 import 'package:flutter/material.dart';
 import 'package:typing_speed_master/service/theme_service.dart';
 
@@ -45,18 +8,6 @@ class ThemeProvider with ChangeNotifier {
   ThemeMode _themeMode = ThemeMode.light;
   MaterialColor _primaryColor = Colors.amber;
 
-  // Available theme colors
-  // static final Map<String, MaterialColor> availableColors = {
-  //   'amber': Colors.amber,
-  //   'blue': Colors.blue,
-  //   'purple': Colors.purple,
-  //   'grey': Colors.grey,
-  //   'green': Colors.green,
-  //   'orange': Colors.orange,
-  //   'lime': Colors.lime,
-  //   'brown': Colors.brown,
-  //   'pink': Colors.pink,
-  // };
   static final Map<String, MaterialColor> availableColors = {
     'red': Colors.red,
     'pink': Colors.pink,
@@ -91,7 +42,6 @@ class ThemeProvider with ChangeNotifier {
     _isDarkMode = await _themeService.getThemeMode();
     _themeMode = _isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
-    // Load saved primary color
     final savedColor = await _themeService.getPrimaryColor();
     _primaryColor = availableColors[savedColor] ?? Colors.amber;
 

@@ -173,77 +173,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 32),
 
                 if (authProvider.isLoggedIn)
-                  // Container(
-                  //   width: double.infinity,
-                  //   padding: EdgeInsets.symmetric(
-                  //     horizontal: isMobile ? 24 : 48,
-                  //     vertical: isMobile ? 20 : 24,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     color: cardColor,
-                  //     borderRadius: BorderRadius.circular(16),
-                  //     border: Border.all(color: borderColor),
-                  //     boxShadow: [
-                  //       BoxShadow(
-                  //         color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
-                  //         blurRadius: 15,
-                  //         offset: const Offset(0, 4),
-                  //       ),
-                  //     ],
-                  //   ),
-                  //   child: Column(
-                  //     children: [
-                  //       Text(
-                  //         'Theme Preferences',
-                  //         style: TextStyle(
-                  //           fontSize: isMobile ? 18 : 20,
-                  //           fontWeight: FontWeight.bold,
-                  //           color: isDark ? Colors.white : Colors.black,
-                  //         ),
-                  //       ),
-                  //       SizedBox(height: 18),
-                  //       Wrap(
-                  //         spacing: 16,
-                  //         runSpacing: 16,
-                  //         children: [
-                  //           Container(
-                  //             height: 30,
-                  //             width: 30,
-                  //             decoration: BoxDecoration(
-                  //               color: Colors.amber,
-                  //               shape: BoxShape.circle,
-                  //               border: Border.all(
-                  //                 color: isDark ? Colors.white : Colors.black,
-                  //                 width: 1,
-                  //               ),
-                  //             ),
-                  //           ),
-                  //           Container(
-                  //             height: 30,
-                  //             width: 30,
-                  //             decoration: BoxDecoration(
-                  //               color: Colors.green,
-                  //               shape: BoxShape.circle,
-                  //             ),
-                  //           ),
-                  //           Container(
-                  //             height: 30,
-                  //             width: 30,
-                  //             decoration: BoxDecoration(
-                  //               color: Colors.purple,
-                  //               shape: BoxShape.circle,
-                  //             ),
-                  //           ),
-                  //         ],
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
                   Container(
                     width: double.infinity,
                     padding: EdgeInsets.symmetric(
-                      horizontal: isMobile ? 24 : 48,
-                      vertical: isMobile ? 20 : 24,
+                      horizontal: isMobile ? 20 : 32,
+                      vertical: isMobile ? 16 : 20,
                     ),
                     decoration: BoxDecoration(
                       color: cardColor,
@@ -258,6 +192,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ],
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           'Theme Preferences',
@@ -267,7 +202,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             color: isDark ? Colors.white : Colors.black,
                           ),
                         ),
-                        SizedBox(height: 18),
+                        SizedBox(height: 4),
                         Text(
                           'Choose your primary color',
                           style: TextStyle(
@@ -276,98 +211,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                         ),
                         SizedBox(height: 16),
-                        // Wrap(
-                        //   spacing: 16,
-                        //   runSpacing: 16,
-                        //   children: [
-                        //     _buildColorOption(
-                        //       color: Colors.amber,
-                        //       colorName: 'amber',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'amber',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('amber'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.blue,
-                        //       colorName: 'blue',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'blue',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('blue'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.purple,
-                        //       colorName: 'purple',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'purple',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('purple'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.grey,
-                        //       colorName: 'grey',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'grey',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('grey'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.green,
-                        //       colorName: 'green',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'green',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('green'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.orange,
-                        //       colorName: 'orange',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'orange',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('orange'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.lime,
-                        //       colorName: 'lime',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'lime',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('lime'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.brown,
-                        //       colorName: 'brown',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'brown',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('brown'),
-                        //       isDark: isDark,
-                        //     ),
-                        //     _buildColorOption(
-                        //       color: Colors.pink,
-                        //       colorName: 'pink',
-                        //       isSelected:
-                        //           themeProvider.currentColorName == 'pink',
-                        //       onTap:
-                        //           () => themeProvider.setPrimaryColor('pink'),
-                        //       isDark: isDark,
-                        //     ),
-                        //   ],
-                        // ),
                         Wrap(
                           spacing: 16,
                           runSpacing: 16,
                           children: [
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.red,
                               colorName: 'red',
                               isSelected:
@@ -376,7 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.pink,
                               colorName: 'pink',
                               isSelected:
@@ -386,7 +234,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.purple,
                               colorName: 'purple',
                               isSelected:
@@ -396,7 +244,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.deepPurple,
                               colorName: 'deepPurple',
                               isSelected:
@@ -409,7 +257,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.indigo,
                               colorName: 'indigo',
                               isSelected:
@@ -419,7 +267,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.blue,
                               colorName: 'blue',
                               isSelected:
@@ -429,7 +277,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.lightBlue,
                               colorName: 'lightBlue',
                               isSelected:
@@ -441,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.cyan,
                               colorName: 'cyan',
                               isSelected:
@@ -451,7 +299,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.teal,
                               colorName: 'teal',
                               isSelected:
@@ -461,7 +309,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.green,
                               colorName: 'green',
                               isSelected:
@@ -471,7 +319,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.lightGreen,
                               colorName: 'lightGreen',
                               isSelected:
@@ -484,7 +332,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.lime,
                               colorName: 'lime',
                               isSelected:
@@ -494,7 +342,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.yellow,
                               colorName: 'yellow',
                               isSelected:
@@ -504,7 +352,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.amber,
                               colorName: 'amber',
                               isSelected:
@@ -514,7 +362,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.orange,
                               colorName: 'orange',
                               isSelected:
@@ -524,7 +372,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.deepOrange,
                               colorName: 'deepOrange',
                               isSelected:
@@ -537,7 +385,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.brown,
                               colorName: 'brown',
                               isSelected:
@@ -547,7 +395,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.grey,
                               colorName: 'grey',
                               isSelected:
@@ -557,7 +405,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                               isDark: isDark,
                             ),
 
-                            _buildColorOption(
+                            themePreferenceColorOption(
                               color: Colors.blueGrey,
                               colorName: 'blueGrey',
                               isSelected:
@@ -591,7 +439,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildColorOption({
+  Widget themePreferenceColorOption({
     required MaterialColor color,
     required String colorName,
     required bool isSelected,

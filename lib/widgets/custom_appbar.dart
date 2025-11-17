@@ -269,7 +269,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                         child: CachedNetworkImage(
                           imageUrl:
                               authProvider.user!.avatarUrl ??
-                              "https://api.dicebear.com/7.x/avataaars/svg?seed=amber",
+                              "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,

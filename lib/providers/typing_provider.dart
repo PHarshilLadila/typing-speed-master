@@ -370,21 +370,6 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> saveResult(TypingResult result) async {
-  //   _results.add(result);
-  //   _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-  //   try {
-  //     if (_isUserLoggedIn) {
-  //       await _saveResultToSupabase(result);
-  //     }
-  //   } catch (e) {
-  //     dev.log('Error saving result: $e');
-  //   }
-
-  //   notifyListeners();
-  // }
-  // In TypingProvider's saveResult method
   Future<void> saveResult(TypingResult result) async {
     _results.add(result);
     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -393,11 +378,9 @@ class TypingProvider with ChangeNotifier {
       if (_isUserLoggedIn) {
         await _saveResultToSupabase(result);
 
-        // Update user stats using direct method (more reliable)
         dev.log('🔄 Attempting to update user stats via direct method...');
         await _updateUserStatsDirectly(result);
 
-        // Also try the AuthProvider method as backup
         final authProvider = _getAuthProvider();
         if (authProvider != null) {
           dev.log('✅ AuthProvider found, calling updateUserStats as backup');
@@ -709,7 +692,6 @@ class TypingProvider with ChangeNotifier {
 
       dev.log('🔄 Starting direct stats update for user: ${user.id}');
 
-      // First, get current user stats with retry logic
       Map<String, dynamic> currentProfile;
       try {
         final response =
@@ -740,7 +722,6 @@ class TypingProvider with ChangeNotifier {
         '📅 Streak calculation - Last activity: $lastActivityDate, Today: $today',
       );
 
-      // Calculate streak
       if (lastActivityDate != null) {
         if (_isSameDay(lastActivityDate, today)) {
           dev.log('🔄 Already updated today, keeping streak: $currentStreak');
@@ -759,7 +740,6 @@ class TypingProvider with ChangeNotifier {
       longestStreak =
           currentStreak > longestStreak ? currentStreak : longestStreak;
 
-      // Calculate averages
       final previousTotalTests = currentProfile['total_tests'] ?? 0;
       final previousTotalWords = currentProfile['total_words'] ?? 0;
       final previousAverageWpm =
@@ -811,7 +791,6 @@ class TypingProvider with ChangeNotifier {
       if (response.isNotEmpty) {
         dev.log('🎉 User stats updated successfully in Supabase!');
 
-        // Force refresh the user profile in AuthProvider
         final authProvider = _getAuthProvider();
         if (authProvider != null) {
           await authProvider.fetchUserProfile(user.id);
@@ -826,7 +805,6 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  // Helper to compare two dates by year/month/day only.
   bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
