@@ -34,7 +34,7 @@ class CustomNavItem extends StatelessWidget {
           color:
               selected
                   ? isDarkTheme
-                      ? Colors.white.withOpacity(0.2)
+                      ? themeProvider.primaryColor.withOpacity(0.3)
                       : themeProvider.primaryColor
                   : Colors.transparent,
           borderRadius: BorderRadius.circular(8),

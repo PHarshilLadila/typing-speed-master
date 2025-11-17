@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 
-import 'dart:developer';
 import 'dart:html' as html;
 import 'dart:math';
 
@@ -126,14 +125,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDark = themeProvider.isDarkMode;
-    final title =
-        selectedItem != null
-            ? '${selectedItem!.value.toStringAsFixed(2)} ${selectedItem!.unit}'
-            : '--- ${heatmapDataPower.items.first.unit}';
-    final subtitle =
-        selectedItem != null
-            ? '${selectedItem!.xAxisLabel} ${selectedItem!.yAxisLabel}'
-            : '---';
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
