@@ -36,7 +36,6 @@ class _ResultsScreenState extends State<ResultsScreen> {
   late ConfettiController confettiController;
   late List<TypingStatData> chartData;
   late List<TypingStatData> chartDataPerformance;
-  bool _hasSavedResult = false;
 
   @override
   void initState() {
