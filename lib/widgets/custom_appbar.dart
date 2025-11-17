@@ -31,6 +31,7 @@ class CustomAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Provider.of<AuthProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return AppBar(
       backgroundColor: isDarkMode ? Colors.black38 : Colors.white,
@@ -61,7 +62,11 @@ class CustomAppBar extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(Icons.keyboard, color: Colors.amber, size: 26),
+                Icon(
+                  Icons.keyboard,
+                  color: themeProvider.primaryColor,
+                  size: 26,
+                ),
                 SizedBox(width: 6),
                 Padding(
                   padding: EdgeInsets.only(right: isMobile ? 16.0 : 40.0),
@@ -162,7 +167,7 @@ class CustomAppBar extends StatelessWidget {
                   themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
                   color:
                       themeProvider.isDarkMode
-                          ? Colors.amber
+                          ? themeProvider.primaryColor
                           : Colors.grey[700],
                 );
               },

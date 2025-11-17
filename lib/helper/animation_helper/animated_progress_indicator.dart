@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:typing_speed_master/providers/theme_provider.dart';
 
 class AnimatedProgressIndicator extends StatefulWidget {
   final double value;
@@ -61,6 +63,8 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MouseRegion(
       onEnter: (_) => _handleHover(true),
       onExit: (_) => _handleHover(false),
@@ -77,8 +81,8 @@ class _AnimatedProgressIndicatorState extends State<AnimatedProgressIndicator>
                     value: _isHovered ? _animation.value : widget.value,
                     strokeWidth: 5,
                     backgroundColor: widget.progressBackgroundColor,
-                    valueColor: const AlwaysStoppedAnimation<Color>(
-                      Colors.amber,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      themeProvider.primaryColor,
                     ),
                   ),
             ),

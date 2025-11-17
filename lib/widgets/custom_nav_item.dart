@@ -1,6 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:typing_speed_master/providers/theme_provider.dart';
 
 class CustomNavItem extends StatelessWidget {
   final IconData icon;
@@ -20,6 +22,9 @@ class CustomNavItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    // here manage the selected and unselected tab colors with dark and light screen
+
     return InkWell(
       borderRadius: BorderRadius.circular(8),
       onTap: onTap,

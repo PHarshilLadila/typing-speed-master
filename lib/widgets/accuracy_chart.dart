@@ -1,7 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:typing_speed_master/providers/theme_provider.dart';
 import '../models/typing_result.dart';
 
 class AccuracyChart extends StatelessWidget {
@@ -22,6 +24,7 @@ class AccuracyChart extends StatelessWidget {
     final textColor = isDarkMode ? Colors.grey[300] : Colors.grey[600];
     final chartTextColor = isDarkMode ? Colors.grey[400] : Colors.grey[600];
     final gridLineColor = isDarkMode ? Colors.grey[700]! : Colors.grey[300]!;
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     if (results.length < 2) {
       return Container(
@@ -114,8 +117,10 @@ class AccuracyChart extends StatelessWidget {
                   isVisibleInLegend: true,
                   xValueMapper: (TypingResult result, int index) => index,
                   yValueMapper: (TypingResult result, _) => result.accuracy,
-                  color: Colors.amber.withOpacity(isDarkMode ? 0.3 : 0.2),
-                  borderColor: Colors.amber,
+                  color: themeProvider.primaryColor.withOpacity(
+                    isDarkMode ? 0.3 : 0.2,
+                  ),
+                  borderColor: themeProvider.primaryColor,
                   borderWidth: 2,
                   markerSettings: MarkerSettings(
                     isVisible: true,
@@ -123,8 +128,9 @@ class AccuracyChart extends StatelessWidget {
                     width: 6,
                     height: 6,
                     borderWidth: 1.5,
-                    color: Colors.amber,
-                    borderColor: isDarkMode ? Colors.white : Colors.amber,
+                    color: themeProvider.primaryColor,
+                    borderColor:
+                        isDarkMode ? Colors.white : themeProvider.primaryColor,
                   ),
                 ),
               ],

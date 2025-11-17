@@ -118,6 +118,10 @@ class _ProfileScreenState extends State<ProfileScreen>
       builder: (context, constraints) {
         final isMobile = constraints.maxWidth < 768;
         final isTablet = constraints.maxWidth < 1024;
+        final themeProvider = Provider.of<ThemeProvider>(
+          context,
+          listen: false,
+        );
 
         return RefreshIndicator(
           onRefresh: () async {
@@ -169,13 +173,414 @@ class _ProfileScreenState extends State<ProfileScreen>
                 const SizedBox(height: 32),
 
                 if (authProvider.isLoggedIn)
-                  profileDangerZone(
-                    context,
-                    authProvider,
-                    isDark,
-                    isMobile,
-                    isTablet,
+                  // Container(
+                  //   width: double.infinity,
+                  //   padding: EdgeInsets.symmetric(
+                  //     horizontal: isMobile ? 24 : 48,
+                  //     vertical: isMobile ? 20 : 24,
+                  //   ),
+                  //   decoration: BoxDecoration(
+                  //     color: cardColor,
+                  //     borderRadius: BorderRadius.circular(16),
+                  //     border: Border.all(color: borderColor),
+                  //     boxShadow: [
+                  //       BoxShadow(
+                  //         color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                  //         blurRadius: 15,
+                  //         offset: const Offset(0, 4),
+                  //       ),
+                  //     ],
+                  //   ),
+                  //   child: Column(
+                  //     children: [
+                  //       Text(
+                  //         'Theme Preferences',
+                  //         style: TextStyle(
+                  //           fontSize: isMobile ? 18 : 20,
+                  //           fontWeight: FontWeight.bold,
+                  //           color: isDark ? Colors.white : Colors.black,
+                  //         ),
+                  //       ),
+                  //       SizedBox(height: 18),
+                  //       Wrap(
+                  //         spacing: 16,
+                  //         runSpacing: 16,
+                  //         children: [
+                  //           Container(
+                  //             height: 30,
+                  //             width: 30,
+                  //             decoration: BoxDecoration(
+                  //               color: Colors.amber,
+                  //               shape: BoxShape.circle,
+                  //               border: Border.all(
+                  //                 color: isDark ? Colors.white : Colors.black,
+                  //                 width: 1,
+                  //               ),
+                  //             ),
+                  //           ),
+                  //           Container(
+                  //             height: 30,
+                  //             width: 30,
+                  //             decoration: BoxDecoration(
+                  //               color: Colors.green,
+                  //               shape: BoxShape.circle,
+                  //             ),
+                  //           ),
+                  //           Container(
+                  //             height: 30,
+                  //             width: 30,
+                  //             decoration: BoxDecoration(
+                  //               color: Colors.purple,
+                  //               shape: BoxShape.circle,
+                  //             ),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
+                  Container(
+                    width: double.infinity,
+                    padding: EdgeInsets.symmetric(
+                      horizontal: isMobile ? 24 : 48,
+                      vertical: isMobile ? 20 : 24,
+                    ),
+                    decoration: BoxDecoration(
+                      color: cardColor,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: borderColor),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(isDark ? 0.3 : 0.1),
+                          blurRadius: 15,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'Theme Preferences',
+                          style: TextStyle(
+                            fontSize: isMobile ? 18 : 20,
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        SizedBox(height: 18),
+                        Text(
+                          'Choose your primary color',
+                          style: TextStyle(
+                            fontSize: isMobile ? 14 : 16,
+                            color: isDark ? Colors.grey[400] : Colors.grey[600],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+                        // Wrap(
+                        //   spacing: 16,
+                        //   runSpacing: 16,
+                        //   children: [
+                        //     _buildColorOption(
+                        //       color: Colors.amber,
+                        //       colorName: 'amber',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'amber',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('amber'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.blue,
+                        //       colorName: 'blue',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'blue',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('blue'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.purple,
+                        //       colorName: 'purple',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'purple',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('purple'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.grey,
+                        //       colorName: 'grey',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'grey',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('grey'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.green,
+                        //       colorName: 'green',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'green',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('green'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.orange,
+                        //       colorName: 'orange',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'orange',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('orange'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.lime,
+                        //       colorName: 'lime',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'lime',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('lime'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.brown,
+                        //       colorName: 'brown',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'brown',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('brown'),
+                        //       isDark: isDark,
+                        //     ),
+                        //     _buildColorOption(
+                        //       color: Colors.pink,
+                        //       colorName: 'pink',
+                        //       isSelected:
+                        //           themeProvider.currentColorName == 'pink',
+                        //       onTap:
+                        //           () => themeProvider.setPrimaryColor('pink'),
+                        //       isDark: isDark,
+                        //     ),
+                        //   ],
+                        // ),
+                        Wrap(
+                          spacing: 16,
+                          runSpacing: 16,
+                          children: [
+                            _buildColorOption(
+                              color: Colors.red,
+                              colorName: 'red',
+                              isSelected:
+                                  themeProvider.currentColorName == 'red',
+                              onTap: () => themeProvider.setPrimaryColor('red'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.pink,
+                              colorName: 'pink',
+                              isSelected:
+                                  themeProvider.currentColorName == 'pink',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('pink'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.purple,
+                              colorName: 'purple',
+                              isSelected:
+                                  themeProvider.currentColorName == 'purple',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('purple'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.deepPurple,
+                              colorName: 'deepPurple',
+                              isSelected:
+                                  themeProvider.currentColorName ==
+                                  'deepPurple',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor(
+                                    'deepPurple',
+                                  ),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.indigo,
+                              colorName: 'indigo',
+                              isSelected:
+                                  themeProvider.currentColorName == 'indigo',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('indigo'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.blue,
+                              colorName: 'blue',
+                              isSelected:
+                                  themeProvider.currentColorName == 'blue',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('blue'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.lightBlue,
+                              colorName: 'lightBlue',
+                              isSelected:
+                                  themeProvider.currentColorName == 'lightBlue',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor(
+                                    'lightBlue',
+                                  ),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.cyan,
+                              colorName: 'cyan',
+                              isSelected:
+                                  themeProvider.currentColorName == 'cyan',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('cyan'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.teal,
+                              colorName: 'teal',
+                              isSelected:
+                                  themeProvider.currentColorName == 'teal',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('teal'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.green,
+                              colorName: 'green',
+                              isSelected:
+                                  themeProvider.currentColorName == 'green',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('green'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.lightGreen,
+                              colorName: 'lightGreen',
+                              isSelected:
+                                  themeProvider.currentColorName ==
+                                  'lightGreen',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor(
+                                    'lightGreen',
+                                  ),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.lime,
+                              colorName: 'lime',
+                              isSelected:
+                                  themeProvider.currentColorName == 'lime',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('lime'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.yellow,
+                              colorName: 'yellow',
+                              isSelected:
+                                  themeProvider.currentColorName == 'yellow',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('yellow'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.amber,
+                              colorName: 'amber',
+                              isSelected:
+                                  themeProvider.currentColorName == 'amber',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('amber'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.orange,
+                              colorName: 'orange',
+                              isSelected:
+                                  themeProvider.currentColorName == 'orange',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('orange'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.deepOrange,
+                              colorName: 'deepOrange',
+                              isSelected:
+                                  themeProvider.currentColorName ==
+                                  'deepOrange',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor(
+                                    'deepOrange',
+                                  ),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.brown,
+                              colorName: 'brown',
+                              isSelected:
+                                  themeProvider.currentColorName == 'brown',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('brown'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.grey,
+                              colorName: 'grey',
+                              isSelected:
+                                  themeProvider.currentColorName == 'grey',
+                              onTap:
+                                  () => themeProvider.setPrimaryColor('grey'),
+                              isDark: isDark,
+                            ),
+
+                            _buildColorOption(
+                              color: Colors.blueGrey,
+                              colorName: 'blueGrey',
+                              isSelected:
+                                  themeProvider.currentColorName == 'blueGrey',
+                              onTap:
+                                  () =>
+                                      themeProvider.setPrimaryColor('blueGrey'),
+                              isDark: isDark,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
+
+                if (authProvider.isLoggedIn) SizedBox(height: 32),
+                profileDangerZone(
+                  context,
+                  authProvider,
+                  isDark,
+                  isMobile,
+                  isTablet,
+                ),
 
                 const SizedBox(height: 24),
               ],
@@ -183,6 +588,50 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
         );
       },
+    );
+  }
+
+  Widget _buildColorOption({
+    required MaterialColor color,
+    required String colorName,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isDark,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        height: 40,
+        width: 40,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            color:
+                isSelected
+                    ? isDark
+                        ? Colors.white
+                        : Colors.black
+                    : Colors.transparent,
+            width: 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              blurRadius: 4,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child:
+            isSelected
+                ? Icon(
+                  Icons.check,
+                  color: isDark ? Colors.white : Colors.black,
+                  size: 20,
+                )
+                : null,
+      ),
     );
   }
 
@@ -371,6 +820,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool isCentered,
     bool isDark,
   ) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Column(
       crossAxisAlignment:
           isCentered ? CrossAxisAlignment.center : CrossAxisAlignment.start,
@@ -395,7 +846,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             Icon(
               FontAwesomeIcons.envelope,
               size: isMobile ? 14 : 16,
-              color: isDark ? Colors.amberAccent : Colors.grey[700],
+              color: themeProvider.primaryColor,
             ),
             const SizedBox(width: 6),
             Flexible(
@@ -425,7 +876,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               Icon(
                 FontAwesomeIcons.calendar,
                 size: isMobile ? 12 : 14,
-                color: isDark ? Colors.amberAccent : Colors.grey[700],
+                color: themeProvider.primaryColor,
               ),
               const SizedBox(width: 6),
               Text(
@@ -562,6 +1013,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     bool isDark,
     bool isMobile,
   ) {
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
     if (authProvider.isLoggedIn) {
       return SizedBox(
         width: isMobile ? double.infinity : null,
@@ -570,8 +1022,8 @@ class _ProfileScreenState extends State<ProfileScreen>
             showEditProfileDialog(context, authProvider);
           },
           style: TextButton.styleFrom(
-            backgroundColor:
-                isDark ? Colors.amberAccent.shade400 : Colors.amber,
+            backgroundColor: themeProvider.primaryColor,
+            // isDark ? Colors.amberAccent.shade400 : Colors.amber,
             padding: EdgeInsets.symmetric(
               horizontal: isMobile ? 16 : 20,
               vertical: isMobile ? 12 : 14,
@@ -582,7 +1034,12 @@ class _ProfileScreenState extends State<ProfileScreen>
             style: TextStyle(
               fontSize: isMobile ? 14 : 16,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color:
+                  themeProvider.primaryColor == Colors.amber ||
+                          themeProvider.primaryColor == Colors.yellow ||
+                          themeProvider.primaryColor == Colors.lime
+                      ? Colors.black
+                      : Colors.white,
             ),
           ),
         ),

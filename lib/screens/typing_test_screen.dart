@@ -470,9 +470,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                           SizedBox(width: isMobile ? 4 : 8),
                           TextButton(
                             onPressed: resetTest,
-                            style: const ButtonStyle(
+                            style: ButtonStyle(
                               backgroundColor: WidgetStatePropertyAll(
-                                Colors.amber,
+                                themeProvider.primaryColor,
                               ),
                             ),
                             child: Text(
@@ -480,7 +480,15 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                               style: TextStyle(
                                 fontSize: isMobile ? 14 : 16,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                                color:
+                                    themeProvider.primaryColor ==
+                                                Colors.amber ||
+                                            themeProvider.primaryColor ==
+                                                Colors.yellow ||
+                                            themeProvider.primaryColor ==
+                                                Colors.lime
+                                        ? Colors.black
+                                        : Colors.white,
                               ),
                             ),
                           ),
@@ -618,8 +626,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                   SizedBox(width: isMobile ? 4 : 8),
                   TextButton(
                     onPressed: resetTest,
-                    style: const ButtonStyle(
-                      backgroundColor: WidgetStatePropertyAll(Colors.amber),
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateProperty.all(
+                        themeProvider.primaryColor,
+                      ),
                     ),
                     child: Text(
                       'Reset',
