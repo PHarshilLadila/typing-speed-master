@@ -12,6 +12,7 @@ import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/custom_nav_item.dart';
+import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
 
 class CustomAppBar extends StatelessWidget {
   final int selectedIndex;
@@ -261,62 +262,73 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                   authProvider.user?.avatarUrl != null
                       ? ClipOval(
                         child: CachedNetworkImage(
-                          imageUrl: authProvider.user!.avatarUrl!,
+                          imageUrl:
+                              authProvider.user!.avatarUrl ??
+                              "https://api.dicebear.com/7.x/avataaars/svg?seed=amber",
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,
                           placeholder:
-                              (context, url) => Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color:
-                                      isDarkTheme
-                                          ? Colors.amber.shade800
-                                          : Colors.amber.shade100,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color:
-                                      isDarkTheme
-                                          ? Colors.amber.shade100
-                                          : Colors.amber.shade800,
-                                  size: 30,
-                                ),
+                              (context, url) => ProfilePlaceHolderAvatar(
+                                isDark: isDarkTheme,
+                                size: 60,
                               ),
+                          // Container(
+                          //   width: 60,
+                          //   height: 60,
+                          //   decoration: BoxDecoration(
+                          //     color:
+                          //         isDarkTheme
+                          //             ? Colors.amber.shade800
+                          //             : Colors.amber.shade100,
+                          //     shape: BoxShape.circle,
+                          //   ),
+                          //   child: Icon(
+                          //     Icons.person,
+                          //     color:
+                          //         isDarkTheme
+                          //             ? Colors.amber.shade100
+                          //             : Colors.amber.shade800,
+                          //     size: 30,
+                          //   ),
+                          // ),
                           errorWidget:
-                              (context, url, error) => Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                  color:
-                                      isDarkTheme
-                                          ? Colors.amber.shade800
-                                          : Colors.amber.shade100,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(
-                                  Icons.person,
-                                  color:
-                                      isDarkTheme
-                                          ? Colors.amber.shade100
-                                          : Colors.amber.shade800,
-                                  size: 30,
-                                ),
+                              (context, url, error) => ProfilePlaceHolderAvatar(
+                                isDark: isDarkTheme,
+                                size: 60,
                               ),
+                          //  Container(
+                          //   width: 60,
+                          //   height: 60,
+                          //   decoration: BoxDecoration(
+                          //     color:
+                          //         isDarkTheme
+                          //             ? Colors.amber.shade800
+                          //             : Colors.amber.shade100,
+                          //     shape: BoxShape.circle,
+                          //   ),
+                          //   child: Icon(
+                          //     Icons.person,
+                          //     color:
+                          //         isDarkTheme
+                          //             ? Colors.amber.shade100
+                          //             : Colors.amber.shade800,
+                          //     size: 30,
+                          //   ),
+                          // ),
                         ),
                       )
-                      : CircleAvatar(
-                        backgroundColor:
-                            isDarkTheme ? Colors.amber.shade800 : Colors.amber,
-                        radius: 30,
-                        child: Icon(
-                          Icons.person,
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                      ),
+                      : ProfilePlaceHolderAvatar(isDark: isDarkTheme, size: 60),
+                  // CircleAvatar(
+                  //   backgroundColor:
+                  //       isDarkTheme ? Colors.amber.shade800 : Colors.amber,
+                  //   radius: 30,
+                  //   child: Icon(
+                  //     Icons.person,
+                  //     color: Colors.white,
+                  //     size: 30,
+                  //   ),
+                  // ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -360,18 +372,19 @@ class ProfileDropdownState extends State<ProfileDropdown> {
             ] else ...[
               Row(
                 children: [
-                  SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircleAvatar(
-                      backgroundColor:
-                          isDarkTheme
-                              ? Colors.grey.shade600
-                              : Colors.grey.shade600,
-                      radius: 18,
-                      child: Icon(Icons.person, color: Colors.white, size: 28),
-                    ),
-                  ),
+                  ProfilePlaceHolderAvatar(isDark: isDarkTheme, size: 50),
+                  // SizedBox(
+                  //   width: 50,
+                  //   height: 50,
+                  //   child: CircleAvatar(
+                  //     backgroundColor:
+                  //         isDarkTheme
+                  //             ? Colors.grey.shade600
+                  //             : Colors.grey.shade600,
+                  //     radius: 18,
+                  //     child: Icon(Icons.person, color: Colors.white, size: 28),
+                  //   ),
+                  // ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -485,6 +498,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return CompositedTransformTarget(
       link: layerLink,
@@ -494,45 +508,59 @@ class ProfileDropdownState extends State<ProfileDropdown> {
             authProvider.isLoggedIn && authProvider.user?.avatarUrl != null
                 ? ClipOval(
                   child: CachedNetworkImage(
-                    imageUrl: authProvider.user!.avatarUrl!,
+                    imageUrl:
+                        authProvider.user!.avatarUrl ??
+                        "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,
                     placeholder:
-                        (context, url) => Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.amber.shade100,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.amber.shade800,
-                            size: 24,
-                          ),
+                        (context, url) => ProfilePlaceHolderAvatar(
+                          isDark: themeProvider.isDarkMode,
+                          size: 40,
                         ),
+                    // Container(
+                    //   width: 40,
+                    //   height: 40,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.amber.shade100,
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    //   child: Icon(
+                    //     Icons.person,
+                    //     color: Colors.amber.shade800,
+                    //     size: 24,
+                    //   ),
+                    // ),
                     errorWidget:
-                        (context, url, error) => Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.amber.shade100,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.person,
-                            color: Colors.amber.shade800,
-                            size: 24,
-                          ),
+                        (context, url, error) => ProfilePlaceHolderAvatar(
+                          isDark: themeProvider.isDarkMode,
+                          size: 40,
                         ),
+                    // Container(
+                    //   width: 40,
+                    //   height: 40,
+                    //   decoration: BoxDecoration(
+                    //     color: Colors.amber.shade100,
+                    //     shape: BoxShape.circle,
+                    //   ),
+                    //   child: Icon(
+                    //     Icons.person,
+                    //     color: Colors.amber.shade800,
+                    //     size: 24,
+                    //   ),
+                    // ),
                   ),
                 )
-                : CircleAvatar(
-                  backgroundColor: Colors.amber,
-                  radius: 18,
-                  child: Icon(Icons.person, color: Colors.white),
+                : ProfilePlaceHolderAvatar(
+                  isDark: themeProvider.isDarkMode,
+                  size: 40,
                 ),
+        // CircleAvatar(
+        //   backgroundColor: Colors.amber,
+        //   radius: 18,
+        //   child: Icon(Icons.person, color: Colors.white),
+        // ),
       ),
     );
   }

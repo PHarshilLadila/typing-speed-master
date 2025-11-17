@@ -1134,10 +1134,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restart_app/restart_app.dart';
-import 'package:typing_speed_master/helper/user_level_helper.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
+import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
 import 'package:typing_speed_master/widgets/stats_card.dart';
 import '../providers/auth_provider.dart';
 
@@ -1477,13 +1477,17 @@ class _ProfileScreenState extends State<ProfileScreen>
                       user.avatarUrl ??
                       "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
                   fit: BoxFit.cover,
-                  placeholder:
-                      (context, url) => profilePlaceholderAvatar(isDark, size),
-                  errorWidget:
-                      (context, url, error) =>
-                          profilePlaceholderAvatar(isDark, size),
+                  placeholder: (context, url) {
+                    return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
+                  },
+                  // profilePlaceholderAvatar(isDark, size),
+                  errorWidget: (context, url, error) {
+                    return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
+                  },
+                  // profilePlaceholderAvatar(isDark, size),
                 )
-                : profilePlaceholderAvatar(isDark, size),
+                // : profilePlaceholderAvatar(isDark, size),
+                : ProfilePlaceHolderAvatar(isDark: isDark, size: 80),
       ),
     );
   }
@@ -1514,7 +1518,7 @@ class _ProfileScreenState extends State<ProfileScreen>
         Row(
           mainAxisAlignment:
               isCentered ? MainAxisAlignment.center : MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
@@ -1879,29 +1883,29 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget profilePlaceholderAvatar(bool isDark, double size) {
-    return Container(
-      color: isDark ? Colors.grey[800] : Colors.blue.shade100,
-      child: Center(
-        child:
-        //  Icon(
-        //   Icons.person,
-        //   size: size * 0.4,
-        //   color: isDark ? Colors.amberAccent : Colors.blue.shade600,
-        // ),
-        CachedNetworkImage(
-          imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-          fit: BoxFit.cover,
-          placeholder:
-              (context, url) => CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  isDark ? Colors.amberAccent : Colors.blue.shade600,
-                ),
-              ),
-        ),
-      ),
-    );
-  }
+  // Widget profilePlaceholderAvatar(bool isDark, double size) {
+  //   return Container(
+  //     color: isDark ? Colors.grey[800] : Colors.blue.shade100,
+  //     child: Center(
+  //       child:
+  //       //  Icon(
+  //       //   Icons.person,
+  //       //   size: size * 0.4,
+  //       //   color: isDark ? Colors.amberAccent : Colors.blue.shade600,
+  //       // ),
+  //       CachedNetworkImage(
+  //         imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+  //         fit: BoxFit.cover,
+  //         placeholder:
+  //             (context, url) => CircularProgressIndicator(
+  //               valueColor: AlwaysStoppedAnimation<Color>(
+  //                 isDark ? Colors.amberAccent : Colors.blue.shade600,
+  //               ),
+  //             ),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget profileTags(String text, bool isDark) {
     return Container(
@@ -1995,7 +1999,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
-    final levelColor = UserLevelHelper.getLevelColor(user.level, isDark);
+    // final levelColor = UserLevelHelper.getLevelColor(user.level, isDark);
 
     return Container(
       width: double.infinity,

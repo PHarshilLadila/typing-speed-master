@@ -526,10 +526,8 @@ class AuthProvider with ChangeNotifier {
       final response =
           await _supabase.from('profiles').select().eq('id', userId).single();
 
-      if (response != null) {
-        _user = UserModel.fromJson(response);
-        debugPrint('Existing profile fetched successfully: ${_user?.email}');
-      }
+      _user = UserModel.fromJson(response);
+      debugPrint('Existing profile fetched successfully: ${_user?.email}');
     } catch (e) {
       debugPrint('Error fetching existing profile: $e');
     }
@@ -613,3 +611,40 @@ class AuthProvider with ChangeNotifier {
     }
   }
 }
+
+
+/*
+-- Add new columns to profiles table
+ALTER TABLE profiles 
+ADD COLUMN IF NOT EXISTS level varchar DEFAULT 'Beginner',
+ADD COLUMN IF NOT EXISTS current_streak integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS longest_streak integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS last_activity_date date,
+ADD COLUMN IF NOT EXISTS total_tests integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS total_words integer DEFAULT 0,
+ADD COLUMN IF NOT EXISTS average_wpm numeric DEFAULT 0,
+ADD COLUMN IF NOT EXISTS average_accuracy numeric DEFAULT 0;
+
+-- Create a function to update user level
+CREATE OR REPLACE FUNCTION update_user_level()
+RETURNS trigger AS $$
+BEGIN
+  -- Update user level based on average WPM
+  NEW.level := CASE
+    WHEN NEW.average_wpm < 20 THEN 'Beginner'
+    WHEN NEW.average_wpm >= 20 AND NEW.average_wpm < 40 THEN 'Intermediate'
+    WHEN NEW.average_wpm >= 40 AND NEW.average_wpm < 60 THEN 'Advanced'
+    ELSE 'Expert'
+  END;
+  
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- Create trigger to automatically update level
+DROP TRIGGER IF EXISTS update_user_level_trigger ON profiles;
+CREATE TRIGGER update_user_level_trigger
+  BEFORE UPDATE ON profiles
+  FOR EACH ROW
+  EXECUTE FUNCTION update_user_level();
+*/
