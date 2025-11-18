@@ -511,4 +511,36 @@ CREATE TRIGGER update_user_level_trigger
   BEFORE UPDATE ON profiles
   FOR EACH ROW
   EXECUTE FUNCTION update_user_level();
+
+
+-- Create activity_logs table to track daily typing tests
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  activity_date date NOT NULL,
+  test_count integer DEFAULT 1,
+  created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(user_id, activity_date)
+);
+
+-- Create index for better query performance
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user_date 
+  ON activity_logs(user_id, activity_date DESC);
+
+-- Enable RLS
+ALTER TABLE activity_logs ENABLE ROW LEVEL SECURITY;
+
+-- Create RLS policies
+CREATE POLICY "Users can view their own activity logs"
+  ON activity_logs FOR SELECT
+  USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert their own activity logs"
+  ON activity_logs FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update their own activity logs"
+  ON activity_logs FOR UPDATE
+  USING (auth.uid() = user_id);
 */

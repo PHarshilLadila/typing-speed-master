@@ -1947,8 +1947,8 @@
 
 // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 
+import 'dart:developer' as dev;
 import 'dart:html' as html;
-import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -1957,7 +1957,9 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:typing_speed_master/models/test_text.dart';
 import 'package:typing_speed_master/models/user_model.dart';
+import 'package:typing_speed_master/providers/activity_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
@@ -1985,12 +1987,29 @@ class _ProfileScreenState extends State<ProfileScreen>
     WidgetsBinding.instance.addObserver(this);
     _loadProfileData();
     _generateHeatmapData();
+
+    // Future.delayed(Duration(milliseconds: 300), () {
+    // });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Schedule for after build to avoid setState during build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+      if (authProvider.isLoggedIn && authProvider.user != null) {
+        _generateHeatmapData();
+      }
+    });
   }
 
   @override
@@ -2015,44 +2034,101 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  void _generateHeatmapData() {
-    final random = Random();
-    _activityData = {};
+  // void _generateHeatmapData() {
+  //   final random = Random();
+  //   _activityData = {};
 
-    DateTime currentDate = DateTime(_currentHeatmapYear, 1, 1);
-    final endDate = DateTime(_currentHeatmapYear, 12, 31);
+  //   DateTime currentDate = DateTime(_currentHeatmapYear, 1, 1);
+  //   final endDate = DateTime(_currentHeatmapYear, 12, 31);
 
-    while (currentDate.isBefore(endDate) ||
-        currentDate.isAtSameMomentAs(endDate)) {
-      final isWeekend =
-          currentDate.weekday == DateTime.saturday ||
-          currentDate.weekday == DateTime.sunday;
+  //   while (currentDate.isBefore(endDate) ||
+  //       currentDate.isAtSameMomentAs(endDate)) {
+  //     final isWeekend =
+  //         currentDate.weekday == DateTime.saturday ||
+  //         currentDate.weekday == DateTime.sunday;
 
-      if (random.nextDouble() > (isWeekend ? 0.6 : 0.3)) {
-        final maxLevel = isWeekend ? 2 : 4;
-        _activityData[currentDate] = random.nextInt(maxLevel) + 1;
-      } else {
-        _activityData[currentDate] = 0;
+  //     if (random.nextDouble() > (isWeekend ? 0.6 : 0.3)) {
+  //       final maxLevel = isWeekend ? 2 : 4;
+  //       _activityData[currentDate] = random.nextInt(maxLevel) + 1;
+  //     } else {
+  //       _activityData[currentDate] = 0;
+  //     }
+  //     currentDate = currentDate.add(const Duration(days: 1));
+  //   }
+
+  //   _generateHeatmapWeeks();
+  //   _calculateMonthLabels();
+  // }
+  // In _ProfileScreenState - Update _generateHeatmapData method
+  void _generateHeatmapData() async {
+    if (!mounted) return;
+
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final activityProvider = Provider.of<ActivityProvider>(
+      context,
+      listen: false,
+    );
+
+    if (authProvider.user != null) {
+      dev.log('🔄 Generating heatmap data for user: ${authProvider.user!.id}');
+
+      // Show loading state
+      if (mounted) {
+        setState(() {
+          _activityData = {};
+        });
       }
-      currentDate = currentDate.add(const Duration(days: 1));
-    }
 
-    _generateHeatmapWeeks();
-    _calculateMonthLabels();
+      try {
+        await activityProvider.fetchActivityData(
+          authProvider.user!.id,
+          _currentHeatmapYear,
+        );
+
+        if (mounted) {
+          setState(() {
+            _activityData = Map.from(activityProvider.activityData);
+            _generateHeatmapWeeks();
+            _calculateMonthLabels();
+          });
+
+          dev.log('✅ Heatmap data generated: ${_activityData.length} days');
+          if (_activityData.isNotEmpty) {
+            dev.log(
+              '📊 Sample activity: ${_activityData.entries.take(3).map((e) => '${e.key}: ${e.value}').join(', ')}',
+            );
+          }
+        }
+      } catch (e) {
+        dev.log('❌ Error generating heatmap data: $e');
+        if (mounted) {
+          setState(() {
+            _activityData = {};
+            _generateHeatmapWeeks();
+            _calculateMonthLabels();
+          });
+        }
+      }
+    } else {
+      if (mounted) {
+        setState(() {
+          _activityData = {};
+          _generateHeatmapWeeks();
+          _calculateMonthLabels();
+        });
+      }
+    }
   }
 
   void _generateHeatmapWeeks() {
     _heatmapWeeks = [];
 
-    // Start from January 1st of the current year
     DateTime currentDate = DateTime(_currentHeatmapYear, 1, 1);
 
-    // Find the first Monday of the year (or the Monday before Jan 1)
     while (currentDate.weekday != DateTime.monday) {
       currentDate = currentDate.subtract(const Duration(days: 1));
     }
 
-    // Generate exactly 53 weeks
     for (int week = 0; week < 53; week++) {
       List<DateTime?> weekDays = [];
 
@@ -2070,11 +2146,9 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     Map<int, List<int>> monthWeeks = {};
 
-    // Group weeks by month
     for (int weekIndex = 0; weekIndex < _heatmapWeeks.length; weekIndex++) {
       final week = _heatmapWeeks[weekIndex];
 
-      // Find the most frequent month in this week
       final monthCount = <int, int>{};
       for (final date in week) {
         if (date != null && date.year == _currentHeatmapYear) {
@@ -2093,7 +2167,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       }
     }
 
-    // Create month labels
     final sortedMonths = monthWeeks.keys.toList()..sort();
     for (final month in sortedMonths) {
       final weeks = monthWeeks[month]!;
@@ -2131,11 +2204,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     final double weekWidth = squareSize + spacing * 2;
     final double dayLabelWidth = 30;
 
-    // Calculate total width needed for heatmap
-    final double heatmapWidth =
-        (_heatmapWeeks.length * weekWidth) + dayLabelWidth + 4;
-
-    // Determine if we should use scrolling or center alignment
     final bool shouldScroll = isMobile || isTablet;
 
     Widget heatmapContent = _buildHeatmapContent(
@@ -2149,14 +2217,11 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
 
     if (shouldScroll) {
-      // Scrollable version for mobile and tablet
-      // Wrap in ConstrainedBox to ensure it takes available width
       return ConstrainedBox(
         constraints: BoxConstraints(maxWidth: double.infinity, minWidth: 0),
         child: heatmapContent,
       );
     } else {
-      // Centered version for desktop
       return Center(child: heatmapContent);
     }
   }
@@ -2179,7 +2244,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            // Month labels row
             SizedBox(
               height: 20,
               child: Row(
@@ -2204,7 +2268,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                                 child: Text(
                                   monthLabel.name,
                                   style: TextStyle(
-                                    fontSize: isMobile ? 9 : 10,
+                                    fontSize: 12,
                                     color:
                                         isDark
                                             ? Colors.grey[400]
@@ -2220,30 +2284,28 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ],
               ),
             ),
-            SizedBox(height: 8),
 
-            // Heatmap grid
+            // SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Day of week labels
                 SizedBox(
                   width: dayLabelWidth,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      SizedBox(height: squareSize * 0.3 + spacing),
                       Text('Mon', style: _dayLabelStyle(isDark)),
-                      SizedBox(height: squareSize * 1.6 + spacing),
+                      SizedBox(height: squareSize * 1.4 + spacing),
                       Text('Wed', style: _dayLabelStyle(isDark)),
-                      SizedBox(height: squareSize * 1.6 + spacing),
+                      SizedBox(height: squareSize * 1.4 + spacing),
                       Text('Fri', style: _dayLabelStyle(isDark)),
                     ],
                   ),
                 ),
-                SizedBox(width: 4),
+                SizedBox(width: 8),
 
-                // Heatmap squares
                 SizedBox(
                   height: containerHeight,
                   child: Row(
@@ -2277,12 +2339,30 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // Color _getActivityColor(int level, bool isDark) {
+  //   final themeProvider = Provider.of<ThemeProvider>(context);
+
+  //   switch (level) {
+  //     case 0:
+  //       return isDark ? Colors.white12 : Colors.black12;
+  //     case 1:
+  //       return themeProvider.primaryColor.shade100;
+  //     case 2:
+  //       return themeProvider.primaryColor.shade300;
+  //     case 3:
+  //       return themeProvider.primaryColor.shade500;
+  //     case 4:
+  //       return themeProvider.primaryColor.shade700;
+  //     default:
+  //       return isDark ? Colors.white12 : Colors.black12;
+  //   }
+  // }
   Color _getActivityColor(int level, bool isDark) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     switch (level) {
       case 0:
-        return isDark ? Colors.white12 : Colors.black12;
+        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.02);
       case 1:
         return themeProvider.primaryColor.shade100;
       case 2:
@@ -2292,15 +2372,19 @@ class _ProfileScreenState extends State<ProfileScreen>
       case 4:
         return themeProvider.primaryColor.shade700;
       default:
-        return isDark ? Colors.white12 : Colors.black12;
+        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.02);
     }
   }
 
+  // void _changeHeatmapYear(int year) {
+  //   setState(() {
+  //     _currentHeatmapYear = year;
+  //     _generateHeatmapData();
+  //   });
+  // }
   void _changeHeatmapYear(int year) {
-    setState(() {
-      _currentHeatmapYear = year;
-      _generateHeatmapData();
-    });
+    _currentHeatmapYear = year;
+    _generateHeatmapData();
   }
 
   @override
@@ -3382,7 +3466,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             width: double.infinity,
             padding: EdgeInsets.all(isMobile ? 12 : 16),
             decoration: BoxDecoration(
-              color: isDark ? Colors.grey[800] : Colors.grey[100],
+              color: isDark ? Colors.grey[900] : Colors.grey.withOpacity(0.03),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Column(
@@ -3420,7 +3504,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           decoration: BoxDecoration(
                             color: isDark ? Colors.grey[700] : Colors.grey[300],
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
                             '$_currentHeatmapYear',
@@ -3447,9 +3531,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 SizedBox(height: isMobile ? 12 : 16),
 
-                // Custom Heatmap with responsive behavior
                 _buildCustomHeatmap(isDark, isMobile, isTablet),
-
                 SizedBox(height: isMobile ? 12 : 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -3489,6 +3571,45 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // Widget _buildHeatmapSquare(
+  //   int weekIndex,
+  //   int dayIndex,
+  //   bool isDark,
+  //   double squareSize,
+  // ) {
+  //   final date = _heatmapWeeks[weekIndex][dayIndex];
+
+  //   if (date == null || date.year != _currentHeatmapYear) {
+  //     return SizedBox(width: squareSize, height: squareSize);
+  //   }
+
+  //   final activityLevel = _activityData[date] ?? 0;
+  //   final color = _getActivityColor(activityLevel, isDark);
+
+  //   return Container(
+  //     width: squareSize,
+  //     height: squareSize,
+  //     decoration: BoxDecoration(
+  //       color: color,
+  //       borderRadius: BorderRadius.circular(2),
+  //     ),
+  //     child: Tooltip(
+  //       message:
+  //           '${DateFormat('MMM dd, yyyy').format(date)}\n'
+  //           '$activityLevel typing test${activityLevel == 1 ? '' : 's'}',
+  //       textStyle: TextStyle(fontSize: 12),
+  //       decoration: BoxDecoration(
+  //         color: isDark ? Colors.grey[800]! : Colors.white,
+  //         borderRadius: BorderRadius.circular(4),
+  //       ),
+  //       child: MouseRegion(
+  //         cursor: SystemMouseCursors.click,
+  //         child: Container(),
+  //       ),
+  //     ),
+  //   );
+  // }
+  // In _ProfileScreenState - Update _buildHeatmapSquare method
   Widget _buildHeatmapSquare(
     int weekIndex,
     int dayIndex,
@@ -3497,12 +3618,27 @@ class _ProfileScreenState extends State<ProfileScreen>
   ) {
     final date = _heatmapWeeks[weekIndex][dayIndex];
 
-    // Only show squares for dates in the current year
     if (date == null || date.year != _currentHeatmapYear) {
       return SizedBox(width: squareSize, height: squareSize);
     }
 
-    final activityLevel = _activityData[date] ?? 0;
+    // Normalize the date to compare properly
+    final normalizedDate = DateTime(date.year, date.month, date.day);
+
+    // Find matching date in activity data
+    final activityEntry = _activityData.entries.firstWhere(
+      (entry) =>
+          entry.key.year == normalizedDate.year &&
+          entry.key.month == normalizedDate.month &&
+          entry.key.day == normalizedDate.day,
+      orElse: () => MapEntry(normalizedDate, 0),
+    );
+
+    final testCount = activityEntry.value;
+
+    // Calculate activity level based on test count
+    int activityLevel = getActivityLevel(testCount);
+
     final color = _getActivityColor(activityLevel, isDark);
 
     return Container(
@@ -3514,12 +3650,19 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       child: Tooltip(
         message:
-            '${DateFormat('MMM dd, yyyy').format(date)}\n'
-            '$activityLevel typing test${activityLevel == 1 ? '' : 's'}',
-        textStyle: TextStyle(fontSize: 12),
+            testCount > 0
+                ? '${DateFormat('MMM dd, yyyy').format(date)}\n$testCount typing test${testCount == 1 ? '' : 's'}'
+                : '${DateFormat('MMM dd, yyyy').format(date)}\nNo tests',
+        textStyle: TextStyle(
+          fontSize: 12,
+          color: isDark ? Colors.white : Colors.black,
+        ),
         decoration: BoxDecoration(
           color: isDark ? Colors.grey[800]! : Colors.white,
           borderRadius: BorderRadius.circular(4),
+          border: Border.all(
+            color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+          ),
         ),
         child: MouseRegion(
           cursor: SystemMouseCursors.click,
@@ -3529,9 +3672,20 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
+  // Add this helper method to calculate activity level
+  int getActivityLevel(int testCount) {
+    if (testCount == 0) return 0;
+    if (testCount <= 2) return 1;
+    if (testCount <= 5) return 2;
+    if (testCount <= 10) return 3;
+    return 4;
+  }
+
+  // Add this method to _ProfileScreenState class
+
   TextStyle _dayLabelStyle(bool isDark) {
     return TextStyle(
-      fontSize: 9,
+      fontSize: 12,
       color: isDark ? Colors.grey[400] : Colors.grey[600],
       fontWeight: FontWeight.w500,
     );
@@ -3547,20 +3701,4 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
     );
   }
-}
-
-class MonthLabel {
-  final String name;
-  final int startWeek;
-  final int weekCount;
-
-  MonthLabel(this.name, this.startWeek, this.weekCount);
-}
-
-class MonthWeek {
-  final String monthName;
-  final int weekIndex;
-  final int width;
-
-  MonthWeek(this.monthName, this.weekIndex, this.width);
 }
