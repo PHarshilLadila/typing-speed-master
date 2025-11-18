@@ -469,7 +469,9 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                           ),
                           SizedBox(width: isMobile ? 4 : 8),
                           TextButton(
-                            onPressed: resetTest,
+                            onPressed: () {
+                              resetTest();
+                            },
                             style: ButtonStyle(
                               backgroundColor: WidgetStatePropertyAll(
                                 themeProvider.primaryColor,
@@ -699,6 +701,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         ),
                         hintText:
                             'Ready? Start typing from the very first letter to begin your test.',
+
+                        // isFullScreen ? 'Ready? Start typing from the very first letter to begin your test.' :"",
                         hintStyle: TextStyle(
                           color:
                               themeProvider.isDarkMode
