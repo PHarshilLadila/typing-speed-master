@@ -371,34 +371,6 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  // Future<void> saveResult(TypingResult result) async {
-  //   _results.add(result);
-  //   _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-
-  //   try {
-  //     if (_isUserLoggedIn) {
-  //       await _saveResultToSupabase(result);
-
-  //       dev.log('🔄 Attempting to update user stats via direct method...');
-  //       await _updateUserStatsDirectly(result);
-
-  //       final authProvider = _getAuthProvider();
-  //       if (authProvider != null) {
-  //         dev.log('✅ AuthProvider found, calling updateUserStats as backup');
-  //         await authProvider.updateUserStats(result);
-  //       } else {
-  //         dev.log('AuthProvider is null - using direct method only');
-  //       }
-  //     } else {
-  //       dev.log('User not logged in - skipping user stats update');
-  //     }
-  //   } catch (e) {
-  //     dev.log('Error saving result: $e');
-  //   }
-
-  //   notifyListeners();
-  // }
-  // In TypingProvider - Update saveResult method
   Future<void> saveResult(TypingResult result) async {
     _results.add(result);
     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
@@ -407,7 +379,6 @@ class TypingProvider with ChangeNotifier {
       if (_isUserLoggedIn) {
         await _saveResultToSupabase(result);
 
-        // Record activity for heatmap - This is crucial!
         final user = _supabase.auth.currentUser;
         if (user != null) {
           dev.log('🔥 Recording activity for heatmap...');
@@ -417,7 +388,6 @@ class TypingProvider with ChangeNotifier {
             dev.log('✅ Activity recorded in heatmap');
           } else {
             dev.log('❌ ActivityProvider not found - creating temporary one');
-            // Fallback: create a temporary provider
             final tempActivityProvider = ActivityProvider();
             await tempActivityProvider.recordActivity(user.id);
           }

@@ -11,11 +11,10 @@ class ActivityProvider with ChangeNotifier {
   Map<DateTime, int> get activityData => _activityData;
   bool get isLoading => _isLoading;
 
-  // In ActivityProvider - Update the fetchActivityData method
   Future<void> fetchActivityData(String userId, int year) async {
     try {
       _isLoading = true;
-      notifyListeners(); // Notify for loading state
+      notifyListeners();
 
       final startDate = DateTime(year, 1, 1);
       final endDate = DateTime(year, 12, 31);
@@ -30,7 +29,6 @@ class ActivityProvider with ChangeNotifier {
           .lte('activity_date', endDate.toIso8601String().split('T')[0])
           .order('activity_date', ascending: true);
 
-      // Create a new map to avoid mutation during build
       final newActivityData = <DateTime, int>{};
 
       for (var log in response) {
@@ -58,7 +56,6 @@ class ActivityProvider with ChangeNotifier {
     }
   }
 
-  // Record a typing test activity
   Future<void> recordActivity(String userId) async {
     try {
       final today = DateTime.now();
@@ -67,7 +64,6 @@ class ActivityProvider with ChangeNotifier {
 
       dev.log('📝 Recording activity for user: $userId on $dateString');
 
-      // Try to increment existing record first
       final existing =
           await _supabase
               .from('activity_logs')
@@ -77,7 +73,6 @@ class ActivityProvider with ChangeNotifier {
               .maybeSingle();
 
       if (existing != null) {
-        // Update existing record
         final newCount = (existing['test_count'] as int) + 1;
 
         dev.log('📝 Updating existing activity: $newCount tests');
@@ -94,7 +89,6 @@ class ActivityProvider with ChangeNotifier {
         _activityData[dateOnly] = newCount;
         dev.log('✅ Updated activity count to $newCount');
       } else {
-        // Create new record
         dev.log('📝 Creating new activity record');
 
         final insertData = {
@@ -126,7 +120,6 @@ class ActivityProvider with ChangeNotifier {
     }
   }
 
-  // Get activity level (0-4) for color intensity
   int getActivityLevel(int testCount) {
     if (testCount == 0) return 0;
     if (testCount <= 2) return 1;

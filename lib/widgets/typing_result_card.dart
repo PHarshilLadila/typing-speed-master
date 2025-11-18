@@ -68,7 +68,7 @@ class TypingResultCard extends StatelessWidget {
     }
   }
 
-  double _getProgressSize(BuildContext context) {
+  double getProgressSize(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < 380) {
       return 40.0;
@@ -79,7 +79,7 @@ class TypingResultCard extends StatelessWidget {
     }
   }
 
-  double _getCardHeight(BuildContext context) {
+  double getCardHeight(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < 380) {
       return isHistory ? 140 : 110;
@@ -90,7 +90,7 @@ class TypingResultCard extends StatelessWidget {
     }
   }
 
-  EdgeInsets _getCardPadding(BuildContext context) {
+  EdgeInsets getCardPadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < 380) {
       return const EdgeInsets.symmetric(horizontal: 12, vertical: 12);
@@ -99,7 +99,7 @@ class TypingResultCard extends StatelessWidget {
     }
   }
 
-  double _getElementSpacing(BuildContext context) {
+  double getElementSpacing(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width < 380) {
       return 0.0;
@@ -129,10 +129,10 @@ class TypingResultCard extends StatelessWidget {
         isDarkMode ? Colors.grey[600] : Colors.grey.withOpacity(0.1);
     final iconColor = isDarkMode ? Colors.grey[300] : Colors.grey;
 
-    final progressSize = _getProgressSize(context);
-    final cardHeight = _getCardHeight(context);
-    final cardPadding = _getCardPadding(context);
-    final elementSpacing = _getElementSpacing(context);
+    final progressSize = getProgressSize(context);
+    final cardHeight = getCardHeight(context);
+    final cardPadding = getCardPadding(context);
+    final elementSpacing = getElementSpacing(context);
 
     final themeProvider = Provider.of<ThemeProvider>(context);
 

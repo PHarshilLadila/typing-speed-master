@@ -1987,9 +1987,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     WidgetsBinding.instance.addObserver(this);
     _loadProfileData();
     _generateHeatmapData();
-
-    // Future.delayed(Duration(milliseconds: 300), () {
-    // });
   }
 
   @override
@@ -2002,7 +1999,6 @@ class _ProfileScreenState extends State<ProfileScreen>
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Schedule for after build to avoid setState during build
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
@@ -2034,32 +2030,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // void _generateHeatmapData() {
-  //   final random = Random();
-  //   _activityData = {};
-
-  //   DateTime currentDate = DateTime(_currentHeatmapYear, 1, 1);
-  //   final endDate = DateTime(_currentHeatmapYear, 12, 31);
-
-  //   while (currentDate.isBefore(endDate) ||
-  //       currentDate.isAtSameMomentAs(endDate)) {
-  //     final isWeekend =
-  //         currentDate.weekday == DateTime.saturday ||
-  //         currentDate.weekday == DateTime.sunday;
-
-  //     if (random.nextDouble() > (isWeekend ? 0.6 : 0.3)) {
-  //       final maxLevel = isWeekend ? 2 : 4;
-  //       _activityData[currentDate] = random.nextInt(maxLevel) + 1;
-  //     } else {
-  //       _activityData[currentDate] = 0;
-  //     }
-  //     currentDate = currentDate.add(const Duration(days: 1));
-  //   }
-
-  //   _generateHeatmapWeeks();
-  //   _calculateMonthLabels();
-  // }
-  // In _ProfileScreenState - Update _generateHeatmapData method
   void _generateHeatmapData() async {
     if (!mounted) return;
 
@@ -2072,7 +2042,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (authProvider.user != null) {
       dev.log('🔄 Generating heatmap data for user: ${authProvider.user!.id}');
 
-      // Show loading state
       if (mounted) {
         setState(() {
           _activityData = {};
@@ -2285,7 +2254,6 @@ class _ProfileScreenState extends State<ProfileScreen>
               ),
             ),
 
-            // SizedBox(height: 8),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -2339,24 +2307,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Color _getActivityColor(int level, bool isDark) {
-  //   final themeProvider = Provider.of<ThemeProvider>(context);
-
-  //   switch (level) {
-  //     case 0:
-  //       return isDark ? Colors.white12 : Colors.black12;
-  //     case 1:
-  //       return themeProvider.primaryColor.shade100;
-  //     case 2:
-  //       return themeProvider.primaryColor.shade300;
-  //     case 3:
-  //       return themeProvider.primaryColor.shade500;
-  //     case 4:
-  //       return themeProvider.primaryColor.shade700;
-  //     default:
-  //       return isDark ? Colors.white12 : Colors.black12;
-  //   }
-  // }
   Color _getActivityColor(int level, bool isDark) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
@@ -2376,12 +2326,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  // void _changeHeatmapYear(int year) {
-  //   setState(() {
-  //     _currentHeatmapYear = year;
-  //     _generateHeatmapData();
-  //   });
-  // }
   void _changeHeatmapYear(int year) {
     _currentHeatmapYear = year;
     _generateHeatmapData();
@@ -3571,45 +3515,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Widget _buildHeatmapSquare(
-  //   int weekIndex,
-  //   int dayIndex,
-  //   bool isDark,
-  //   double squareSize,
-  // ) {
-  //   final date = _heatmapWeeks[weekIndex][dayIndex];
-
-  //   if (date == null || date.year != _currentHeatmapYear) {
-  //     return SizedBox(width: squareSize, height: squareSize);
-  //   }
-
-  //   final activityLevel = _activityData[date] ?? 0;
-  //   final color = _getActivityColor(activityLevel, isDark);
-
-  //   return Container(
-  //     width: squareSize,
-  //     height: squareSize,
-  //     decoration: BoxDecoration(
-  //       color: color,
-  //       borderRadius: BorderRadius.circular(2),
-  //     ),
-  //     child: Tooltip(
-  //       message:
-  //           '${DateFormat('MMM dd, yyyy').format(date)}\n'
-  //           '$activityLevel typing test${activityLevel == 1 ? '' : 's'}',
-  //       textStyle: TextStyle(fontSize: 12),
-  //       decoration: BoxDecoration(
-  //         color: isDark ? Colors.grey[800]! : Colors.white,
-  //         borderRadius: BorderRadius.circular(4),
-  //       ),
-  //       child: MouseRegion(
-  //         cursor: SystemMouseCursors.click,
-  //         child: Container(),
-  //       ),
-  //     ),
-  //   );
-  // }
-  // In _ProfileScreenState - Update _buildHeatmapSquare method
   Widget _buildHeatmapSquare(
     int weekIndex,
     int dayIndex,
@@ -3622,10 +3527,8 @@ class _ProfileScreenState extends State<ProfileScreen>
       return SizedBox(width: squareSize, height: squareSize);
     }
 
-    // Normalize the date to compare properly
     final normalizedDate = DateTime(date.year, date.month, date.day);
 
-    // Find matching date in activity data
     final activityEntry = _activityData.entries.firstWhere(
       (entry) =>
           entry.key.year == normalizedDate.year &&
@@ -3636,7 +3539,6 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     final testCount = activityEntry.value;
 
-    // Calculate activity level based on test count
     int activityLevel = getActivityLevel(testCount);
 
     final color = _getActivityColor(activityLevel, isDark);
@@ -3672,7 +3574,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Add this helper method to calculate activity level
   int getActivityLevel(int testCount) {
     if (testCount == 0) return 0;
     if (testCount <= 2) return 1;
@@ -3680,8 +3581,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     if (testCount <= 10) return 3;
     return 4;
   }
-
-  // Add this method to _ProfileScreenState class
 
   TextStyle _dayLabelStyle(bool isDark) {
     return TextStyle(
