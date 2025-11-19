@@ -49,7 +49,7 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
       Future.delayed(const Duration(milliseconds: 50), () {
         try {
           // Create ins element using createElement (bypasses sanitizer)
-          final insElement = html.document.createElement('ins');
+          final insElement = html.document.createElement('ins') as html.Element;
 
           // Set className (this works)
           insElement.className = 'adsbygoogle';
@@ -183,6 +183,11 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
   }
 
   Widget _buildErrorWidget() {
+    // Check if running on localhost
+    final isLocalhost =
+        Uri.base.host.contains('localhost') ||
+        Uri.base.host.contains('127.0.0.1');
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.grey[100],
@@ -192,16 +197,27 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.info_outline, size: 32, color: Colors.grey[400]),
+          Icon(
+            isLocalhost ? Icons.computer : Icons.info_outline,
+            size: 32,
+            color: Colors.grey[400],
+          ),
           const SizedBox(height: 8),
           Text(
-            'Advertisement Space',
+            isLocalhost ? 'Ads appear after deployment' : 'Advertisement Space',
             style: TextStyle(
               color: Colors.grey[600],
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
+          if (isLocalhost) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Deploy to production to see ads',
+              style: TextStyle(color: Colors.grey[500], fontSize: 10),
+            ),
+          ],
         ],
       ),
     );
@@ -223,6 +239,7 @@ class ResponsiveAdSenseBanner extends StatelessWidget {
         if (constraints.maxWidth < 600) {
           height = 100; // Mobile banner
         } else if (constraints.maxWidth < 900) {
+          height:
           200; // Tablet
         }
 
