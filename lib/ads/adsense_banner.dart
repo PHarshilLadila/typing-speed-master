@@ -51,12 +51,8 @@ class _AdWidgetWebState extends State<AdWidgetWeb> {
               'ins-${widget.adSlotId}' // Assign an ID for easier JavaScript targeting
           ..className = 'adsbygoogle'
           ..style.display = 'block'
-          ..style.width =
-              '100%' // Ensure the ins tag takes up the container width
-          ..style.height =
-              '100%' // Ensures the ins tag takes up the container height
-          ..attributes['data-ad-client'] = widget.adClient
-          ..attributes['data-ad-slot'] = widget.adSlotId
+          ..attributes['data-ad-client'] = "ca-pub-3779258307133143"
+          ..attributes['data-ad-slot'] = "4355381273"
           ..attributes['data-ad-format'] = 'auto'
           ..attributes['data-full-width-responsive'] = 'true';
 
