@@ -70,9 +70,9 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
           debugPrint('✅ AdSense element created with attributes');
 
           // Push ad request after another delay
-          Future.delayed(const Duration(milliseconds: 100), () {
-            _pushAdRequest();
-          });
+          // Future.delayed(const Duration(milliseconds: 100), () {
+          //   _pushAdRequest();
+          // });
         } catch (e) {
           debugPrint('❌ Error creating AdSense element: $e');
           _handleAdError();
@@ -83,39 +83,39 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
     });
   }
 
-  void _pushAdRequest() {
-    try {
-      // Check if AdSense script is loaded
-      if (js_util.hasProperty(html.window, 'adsbygoogle')) {
-        final adsbygoogle = js_util.getProperty(html.window, 'adsbygoogle');
+  // void _pushAdRequest() {
+  //   try {
+  //     // Check if AdSense script is loaded
+  //     if (js_util.hasProperty(html.window, 'adsbygoogle')) {
+  //       final adsbygoogle = js_util.getProperty(html.window, 'adsbygoogle');
 
-        // Push empty object to trigger ad loading
-        js_util.callMethod(adsbygoogle, 'push', [js_util.jsify({})]);
+  //       // Push empty object to trigger ad loading
+  //       js_util.callMethod(adsbygoogle, 'push', [js_util.jsify({})]);
 
-        debugPrint('✅ AdSense request pushed');
+  //       debugPrint('✅ AdSense request pushed');
 
-        // Mark as loaded after initialization
-        Future.delayed(const Duration(seconds: 3), () {
-          if (mounted) {
-            setState(() {
-              _isLoading = false;
-            });
-          }
-        });
-      } else {
-        debugPrint('⚠️ AdSense script not loaded on window');
-        // Try again after a delay
-        Future.delayed(const Duration(seconds: 1), () {
-          if (mounted && _isLoading) {
-            _pushAdRequest();
-          }
-        });
-      }
-    } catch (e) {
-      debugPrint('❌ AdSense push error: $e');
-      _handleAdError();
-    }
-  }
+  //       // Mark as loaded after initialization
+  //       Future.delayed(const Duration(seconds: 3), () {
+  //         if (mounted) {
+  //           setState(() {
+  //             _isLoading = false;
+  //           });
+  //         }
+  //       });
+  //     } else {
+  //       debugPrint('⚠️ AdSense script not loaded on window');
+  //       // Try again after a delay
+  //       Future.delayed(const Duration(seconds: 1), () {
+  //         if (mounted && _isLoading) {
+  //           _pushAdRequest();
+  //         }
+  //       });
+  //     }
+  //   } catch (e) {
+  //     debugPrint('❌ AdSense push error: $e');
+  //     _handleAdError();
+  //   }
+  // }
 
   void _checkAdLoad() {
     // Timeout if ad doesn't load within 15 seconds
