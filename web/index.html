@@ -2,26 +2,14 @@
 <html>
 
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- google-adsense-account -->
+  <!-- Google AdSense Account -->
   <meta name="google-adsense-account" content="ca-pub-3779258307133143">
 
   <!-- iOS meta tags & icons -->
@@ -35,12 +23,33 @@
 
   <title>typing_speed</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
-  <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143"
-     crossorigin="anonymous"></script> -->
+
+  <!-- Google AdSense - Load ONCE in head -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143"
+    crossorigin="anonymous"></script>
+
+  <style>
+    /* Prevent layout shift while ads load */
+    .ad-container {
+      min-height: 250px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #f5f5f5;
+    }
+  </style>
 </head>
 
 <body>
+  <!-- Ad placeholder that Flutter can find -->
+  <div id="ad-container-1" class="ad-container" style="display: none;">
+    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3779258307133143" data-ad-slot="4355381273"
+      data-ad-format="auto" data-full-width-responsive="true"></ins>
+  </div>
+
   <script src="flutter_bootstrap.js" async></script>
 </body>
 

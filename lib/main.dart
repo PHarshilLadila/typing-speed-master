@@ -64,3 +64,48 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
     );
   }
 }
+
+
+// <!DOCTYPE html>
+// <html>
+
+// <head>
+ 
+//   <base href="$FLUTTER_BASE_HREF">
+
+//   <meta charset="UTF-8">
+//   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+//   <meta name="description" content="A new Flutter project.">
+
+//   <!-- google-adsense-account -->
+//   <meta name="google-adsense-account" content="ca-pub-3779258307133143">
+
+//   <!-- iOS meta tags & icons -->
+//   <meta name="mobile-web-app-capable" content="yes">
+//   <meta name="apple-mobile-web-app-status-bar-style" content="black">
+//   <meta name="apple-mobile-web-app-title" content="typing_speed_master">
+//   <link rel="apple-touch-icon" href="icons/icon-192.jpg">
+
+//   <!-- Favicon -->
+//   <link rel="icon" type="image/png" href="favicon.jpg" />
+
+//   <title>typing_speed</title>
+//   <link rel="manifest" href="manifest.json">
+//   <script defer src="/_vercel/insights/script.js"></script>
+
+//   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143"
+//     crossorigin="anonymous"></script>
+//   <!-- Flutter Web Banner 300x250 -->
+//   <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3779258307133143" data-ad-slot="4355381273"
+//     data-ad-format="auto" data-full-width-responsive="true"></ins>
+//   <script>
+//     (adsbygoogle = window.adsbygoogle || []).push({});
+//   </script>
+
+// </head>
+
+// <body>
+//   <script src="flutter_bootstrap.js" async></script>
+// </body>
+
+// </html>

@@ -189,8 +189,15 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         ),
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
 
-                        AdSenseBanner(width: double.infinity, height: 250),
-
+                        const SizedBox(height: 32),
+                        if (!isMobile) // Show ads on desktop/tablet only
+                          const ResponsiveAdSenseBanner(adSlot: '4355381273'),
+                        const SizedBox(height: 32),
+                        if (!isMobile)
+                          const AdSenseBanner(
+                            adSlot: '4355381273',
+                            height: 200,
+                          ),
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
                       ],
                     ),
