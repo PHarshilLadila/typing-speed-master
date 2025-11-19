@@ -23,13 +23,18 @@
 
   <title>typing_speed</title>
   <link rel="manifest" href="manifest.json">
-
+  
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
 
-  <!-- Google AdSense - Load ONCE in head -->
+  <!-- Google AdSense - Load EARLY with higher priority -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143"
     crossorigin="anonymous"></script>
+  
+  <!-- Initialize adsbygoogle array immediately -->
+  <script>
+    window.adsbygoogle = window.adsbygoogle || [];
+  </script>
 
   <style>
     /* Prevent layout shift while ads load */
@@ -44,12 +49,6 @@
 </head>
 
 <body>
-  <!-- Ad placeholder that Flutter can find -->
-  <div id="ad-container-1" class="ad-container" style="display: none;">
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3779258307133143" data-ad-slot="4355381273"
-      data-ad-format="auto" data-full-width-responsive="true"></ins>
-  </div>
-
   <script src="flutter_bootstrap.js" async></script>
 </body>
 

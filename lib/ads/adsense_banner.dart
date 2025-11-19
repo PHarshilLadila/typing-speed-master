@@ -33,54 +33,48 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
   }
 
   void _registerAdView() {
-    // Create ad container div
-    final adContainer =
-        html.DivElement()
-          ..style.width = '100%'
-          ..style.height = '${widget.height}px'
-          ..style.display = 'flex'
-          ..style.alignItems = 'center'
-          ..style.justifyContent = 'center';
-
-    // Create ins element for AdSense
-    final insElement = html.Element.html('''
-      <ins class="adsbygoogle"
-           style="display:block; width:100%; height:100%;"
-           data-ad-client="ca-pub-3779258307133143"
-           data-ad-slot="${widget.adSlot}"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-    ''');
-
-    adContainer.append(insElement);
-
     // Register the view factory
     // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(_viewType, (int viewId) {
-      // Push ad after a short delay to ensure DOM is ready
-      Future.delayed(const Duration(milliseconds: 100), () {
+      // Create ad container div
+      final adContainer =
+          html.DivElement()
+            ..style.width = '100%'
+            ..style.height = '${widget.height}px'
+            ..style.display = 'block'
+            ..style.overflow = 'hidden';
+
+      // Create ins element AFTER registration to avoid sanitizer
+      // This is the key fix - we create and modify the element after it's registered
+      Future.delayed(const Duration(milliseconds: 50), () {
         try {
-          // Use js_util to access window.adsbygoogle
-          if (js_util.hasProperty(html.window, 'adsbygoogle')) {
-            final adsbygoogle = js_util.getProperty(html.window, 'adsbygoogle');
+          // Create ins element using createElement (bypasses sanitizer)
+          final insElement = html.document.createElement('ins');
 
-            // Push empty object to trigger ad loading
-            js_util.callMethod(adsbygoogle, 'push', [js_util.jsify({})]);
+          // Set className (this works)
+          insElement.className = 'adsbygoogle';
 
-            // Mark as loaded after initialization
-            Future.delayed(const Duration(seconds: 2), () {
-              if (mounted) {
-                setState(() {
-                  _isLoading = false;
-                });
-              }
-            });
-          } else {
-            debugPrint('⚠️ AdSense script not loaded');
-            _handleAdError();
-          }
+          // Set attributes using setAttribute (bypasses sanitizer)
+          insElement.setAttribute(
+            'style',
+            'display:block;width:100%;height:100%',
+          );
+          insElement.setAttribute('data-ad-client', 'ca-pub-3779258307133143');
+          insElement.setAttribute('data-ad-slot', widget.adSlot);
+          insElement.setAttribute('data-ad-format', 'auto');
+          insElement.setAttribute('data-full-width-responsive', 'true');
+
+          // Append to container
+          adContainer.append(insElement);
+
+          debugPrint('✅ AdSense element created with attributes');
+
+          // Push ad request after another delay
+          Future.delayed(const Duration(milliseconds: 100), () {
+            _pushAdRequest();
+          });
         } catch (e) {
-          debugPrint('❌ AdSense error: $e');
+          debugPrint('❌ Error creating AdSense element: $e');
           _handleAdError();
         }
       });
@@ -89,10 +83,45 @@ class _AdSenseBannerState extends State<AdSenseBanner> {
     });
   }
 
+  void _pushAdRequest() {
+    try {
+      // Check if AdSense script is loaded
+      if (js_util.hasProperty(html.window, 'adsbygoogle')) {
+        final adsbygoogle = js_util.getProperty(html.window, 'adsbygoogle');
+
+        // Push empty object to trigger ad loading
+        js_util.callMethod(adsbygoogle, 'push', [js_util.jsify({})]);
+
+        debugPrint('✅ AdSense request pushed');
+
+        // Mark as loaded after initialization
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+        });
+      } else {
+        debugPrint('⚠️ AdSense script not loaded on window');
+        // Try again after a delay
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted && _isLoading) {
+            _pushAdRequest();
+          }
+        });
+      }
+    } catch (e) {
+      debugPrint('❌ AdSense push error: $e');
+      _handleAdError();
+    }
+  }
+
   void _checkAdLoad() {
-    // Timeout if ad doesn't load within 10 seconds
-    Future.delayed(const Duration(seconds: 10), () {
+    // Timeout if ad doesn't load within 15 seconds
+    Future.delayed(const Duration(seconds: 15), () {
       if (_isLoading && mounted) {
+        debugPrint('⏱️ Ad load timeout');
         _handleAdError();
       }
     });
@@ -194,7 +223,7 @@ class ResponsiveAdSenseBanner extends StatelessWidget {
         if (constraints.maxWidth < 600) {
           height = 100; // Mobile banner
         } else if (constraints.maxWidth < 900) {
-          height = 200; // Tablet
+          200; // Tablet
         }
 
         return AdSenseBanner(
@@ -208,25 +237,74 @@ class ResponsiveAdSenseBanner extends StatelessWidget {
 }
 
 // Helper widget to check if AdSense is loaded (for debugging)
-class AdSenseDebugger extends StatelessWidget {
+class AdSenseDebugger extends StatefulWidget {
   const AdSenseDebugger({super.key});
 
   @override
+  State<AdSenseDebugger> createState() => _AdSenseDebuggerState();
+}
+
+class _AdSenseDebuggerState extends State<AdSenseDebugger> {
+  bool? _isLoaded;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkAdSense();
+  }
+
+  void _checkAdSense() {
+    Future.delayed(const Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _isLoaded = js_util.hasProperty(html.window, 'adsbygoogle');
+        });
+
+        if (_isLoaded == true) {
+          final adsbygoogle = js_util.getProperty(html.window, 'adsbygoogle');
+          debugPrint('✅ AdSense loaded: $adsbygoogle');
+        } else {
+          debugPrint('❌ AdSense not found, retrying...');
+          // Retry
+          Future.delayed(const Duration(seconds: 2), () {
+            if (mounted) _checkAdSense();
+          });
+        }
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Check if AdSense script is loaded
-    final bool isLoaded = js_util.hasProperty(html.window, 'adsbygoogle');
+    if (_isLoaded == null) {
+      return Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.orange[100],
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Text(
+          '🔄 Checking AdSense...',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.orange[900],
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      );
+    }
 
     return Container(
       padding: const EdgeInsets.all(8),
       decoration: BoxDecoration(
-        color: isLoaded ? Colors.green[100] : Colors.red[100],
+        color: _isLoaded! ? Colors.green[100] : Colors.red[100],
         borderRadius: BorderRadius.circular(4),
       ),
       child: Text(
-        isLoaded ? '✅ AdSense Script Loaded' : '❌ AdSense Script Not Found',
+        _isLoaded! ? '✅ AdSense Script Loaded' : '❌ AdSense Script Not Found',
         style: TextStyle(
           fontSize: 12,
-          color: isLoaded ? Colors.green[900] : Colors.red[900],
+          color: _isLoaded! ? Colors.green[900] : Colors.red[900],
           fontWeight: FontWeight.bold,
         ),
       ),
