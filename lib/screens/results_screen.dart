@@ -190,14 +190,14 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
 
                         const SizedBox(height: 32),
-                        if (!isMobile) // Show ads on desktop/tablet only
-                          const ResponsiveAdSenseBanner(adSlot: '4355381273'),
-                        const SizedBox(height: 32),
-                        if (!isMobile)
-                          const AdSenseBanner(
-                            adSlot: '4355381273',
-                            height: 200,
+
+                        const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 20.0),
+                          child: AdWidgetWeb(
+                            adClient: "ca-pub-3779258307133143",
+                            adSlotId: "4355381273",
                           ),
+                        ),
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
                       ],
                     ),
