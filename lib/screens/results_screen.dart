@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_adsense/experimental/ad_unit_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:typing_speed_master/ads/adsense_banner.dart';
@@ -191,13 +192,30 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
                         const SizedBox(height: 32),
 
-                        const Padding(
-                          padding: EdgeInsets.symmetric(vertical: 20.0),
-                          child: AdWidgetWeb(
+                        // const Padding(
+                        //   padding: EdgeInsets.symmetric(vertical: 20.0),
+                        //   child: AdWidgetWeb(
+                        //     adClient: "ca-pub-3779258307133143",
+                        //     adSlotId: "4355381273",
+                        //   ),
+                        // ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: AdUnitWidget(
                             adClient: "ca-pub-3779258307133143",
-                            adSlotId: "4355381273",
+
+                            configuration: AdUnitConfiguration.displayAdUnit(
+                              adSlot: '4355381273',
+                              isAdTest: true,
+                              isFullWidthResponsive: true,
+                              adFormat: AdFormat.AUTO,
+                            ),
+                            onInjected: () {
+                              debugPrint("Ad Injected Successfully");
+                            },
                           ),
                         ),
+
                         SizedBox(height: isDesktop ? 32.0 : 20.0),
                       ],
                     ),

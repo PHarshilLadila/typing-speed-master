@@ -208,6 +208,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.5.0"
+  google_adsense:
+    dependency: "direct main"
+    description:
+      name: google_adsense
+      sha256: "8f01a6ed37f4687834c4a3e14347d2c757080bf3d93587fa763570bbf1b00f4d"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.2"
   google_fonts:
     dependency: "direct main"
     description:

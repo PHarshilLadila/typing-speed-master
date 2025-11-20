@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_adsense/google_adsense.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/activity_provider.dart';
@@ -14,6 +15,9 @@ import 'providers/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await adSense.initialize('ca-pub-3779258307133143');
+
   await dotenv.load(fileName: ".env");
 
   final supabaseURL = dotenv.env['SUPABASE_URL'];
