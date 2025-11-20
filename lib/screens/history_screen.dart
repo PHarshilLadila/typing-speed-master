@@ -58,6 +58,7 @@ class HistoryScreenState extends State<HistoryScreen> {
   }
 
   List<TypingResult> getFilteredAndSortedResults(List<TypingResult> results) {
+    // First apply filters
     List<TypingResult> filteredResults =
         results.where((result) {
           if (selectedFilterDifficulty != 'all' &&
@@ -78,9 +79,9 @@ class HistoryScreenState extends State<HistoryScreen> {
               }
             }
           }
-
           return true;
         }).toList();
+
     switch (selectedSortOption) {
       case 'new_to_old':
         filteredResults.sort((a, b) => b.timestamp.compareTo(a.timestamp));
