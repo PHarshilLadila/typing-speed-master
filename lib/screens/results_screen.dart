@@ -6,7 +6,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_adsense/experimental/ad_unit_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:typing_speed_master/ads/adsense_banner.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/providers/typing_provider.dart';
@@ -206,7 +205,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
                             configuration: AdUnitConfiguration.displayAdUnit(
                               adSlot: '4355381273',
-                              isAdTest: false,
+                              isAdTest: true,
                               isFullWidthResponsive: true,
                               adFormat: AdFormat.AUTO,
                             ),

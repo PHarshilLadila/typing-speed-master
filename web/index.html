@@ -26,7 +26,9 @@
 
   <!-- Preload AdSense script -->
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143"
-    crossorigin="anonymous"></script>
+    crossorigin="anonymous">
+    </script>
+
 
   <style>
     /* Prevent layout shift while ads load */
@@ -47,35 +49,6 @@
 </head>
 
 <body>
-  <!-- Initialize adsbygoogle before any other scripts -->
-  <div id="ad-container" style="width:100%; text-align:center;">
-    <ins class="adsbygoogle" style="display:block" data-ad-client="ca-pub-3779258307133143" data-ad-slot="9876543210"
-      data-ad-format="auto" data-full-width-responsive="true"></ins>
-  </div>
-
-  <script>
-    (adsbygoogle = window.adsbygoogle || []).push({});
-  </script>
-
-  <script>
-    (function () {
-      window.adsbygoogle = window.adsbygoogle || [];
-      console.log('AdSense: Initialized adsbygoogle array');
-
-      // Load AdSense script
-      var script = document.createElement('script');
-      script.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3779258307133143';
-      script.async = true;
-      script.crossOrigin = 'anonymous';
-      script.onload = function () {
-        console.log('AdSense: Script loaded successfully');
-      };
-      script.onerror = function () {
-        console.error('AdSense: Failed to load script');
-      };
-      document.head.appendChild(script);
-    })();
-  </script>
 
   <!-- Vercel Analytics -->
   <script defer src="/_vercel/insights/script.js"></script>
