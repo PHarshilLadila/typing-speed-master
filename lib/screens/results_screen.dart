@@ -206,7 +206,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
                             configuration: AdUnitConfiguration.displayAdUnit(
                               adSlot: '4355381273',
-                              isAdTest: true,
+                              isAdTest: false,
                               isFullWidthResponsive: true,
                               adFormat: AdFormat.AUTO,
                             ),
