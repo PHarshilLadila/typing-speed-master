@@ -7,7 +7,6 @@
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="A new Flutter project.">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="flutter-web-auto-detect" content="false">
 
 
@@ -50,7 +49,15 @@
 <body>
 
   <!-- Vercel Analytics -->
-  <script defer src="/_vercel/insights/script.js"></script>
+  <script>
+    if (location.hostname.endsWith('vercel.app') || location.hostname.endsWith('.com')) {
+      const script = document.createElement('script');
+      script.src = '/_vercel/insights/script.js';
+      script.defer = true;
+      document.body.appendChild(script);
+    }
+  </script>
+
 
   <script src="flutter_bootstrap.js" async></script>
 </body>

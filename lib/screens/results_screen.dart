@@ -201,11 +201,11 @@ class _ResultsScreenState extends State<ResultsScreen> {
                         Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: AdUnitWidget(
-                            adClient: "ca-pub-3779258307133143",
+                            adClient: "3779258307133143",
 
                             configuration: AdUnitConfiguration.displayAdUnit(
                               adSlot: '4355381273',
-                              isAdTest: false,
+                              isAdTest: true,
                               isFullWidthResponsive: true,
                               adFormat: AdFormat.AUTO,
                             ),

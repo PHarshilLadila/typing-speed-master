@@ -16,7 +16,7 @@ import 'providers/theme_provider.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await adSense.initialize('ca-pub-3779258307133143');
+  await adSense.initialize('3779258307133143');
 
   await dotenv.load(fileName: ".env");
 
