@@ -577,7 +577,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     bool isTablet,
     bool isDesktop,
   ) {
-    final width = MediaQuery.of(context).size.width;
+    // final width = MediaQuery.of(context).size.width;
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final sampleText = provider.getCurrentText();

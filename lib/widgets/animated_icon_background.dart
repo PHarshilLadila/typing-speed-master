@@ -531,6 +531,8 @@
 //     final horizontalOffset = 50 * cos(particleTime * 1.5 * pi);
 //     final opacity = 0.3 + 0.2 * sin(particleTime * 3 * pi);
 
+// ignore_for_file: deprecated_member_use
+
 //     return AnimatedBuilder(
 //       animation: controller,
 //       builder: (context, child) {
@@ -584,7 +586,7 @@ class _ProfessionalAnimatedBackgroundState
     extends State<ProfessionalAnimatedBackground>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  final List<AnimatedIconData> _icons = [];
+  // final List<AnimatedIconData> _icons = [];
   final List<Particle> _particles = [];
 
   @override
@@ -779,11 +781,12 @@ class Particle {
   });
 }
 
-class _ProfessionalAnimatedIcon extends StatelessWidget {
+class ProfessionalAnimatedIcon extends StatelessWidget {
   final AnimatedIconData iconData;
   final AnimationController controller;
 
-  const _ProfessionalAnimatedIcon({
+  const ProfessionalAnimatedIcon({
+    super.key,
     required this.iconData,
     required this.controller,
   });
