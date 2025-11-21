@@ -1,5 +1,6 @@
 // ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
+import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,6 +22,10 @@ class HistoryScreenState extends State<HistoryScreen> {
   String selectedSortOption = 'new_to_old';
   String selectedFilterDifficulty = 'all';
   String selectedFilterDuration = 'all';
+  Timer? _filterDebounceTimer;
+
+  List<TypingResult> _cachedFilteredResults = [];
+  String _lastFilterKey = '';
 
   final Map<String, String> _sortOptions = {
     'new_to_old': 'Newest First',
@@ -51,13 +56,42 @@ class HistoryScreenState extends State<HistoryScreen> {
   };
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    final provider = Provider.of<TypingProvider>(context, listen: false);
-    provider.getAllRecentResults();
+  void initState() {
+    super.initState();
+    // Load once when screen initializes
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final provider = Provider.of<TypingProvider>(context, listen: false);
+      provider.getAllRecentResults();
+    });
+  }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   final provider = Provider.of<TypingProvider>(context, listen: false);
+  //   provider.getAllRecentResults();
+  // }
+
+  void _onFilterChanged() {
+    _filterDebounceTimer?.cancel();
+    _filterDebounceTimer = Timer(const Duration(milliseconds: 500), () {
+      // Clear cache to force recalculation
+      _cachedFilteredResults = [];
+      _lastFilterKey = '';
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   List<TypingResult> getFilteredAndSortedResults(List<TypingResult> results) {
+    final cacheKey =
+        '$selectedSortOption-$selectedFilterDifficulty-$selectedFilterDuration';
+
+    if (_lastFilterKey == cacheKey && _cachedFilteredResults.isNotEmpty) {
+      return _cachedFilteredResults;
+    }
+
     // First apply filters
     List<TypingResult> filteredResults =
         results.where((result) {
@@ -128,6 +162,9 @@ class HistoryScreenState extends State<HistoryScreen> {
         );
         break;
     }
+
+    _cachedFilteredResults = filteredResults;
+    _lastFilterKey = cacheKey;
 
     return filteredResults;
   }
@@ -250,6 +287,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           setState(() {
             selectedSortOption = newValue!;
           });
+          _onFilterChanged();
         },
         items:
             _sortOptions.entries.map((entry) {
@@ -385,7 +423,7 @@ class HistoryScreenState extends State<HistoryScreen> {
 
     return Consumer<TypingProvider>(
       builder: (context, provider, _) {
-        final allResults = provider.getAllRecentResults();
+        final allResults = provider.results;
         final filteredResults = getFilteredAndSortedResults(allResults);
 
         final cardColor =
@@ -600,5 +638,11 @@ class HistoryScreenState extends State<HistoryScreen> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _filterDebounceTimer?.cancel();
+    super.dispose();
   }
 }
