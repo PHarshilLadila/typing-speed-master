@@ -2381,6 +2381,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
+    final width = MediaQuery.of(context).size.width;
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -2401,7 +2402,13 @@ class _ProfileScreenState extends State<ProfileScreen>
             }
           },
           child: SingleChildScrollView(
-            padding: EdgeInsets.all(40),
+            padding:
+                width > 1200
+                    ? EdgeInsets.symmetric(
+                      vertical: 50,
+                      horizontal: MediaQuery.of(context).size.width / 5,
+                    )
+                    : EdgeInsets.all(40),
             child: Column(
               children: [
                 profileHeader(context, isMobile, isTablet),

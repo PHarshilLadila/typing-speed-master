@@ -234,7 +234,9 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:typing_speed_master/providers/theme_provider.dart';
 
 class TextDisplayWidget extends StatefulWidget {
   final String sampleText;
@@ -357,6 +359,7 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
         widget.isDarkMode
             ? Colors.white.withOpacity(0.04)
             : Colors.black.withOpacity(0.04);
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Stack(
       children: [
@@ -375,15 +378,18 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
           right: 8,
           child: Container(
             decoration: BoxDecoration(
-              color: widget.isDarkMode ? Colors.grey[800] : Colors.grey[200],
+              color: Colors.transparent,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
+              border: Border.all(
+                color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+              ),
+              // boxShadow: [
+              //   BoxShadow(
+              //     color: Colors.black.withOpacity(0.1),
+              //     blurRadius: 4,
+              //     offset: const Offset(0, 2),
+              //   ),
+              // ],
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,

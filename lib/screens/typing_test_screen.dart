@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
 import 'package:typing_speed_master/utils/constants.dart';
+import 'package:typing_speed_master/widgets/animated_icon_background.dart';
 import 'package:typing_speed_master/widgets/custom_dropdown.dart';
+import 'package:typing_speed_master/widgets/grid_background.dart';
 import '../providers/typing_provider.dart';
 import '../providers/theme_provider.dart';
 import '../widgets/text_display_widget.dart';
@@ -296,7 +298,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   EdgeInsets getResponsivePadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
     if (width > 1200) {
-      return EdgeInsets.all(40);
+      return EdgeInsets.symmetric(
+        vertical: 50,
+        horizontal: MediaQuery.of(context).size.width / 5,
+      );
     } else if (width > 768) {
       return const EdgeInsets.all(40.0);
     } else {
@@ -339,31 +344,35 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyedSubtree(
-      key: ValueKey('typing_test_screen'),
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final screenWidth = constraints.maxWidth;
-          final isSmallMobile = screenWidth < 599;
-          final isMobile = screenWidth < 600;
-          final isTablet = screenWidth >= 600 && screenWidth < 1200;
-          final isDesktop = screenWidth >= 1200;
+    return GridBackgroundPage(
+      child: ProfessionalAnimatedBackground(
+        child: KeyedSubtree(
+          key: ValueKey('typing_test_screen'),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final isSmallMobile = screenWidth < 599;
+              final isMobile = screenWidth < 600;
+              final isTablet = screenWidth >= 600 && screenWidth < 1200;
+              final isDesktop = screenWidth >= 1200;
 
-          return isFullScreen
-              ? typingTestFullScreenContent(
-                context,
-                isMobile,
-                isTablet,
-                isDesktop,
-              )
-              : typingTestNormalContent(
-                context,
-                isMobile,
-                isTablet,
-                isDesktop,
-                isSmallMobile,
-              );
-        },
+              return isFullScreen
+                  ? typingTestFullScreenContent(
+                    context,
+                    isMobile,
+                    isTablet,
+                    isDesktop,
+                  )
+                  : typingTestNormalContent(
+                    context,
+                    isMobile,
+                    isTablet,
+                    isDesktop,
+                    isSmallMobile,
+                  );
+            },
+          ),
+        ),
       ),
     );
   }
@@ -568,6 +577,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     bool isTablet,
     bool isDesktop,
   ) {
+    final width = MediaQuery.of(context).size.width;
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final sampleText = provider.getCurrentText();
@@ -582,7 +592,13 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final inputBorderColor =
         themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!;
 
-    final padding = EdgeInsets.all(isMobile ? 16 : 20);
+    final padding = EdgeInsets.all(40);
+    // width > 1200
+    //     ? EdgeInsets.symmetric(
+    //       vertical: 50,
+    //       horizontal: MediaQuery.of(context).size.width / 5,
+    //     )
+    //     : EdgeInsets.all(40);
     final spacing = getResponsiveSpacing(context);
 
     return Padding(
@@ -661,6 +677,10 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
             child: Container(
               padding: EdgeInsets.all(isMobile ? 16 : 20),
               decoration: BoxDecoration(
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[900]
+                        : Colors.grey[50],
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(color: borderColor, width: 0.5),
               ),

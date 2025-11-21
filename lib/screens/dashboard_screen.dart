@@ -67,9 +67,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required BuildContext context,
     required double titleFontSize,
     required double subtitleFontSize,
+    EdgeInsetsGeometry edgeInsetsGeometry = const EdgeInsets.all(40),
   }) {
+    final width = MediaQuery.of(context).size.width;
+
     return Padding(
-      padding: EdgeInsets.all(40),
+      padding:
+          width > 1200
+              ? EdgeInsets.symmetric(
+                vertical: 50,
+                horizontal: MediaQuery.of(context).size.width / 5,
+              )
+              : EdgeInsets.all(40),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -519,38 +528,66 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
         const SizedBox(height: 16),
         if (recentResults.isEmpty)
-          Padding(
-            padding: EdgeInsets.only(
-              top: MediaQuery.of(context).size.height / 6,
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: cardColor,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor ?? Colors.grey[200]!),
+          Container(
+            padding: EdgeInsets.all(0),
+            decoration: BoxDecoration(
+              color:
+                  themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[50],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[500]!
+                        : Colors.grey[500]!,
+                width: 0.3,
               ),
-              child: Column(
-                children: [
-                  Icon(Icons.assignment, size: 48, color: iconColor),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No tests completed yet',
-                    style: TextStyle(
-                      fontSize: subtitleFontSize,
-                      color: textColor,
+            ),
+            child: Center(
+              child: Padding(
+                padding: EdgeInsets.only(
+                  top: MediaQuery.of(context).size.height / 7,
+                  bottom: MediaQuery.of(context).size.height / 7.5,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: cardColor,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: borderColor ?? Colors.grey[200]!,
+                      width: 1.5,
                     ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Start your first typing test to see results here',
-                    style: TextStyle(
-                      fontSize: subtitleFontSize - 2,
-                      color: textColor,
-                    ),
-                    textAlign: TextAlign.center,
+                  child: Column(
+                    children: [
+                      Icon(Icons.assignment, size: 48, color: iconColor),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No tests completed yet',
+                        style: TextStyle(
+                          fontSize: subtitleFontSize,
+                          color: textColor,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Start your first typing test to see results here',
+                        style: TextStyle(
+                          fontSize: subtitleFontSize - 2,
+                          color: textColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
             ),
           )

@@ -173,7 +173,10 @@ class HistoryScreenState extends State<HistoryScreen> {
     final width = MediaQuery.of(context).size.width;
 
     if (width > 1200) {
-      return EdgeInsets.all(40);
+      return EdgeInsets.symmetric(
+        vertical: 50,
+        horizontal: MediaQuery.of(context).size.width / 5,
+      );
     } else if (width > 768) {
       return const EdgeInsets.all(40.0);
     } else {
@@ -217,7 +220,7 @@ class HistoryScreenState extends State<HistoryScreen> {
     final height = MediaQuery.of(context).size.height;
 
     if (height > 800) {
-      return height / 4;
+      return height / 5;
     } else {
       return height / 6;
     }
@@ -457,60 +460,78 @@ class HistoryScreenState extends State<HistoryScreen> {
               ),
 
             if (filteredResults.isEmpty)
-              Center(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    top: getEmptyStateTopPadding(context),
+              Container(
+                padding: EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[900]
+                          : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.grey[500]!
+                            : Colors.grey[500]!,
+                    width: 0.3,
                   ),
-                  child: Container(
-                    width: getEmptyStateWidth(context),
-                    padding: getCardPadding(context),
-                    decoration: BoxDecoration(
-                      color: cardColor,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: borderColor ?? Colors.grey[200]!,
-                        width: 1.5,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
+                ),
+                child: Center(
+                  child: Padding(
+                    padding: EdgeInsets.only(
+                      top: getEmptyStateTopPadding(context),
+                      bottom: getEmptyStateTopPadding(context),
                     ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.assignment,
-                          size: getResponsiveIconSize(context),
-                          color: iconColor,
+                    child: Container(
+                      width: getEmptyStateWidth(context),
+                      padding: getCardPadding(context),
+                      decoration: BoxDecoration(
+                        color: cardColor,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: borderColor ?? Colors.grey[200]!,
+                          width: 1.5,
                         ),
-                        SizedBox(height: 12),
-                        Text(
-                          allResults.isEmpty
-                              ? 'No tests completed yet'
-                              : 'No results match your filters',
-                          style: TextStyle(
-                            fontSize: subtitleFontSize,
-                            fontWeight: FontWeight.w600,
-                            color: textColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
                           ),
-                        ),
-                        SizedBox(height: 12),
-                        Text(
-                          allResults.isEmpty
-                              ? 'Start your first typing test to see results here'
-                              : 'Try changing your filter or sort options',
-                          style: TextStyle(
-                            fontSize: subtitleFontSize - 2,
-                            color: textColor,
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.assignment,
+                            size: getResponsiveIconSize(context),
+                            color: iconColor,
                           ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
+                          SizedBox(height: 12),
+                          Text(
+                            allResults.isEmpty
+                                ? 'No tests completed yet'
+                                : 'No results match your filters',
+                            style: TextStyle(
+                              fontSize: subtitleFontSize,
+                              fontWeight: FontWeight.w600,
+                              color: textColor,
+                            ),
+                          ),
+                          SizedBox(height: 12),
+                          Text(
+                            allResults.isEmpty
+                                ? 'Start your first typing test to see results here'
+                                : 'Try changing your filter or sort options',
+                            style: TextStyle(
+                              fontSize: subtitleFontSize - 2,
+                              color: textColor,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
