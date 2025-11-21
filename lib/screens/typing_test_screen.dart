@@ -8,7 +8,6 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
 import 'package:typing_speed_master/utils/constants.dart';
-import 'package:typing_speed_master/widgets/animated_icon_background.dart';
 import 'package:typing_speed_master/widgets/custom_dropdown.dart';
 import 'package:typing_speed_master/widgets/grid_background.dart';
 import '../providers/typing_provider.dart';
