@@ -129,6 +129,8 @@
 //   }
 // }
 
+// ignore_for_file: unnecessary_import, deprecated_member_use, avoid_web_libraries_in_flutter
+
 import 'dart:html' as html;
 import 'package:flutter/material.dart';
 import 'dart:ui_web' as ui_web;
@@ -147,21 +149,21 @@ class AdWidgetWeb extends StatefulWidget {
   });
 
   @override
-  _AdWidgetWebState createState() => _AdWidgetWebState();
+  AdWidgetWebState createState() => AdWidgetWebState();
 }
 
-class _AdWidgetWebState extends State<AdWidgetWeb> {
+class AdWidgetWebState extends State<AdWidgetWeb> {
   late final String viewId;
-  bool _adLoaded = false;
+  bool adLoaded = false;
 
   @override
   void initState() {
     super.initState();
     viewId = 'ad-container-${widget.adSlotId}';
-    _initializeAd();
+    initializeAd();
   }
 
-  void _initializeAd() {
+  void initializeAd() {
     debugPrint(
       'AD_WIDGET_DART: Initializing AdSense for slot: ${widget.adSlotId}',
     );
