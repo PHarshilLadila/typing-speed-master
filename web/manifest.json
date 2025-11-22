@@ -1,35 +1,35 @@
 {
-    "name": "typing_speed_master",
-    "short_name": "typing_speed_master",
-    "start_url": ".",
-    "display": "standalone",
-    "background_color": "#FFC107",
-    "theme_color": "#FFC107",
-    "description": " A project to test typing speed and accuracy with real-time stats, charts, and Google login integration.",
-    "orientation": "portrait-primary",
-    "prefer_related_applications": false,
-    "icons": [
-        {
-            "src": "icons/icon-192.jpg",
-            "sizes": "192x192",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/Icon-512.jpg",
-            "sizes": "512x512",
-            "type": "image/png"
-        },
-        {
-            "src": "icons/icon-192.jpg",
-            "sizes": "192x192",
-            "type": "image/png",
-            "purpose": "maskable"
-        },
-        {
-            "src": "icons/Icon-512.jpg",
-            "sizes": "512x512",
-            "type": "image/png",
-            "purpose": "maskable"
-        }
-    ]
+  "name": "Typing Speed Master",
+  "short_name": "TypingSpeedMaster",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#FFC107",
+  "theme_color": "#FFC107",
+  "description": "A project to test typing speed and accuracy with real-time stats, charts, and Google login integration.",
+  "orientation": "portrait-primary",
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "icons/icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/Icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-192.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/Icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
 }

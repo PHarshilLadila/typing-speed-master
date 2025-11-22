@@ -23,7 +23,7 @@ Future<void> main() async {
   if (kIsWeb) {
     MetaSEO().config();
     MetaSEO meta = MetaSEO();
-    meta.author(author: 'Ladila Infotech');
+    meta.author(author: 'Typing Speed Master');
     meta.description(
       description:
           'Typing Speed Master is a professional Flutter web application to test and improve your typing speed with real-time WPM, accuracy, and consistency tracking. Features include Google login, difficulty levels, detailed analytics, historical progress charts, performance dashboard, and full responsive support across desktop, tablet, and mobile. Practice typing with live metrics, save your results securely via Supabase, and track your journey to becoming a typing expert.',
