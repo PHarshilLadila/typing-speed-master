@@ -146,7 +146,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
             return Stack(
               children: [
                 Padding(
-                  padding: EdgeInsets.all(40),
+                  padding:
+                      isDesktop
+                          ? EdgeInsets.symmetric(
+                            vertical: 50,
+                            horizontal: MediaQuery.of(context).size.width / 6,
+                          )
+                          : EdgeInsets.all(40),
                   child: SingleChildScrollView(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
