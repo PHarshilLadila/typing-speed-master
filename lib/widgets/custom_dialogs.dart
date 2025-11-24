@@ -1,6 +1,11 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'dart:html' as html;
 
 class CustomDialog {
   static void showSignOutDialog({
@@ -130,6 +135,21 @@ class CustomDialog {
             cancelText: cancelText,
             controller: controller,
             keyboardType: keyboardType,
+          ),
+    );
+  }
+
+  static Future<String?> showProfilePictureDialog({
+    required BuildContext context,
+    required String currentImageUrl,
+    String title = 'Update Profile Picture',
+  }) async {
+    return showDialog<String?>(
+      context: context,
+      builder:
+          (context) => _ProfilePictureDialog(
+            title: title,
+            currentImageUrl: currentImageUrl,
           ),
     );
   }
@@ -429,6 +449,360 @@ class _InputDialogState extends State<_InputDialog> {
               ],
             ),
           ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ProfilePictureDialog extends StatefulWidget {
+  final String title;
+  final String currentImageUrl;
+
+  const _ProfilePictureDialog({
+    required this.title,
+    required this.currentImageUrl,
+  });
+
+  @override
+  State<_ProfilePictureDialog> createState() => _ProfilePictureDialogState();
+}
+
+class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
+  String? _selectedImageDataUrl;
+  bool _isLoading = false;
+
+  Future<void> _pickImageFromGallery() async {
+    final html.FileUploadInputElement input = html.FileUploadInputElement();
+    input.accept = 'image/*';
+    input.click();
+
+    final Completer<String?> completer = Completer<String?>();
+
+    input.onChange.listen((e) {
+      final files = input.files;
+      if (files != null && files.isNotEmpty) {
+        final file = files[0];
+        final reader = html.FileReader();
+
+        reader.onLoadEnd.listen((e) {
+          if (reader.result != null) {
+            completer.complete(reader.result as String);
+          } else {
+            completer.complete(null);
+          }
+        });
+
+        reader.onError.listen((e) {
+          completer.completeError('Error reading file');
+        });
+
+        reader.readAsDataUrl(file);
+      } else {
+        completer.complete(null);
+      }
+    });
+
+    final String? imageDataUrl = await completer.future;
+
+    if (imageDataUrl != null && mounted) {
+      setState(() {
+        _selectedImageDataUrl = imageDataUrl;
+      });
+    }
+  }
+
+  Future<void> _takePhotoWithCamera() async {
+    // For web, we'll use the device camera through file input
+    final html.FileUploadInputElement input = html.FileUploadInputElement();
+    input.accept = 'image/*';
+    input.setAttribute('capture', 'camera');
+    input.click();
+
+    final Completer<String?> completer = Completer<String?>();
+
+    input.onChange.listen((e) {
+      final files = input.files;
+      if (files != null && files.isNotEmpty) {
+        final file = files[0];
+        final reader = html.FileReader();
+
+        reader.onLoadEnd.listen((e) {
+          if (reader.result != null) {
+            completer.complete(reader.result as String);
+          } else {
+            completer.complete(null);
+          }
+        });
+
+        reader.onError.listen((e) {
+          completer.completeError('Error reading file');
+        });
+
+        reader.readAsDataUrl(file);
+      } else {
+        completer.complete(null);
+      }
+    });
+
+    final String? imageDataUrl = await completer.future;
+
+    if (imageDataUrl != null && mounted) {
+      setState(() {
+        _selectedImageDataUrl = imageDataUrl;
+      });
+    }
+  }
+
+  String get _displayImage {
+    return _selectedImageDataUrl ?? widget.currentImageUrl;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    return Dialog(
+      backgroundColor: isDark ? Colors.grey[900] : Colors.white,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: SizedBox(
+        width: 400,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Title
+              Text(
+                widget.title,
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: isDark ? Colors.white : Colors.black,
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              // Current/Selected Profile Picture
+              Container(
+                width: 150,
+                height: 150,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: themeProvider.primaryColor,
+                    width: 3,
+                  ),
+                ),
+                child: ClipOval(
+                  child:
+                      _displayImage.isNotEmpty
+                          ? Image.network(
+                            _displayImage,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildPlaceholderIcon(isDark);
+                            },
+                            loadingBuilder: (context, child, loadingProgress) {
+                              if (loadingProgress == null) return child;
+                              return Center(
+                                child: CircularProgressIndicator(
+                                  value:
+                                      loadingProgress.expectedTotalBytes != null
+                                          ? loadingProgress
+                                                  .cumulativeBytesLoaded /
+                                              loadingProgress
+                                                  .expectedTotalBytes!
+                                          : null,
+                                ),
+                              );
+                            },
+                          )
+                          : _buildPlaceholderIcon(isDark),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              Text(
+                _selectedImageDataUrl != null
+                    ? 'New Profile Picture'
+                    : 'Current Profile Picture',
+                style: TextStyle(
+                  fontSize: 14,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Option Buttons
+              Column(
+                children: [
+                  _buildOptionButton(
+                    context: context,
+                    icon: Icons.photo_library,
+                    title: 'Choose from Gallery',
+                    subtitle: 'Select image from your device',
+                    onTap: _pickImageFromGallery,
+                  ),
+                  const SizedBox(height: 12),
+
+                  _buildOptionButton(
+                    context: context,
+                    icon: Icons.camera_alt,
+                    title: 'Take Photo',
+                    subtitle: 'Use your camera to take a photo',
+                    onTap: _takePhotoWithCamera,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              // Action Buttons
+              if (_selectedImageDataUrl != null) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        style: TextButton.styleFrom(
+                          foregroundColor:
+                              isDark ? Colors.grey[400] : Colors.grey[800],
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child: const Text('Cancel'),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed:
+                            _isLoading
+                                ? null
+                                : () {
+                                  Navigator.of(
+                                    context,
+                                  ).pop(_selectedImageDataUrl);
+                                },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: themeProvider.primaryColor,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                        child:
+                            _isLoading
+                                ? SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
+                                  ),
+                                )
+                                : const Text('Update Picture'),
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                SizedBox(
+                  width: double.infinity,
+                  child: TextButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: TextButton.styleFrom(
+                      foregroundColor:
+                          isDark ? Colors.grey[400] : Colors.grey[800],
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Close'),
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPlaceholderIcon(bool isDark) {
+    return Container(
+      color: isDark ? Colors.grey[800] : Colors.grey[200],
+      child: Icon(
+        Icons.person,
+        size: 60,
+        color: isDark ? Colors.grey[400] : Colors.grey[600],
+      ),
+    );
+  }
+
+  Widget _buildOptionButton({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required String subtitle,
+    required VoidCallback onTap,
+  }) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDark = themeProvider.isDarkMode;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[800] : Colors.grey[100],
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.grey[700]! : Colors.grey[300]!,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: themeProvider.primaryColor.withOpacity(0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: themeProvider.primaryColor, size: 24),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: isDark ? Colors.white : Colors.black,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: isDark ? Colors.grey[400] : Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ],
+          ),
         ),
       ),
     );

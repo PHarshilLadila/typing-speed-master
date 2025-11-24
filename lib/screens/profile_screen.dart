@@ -35,6 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   int _currentHeatmapYear = DateTime.now().year;
   Map<DateTime, int> _activityData = {};
   List<MonthLabel> _monthLabels = [];
+  String? _profileImageUrl;
 
   @override
   void initState() {
@@ -385,6 +386,488 @@ class _ProfileScreenState extends State<ProfileScreen>
     _currentHeatmapYear = year;
     _generateHeatmapData();
   }
+
+  Future<void> _updateProfilePicture() async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final currentUser = authProvider.user;
+    final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+
+    final isDarkTheme = themeProvider.isDarkMode;
+
+    if (currentUser == null) return;
+
+    String? newImageDataUrl = await CustomDialog.showProfilePictureDialog(
+      context: context,
+      currentImageUrl: currentUser.avatarUrl ?? '',
+    );
+
+    if (newImageDataUrl != null && mounted) {
+      try {
+        // Show loading state
+        setState(() {
+          _profileImageUrl = newImageDataUrl;
+        });
+
+        // Update in backend
+        await _uploadProfilePictureToServer(newImageDataUrl);
+
+        // Show success message
+        Fluttertoast.showToast(
+          msg: "Profile picture updated successfully!",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          textColor: isDarkTheme ? Colors.white : Colors.black,
+          fontSize: 14.0,
+          webPosition: "center",
+          webBgColor:
+              isDarkTheme
+                  ? "linear-gradient(to right, #000000, #000000)"
+                  : "linear-gradient(to right, #FFFFFF, #FFFFFF)",
+        );
+      } catch (e) {
+        // Show error message
+        Fluttertoast.showToast(
+          msg: "Failed to update profile picture",
+          toastLength: Toast.LENGTH_SHORT,
+          gravity: ToastGravity.BOTTOM,
+          timeInSecForIosWeb: 2,
+          textColor: isDarkTheme ? Colors.white : Colors.black,
+          fontSize: 14.0,
+          webPosition: "center",
+          webBgColor:
+              isDarkTheme
+                  ? "linear-gradient(to right, #000000, #000000)"
+                  : "linear-gradient(to right, #FFFFFF, #FFFFFF)",
+        );
+
+        // Revert to original image
+        setState(() {
+          _profileImageUrl = null;
+        });
+      }
+    }
+  }
+
+  // Add this method to handle server upload
+  Future<void> _uploadProfilePictureToServer(String imageDataUrl) async {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Here you would typically upload the image to your backend
+    // For now, we'll just update the local user data
+    if (authProvider.user != null) {
+      // Convert data URL to a format your backend expects
+      // This might involve uploading to cloud storage and getting a URL back
+
+      // For demo purposes, we'll use the data URL directly
+      // In production, you should upload to your server and get a proper URL
+      await authProvider.updateProfile(avatarUrl: imageDataUrl);
+
+      // Refresh user data
+      await authProvider.fetchUserProfile(authProvider.user!.id);
+    }
+  }
+
+  // Update the profileAvatar method to use the new image URL
+  // Widget profileAvatar(
+  //   UserModel? user,
+  //   bool isDark,
+  //   double size,
+  //   void Function()? onTap,
+  // ) {
+  //   final currentImageUrl = _profileImageUrl ?? user?.avatarUrl;
+
+  //   return InkWell(
+  //     onTap: _updateProfilePicture, // Update this line to use the new method
+  //     borderRadius: BorderRadius.circular(size / 2),
+  //     child: Stack(
+  //       children: [
+  //         Container(
+  //           width: size,
+  //           height: size,
+  //           decoration: BoxDecoration(
+  //             shape: BoxShape.circle,
+  //             border: Border.all(
+  //               color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
+  //               width: 2,
+  //             ),
+  //           ),
+  //           child: ClipOval(
+  //             child:
+  //                 currentImageUrl != null && currentImageUrl.isNotEmpty
+  //                     ? _buildProfileImage(currentImageUrl, isDark, size)
+  //                     : ProfilePlaceHolderAvatar(
+  //                       isDark: isDark,
+  //                       size: size * 0.8,
+  //                     ),
+  //           ),
+  //         ),
+  //         // Add edit icon overlay
+  //         Positioned(
+  //           bottom: 0,
+  //           right: 0,
+  //           child: Container(
+  //             width: size * 0.3,
+  //             height: size * 0.3,
+  //             decoration: BoxDecoration(
+  //               color: Colors.blue,
+  //               shape: BoxShape.circle,
+  //               border: Border.all(
+  //                 color: isDark ? Colors.grey[900]! : Colors.white,
+  //                 width: 2,
+  //               ),
+  //             ),
+  //             child: Icon(Icons.edit, color: Colors.white, size: size * 0.15),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
+  Widget profileAvatar(
+    UserModel? user,
+    bool isDark,
+    double size,
+    void Function()? onTap,
+  ) {
+    final currentImageUrl = _profileImageUrl ?? user?.avatarUrl;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    return InkWell(
+      onTap: _updateProfilePicture,
+      borderRadius: BorderRadius.circular(size / 2),
+      child: Stack(
+        children: [
+          // Profile Image Container
+          Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
+                width: 2,
+              ),
+            ),
+            child: ClipOval(
+              child:
+                  currentImageUrl != null && currentImageUrl.isNotEmpty
+                      ? _buildEnhancedProfileImage(
+                        currentImageUrl,
+                        isDark,
+                        size,
+                        themeProvider,
+                      )
+                      : ProfilePlaceHolderAvatar(
+                        isDark: isDark,
+                        size: size * 0.8,
+                      ),
+            ),
+          ),
+
+          // Edit Icon Overlay
+          Positioned(
+            bottom: 0,
+            right: 0,
+            child: Container(
+              width: size * 0.3,
+              height: size * 0.3,
+              decoration: BoxDecoration(
+                color: themeProvider.primaryColor,
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: isDark ? Colors.grey[900]! : Colors.white,
+                  width: 2,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Icon(Icons.edit, color: Colors.white, size: size * 0.15),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Enhanced profile image builder with smooth loading and better error handling
+  Widget _buildEnhancedProfileImage(
+    String imageUrl,
+    bool isDark,
+    double size,
+    ThemeProvider themeProvider,
+  ) {
+    if (imageUrl.startsWith('data:image')) {
+      // Handle data URL (base64 image from camera/gallery)
+      return _buildDataUrlImage(imageUrl, isDark, size);
+    } else {
+      // Handle regular network image with cached_network_image
+      return _buildNetworkImage(imageUrl, isDark, size, themeProvider);
+    }
+  }
+
+  // Build image from data URL (base64)
+  Widget _buildDataUrlImage(String dataUrl, bool isDark, double size) {
+    return Image.network(
+      dataUrl,
+      fit: BoxFit.cover,
+      width: size,
+      height: size,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+
+        // Smooth loading animation
+        final double progress =
+            loadingProgress.expectedTotalBytes != null
+                ? loadingProgress.cumulativeBytesLoaded /
+                    loadingProgress.expectedTotalBytes!
+                : 0.0;
+
+        return Container(
+          width: size,
+          height: size,
+          decoration: BoxDecoration(
+            color: isDark ? Colors.grey[800] : Colors.grey[200],
+            shape: BoxShape.circle,
+          ),
+          child: Stack(
+            children: [
+              // Background shimmer effect
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 500),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                      isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                    ],
+                  ),
+                ),
+              ),
+
+              // Progress indicator
+              Center(
+                child: CircularProgressIndicator(
+                  value: progress,
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    isDark ? Colors.white : Colors.grey[600]!,
+                  ),
+                  backgroundColor: isDark ? Colors.grey[600] : Colors.grey[400],
+                ),
+              ),
+
+              // Percentage text for larger images
+              if (size > 80)
+                Center(
+                  child: Text(
+                    '${(progress * 100).toInt()}%',
+                    style: TextStyle(
+                      fontSize: size * 0.1,
+                      color: isDark ? Colors.white : Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
+      errorBuilder: (context, error, stackTrace) {
+        // Fallback to placeholder with error animation
+        return _buildErrorState(isDark, size, error.toString());
+      },
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        // Smooth fade-in animation when image loads
+        if (wasSynchronouslyLoaded) {
+          return child;
+        }
+        return AnimatedOpacity(
+          opacity: frame == null ? 0 : 1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+          child: child,
+        );
+      },
+    );
+  }
+
+  // Build network image with cached_network_image for better performance
+  Widget _buildNetworkImage(
+    String imageUrl,
+    bool isDark,
+    double size,
+    ThemeProvider themeProvider,
+  ) {
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      width: size,
+      height: size,
+      placeholder: (context, url) => _buildLoadingState(isDark, size),
+      errorWidget:
+          (context, url, error) =>
+              _buildErrorState(isDark, size, error.toString()),
+      imageBuilder: (context, imageProvider) {
+        // Smooth image rendering with fade-in effect
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
+              ),
+            ),
+          ),
+        );
+      },
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeInCurve: Curves.easeInOut,
+      fadeOutDuration: const Duration(milliseconds: 200),
+      fadeOutCurve: Curves.easeOut,
+    );
+  }
+
+  // Loading state widget
+  Widget _buildLoadingState(bool isDark, double size) {
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[800] : Colors.grey[200],
+        shape: BoxShape.circle,
+      ),
+      child: Stack(
+        children: [
+          // Shimmer effect
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 1000),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                  isDark ? Colors.grey[800]! : Colors.grey[200]!,
+                  isDark ? Colors.grey[700]! : Colors.grey[300]!,
+                ],
+              ),
+            ),
+          ),
+
+          // Pulsing animation
+          Center(
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.3, end: 0.8),
+              duration: const Duration(milliseconds: 1000),
+              curve: Curves.easeInOut,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Icon(
+                    Icons.person,
+                    size: size * 0.5,
+                    color: isDark ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Error state widget
+  Widget _buildErrorState(bool isDark, double size, String error) {
+    dev.log('❌ Profile image loading error: $error');
+
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: isDark ? Colors.grey[800] : Colors.grey[200],
+        shape: BoxShape.circle,
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: size * 0.3,
+            color: isDark ? Colors.grey[400] : Colors.grey[600],
+          ),
+          if (size > 60)
+            Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Text(
+                'Error',
+                style: TextStyle(
+                  fontSize: size * 0.1,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  // Helper method to build profile image with better error handling
+  // Widget _buildProfileImage(String imageUrl, bool isDark, double size) {
+  //   if (imageUrl.startsWith('data:image')) {
+  //     // Handle data URL (base64 image)
+  //     return Image.network(
+  //       imageUrl,
+  //       fit: BoxFit.cover,
+  //       width: size,
+  //       height: size,
+  //       loadingBuilder: (context, child, loadingProgress) {
+  //         if (loadingProgress == null) return child;
+  //         return Center(
+  //           child: CircularProgressIndicator(
+  //             value:
+  //                 loadingProgress.expectedTotalBytes != null
+  //                     ? loadingProgress.cumulativeBytesLoaded /
+  //                         loadingProgress.expectedTotalBytes!
+  //                     : null,
+  //           ),
+  //         );
+  //       },
+  //       errorBuilder: (context, error, stackTrace) {
+  //         return ProfilePlaceHolderAvatar(isDark: isDark, size: size * 0.8);
+  //       },
+  //     );
+  //   } else {
+  //     // Handle regular network image
+  //     return CachedNetworkImage(
+  //       imageUrl: imageUrl,
+  //       fit: BoxFit.cover,
+  //       placeholder:
+  //           (context, url) =>
+  //               Center(child: CircularProgressIndicator(strokeWidth: 2)),
+  //       errorWidget: (context, url, error) {
+  //         return ProfilePlaceHolderAvatar(isDark: isDark, size: size * 0.8);
+  //       },
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -890,7 +1373,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   ) {
     return Column(
       children: [
-        profileAvatar(user, isDark, isMobile ? 80.0 : 100.0),
+        profileAvatar(user, isDark, isMobile ? 80.0 : 100.0, () {}),
         const SizedBox(height: 20),
 
         profileUserInfo(authProvider, user, textColor, isMobile, true, isDark),
@@ -913,7 +1396,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        profileAvatar(user, isDark, isTablet ? 100.0 : 120.0),
+        profileAvatar(user, isDark, isTablet ? 100.0 : 120.0, () {
+          dev.log("onTap = This is the profile Image");
+        }),
         const SizedBox(width: 24),
 
         Expanded(
@@ -967,36 +1452,44 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget profileAvatar(UserModel? user, bool isDark, double size) {
-    return Container(
-      width: size,
-      height: size,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
-          width: 1,
-        ),
-      ),
-      child: ClipOval(
-        child:
-            user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
-                ? CachedNetworkImage(
-                  imageUrl:
-                      user.avatarUrl ??
-                      "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) {
-                    return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
-                  },
-                  errorWidget: (context, url, error) {
-                    return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
-                  },
-                )
-                : ProfilePlaceHolderAvatar(isDark: isDark, size: 80),
-      ),
-    );
-  }
+  // Widget profileAvatar(
+  //   UserModel? user,
+  //   bool isDark,
+  //   double size,
+  //   void Function()? onTap,
+  // ) {
+  //   return InkWell(
+  //     onTap: onTap,
+  //     child: Container(
+  //       width: size,
+  //       height: size,
+  //       decoration: BoxDecoration(
+  //         shape: BoxShape.circle,
+  //         border: Border.all(
+  //           color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
+  //           width: 1,
+  //         ),
+  //       ),
+  //       child: ClipOval(
+  //         child:
+  //             user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
+  //                 ? CachedNetworkImage(
+  //                   imageUrl:
+  //                       user.avatarUrl ??
+  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+  //                   fit: BoxFit.cover,
+  //                   placeholder: (context, url) {
+  //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
+  //                   },
+  //                   errorWidget: (context, url, error) {
+  //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
+  //                   },
+  //                 )
+  //                 : ProfilePlaceHolderAvatar(isDark: isDark, size: 80),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget profileUserInfo(
     AuthProvider authProvider,
