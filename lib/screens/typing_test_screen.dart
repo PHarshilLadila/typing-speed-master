@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
 import 'package:typing_speed_master/utils/constants.dart';
+import 'package:typing_speed_master/widgets/animated_icon_background.dart';
 import 'package:typing_speed_master/widgets/custom_dropdown.dart';
 import 'package:typing_speed_master/widgets/grid_background.dart';
 import '../providers/typing_provider.dart';
@@ -344,31 +345,33 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   @override
   Widget build(BuildContext context) {
     return GridBackgroundPage(
-      child: KeyedSubtree(
-        key: ValueKey('typing_test_screen'),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final screenWidth = constraints.maxWidth;
-            final isSmallMobile = screenWidth < 599;
-            final isMobile = screenWidth < 600;
-            final isTablet = screenWidth >= 600 && screenWidth < 1200;
-            final isDesktop = screenWidth >= 1200;
+      child: ProfessionalAnimatedBackground(
+        child: KeyedSubtree(
+          key: ValueKey('typing_test_screen'),
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final screenWidth = constraints.maxWidth;
+              final isSmallMobile = screenWidth < 599;
+              final isMobile = screenWidth < 600;
+              final isTablet = screenWidth >= 600 && screenWidth < 1200;
+              final isDesktop = screenWidth >= 1200;
 
-            return isFullScreen
-                ? typingTestFullScreenContent(
-                  context,
-                  isMobile,
-                  isTablet,
-                  isDesktop,
-                )
-                : typingTestNormalContent(
-                  context,
-                  isMobile,
-                  isTablet,
-                  isDesktop,
-                  isSmallMobile,
-                );
-          },
+              return isFullScreen
+                  ? typingTestFullScreenContent(
+                    context,
+                    isMobile,
+                    isTablet,
+                    isDesktop,
+                  )
+                  : typingTestNormalContent(
+                    context,
+                    isMobile,
+                    isTablet,
+                    isDesktop,
+                    isSmallMobile,
+                  );
+            },
+          ),
         ),
       ),
     );

@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
@@ -58,24 +59,15 @@ class HistoryScreenState extends State<HistoryScreen> {
   @override
   void initState() {
     super.initState();
-    // Load once when screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<TypingProvider>(context, listen: false);
       provider.getAllRecentResults();
     });
   }
 
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   final provider = Provider.of<TypingProvider>(context, listen: false);
-  //   provider.getAllRecentResults();
-  // }
-
   void _onFilterChanged() {
     _filterDebounceTimer?.cancel();
     _filterDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-      // Clear cache to force recalculation
       _cachedFilteredResults = [];
       _lastFilterKey = '';
       if (mounted) {
@@ -92,7 +84,6 @@ class HistoryScreenState extends State<HistoryScreen> {
       return _cachedFilteredResults;
     }
 
-    // First apply filters
     List<TypingResult> filteredResults =
         results.where((result) {
           if (selectedFilterDifficulty != 'all' &&
@@ -569,23 +560,21 @@ class HistoryScreenState extends State<HistoryScreen> {
                                   await provider.deleteHistoryEntry(result);
                                   final isDarkMode = themeProvider.isDarkMode;
 
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      behavior: SnackBarBehavior.floating,
-                                      backgroundColor:
-                                          isDarkMode
-                                              ? Colors.grey[850]
-                                              : Colors.white,
-                                      content: Text(
-                                        'History Deleted successfully..!',
-                                        style: TextStyle(
-                                          color:
-                                              isDarkMode
-                                                  ? Colors.white
-                                                  : Colors.black,
-                                        ),
-                                      ),
-                                    ),
+                                  Fluttertoast.showToast(
+                                    msg: "History Deleted successfully..!",
+                                    toastLength: Toast.LENGTH_SHORT,
+                                    gravity: ToastGravity.BOTTOM,
+                                    timeInSecForIosWeb: 2,
+                                    textColor:
+                                        isDarkMode
+                                            ? Colors.white
+                                            : Colors.black,
+                                    fontSize: 14.0,
+                                    webPosition: "center",
+                                    webBgColor:
+                                        isDarkMode
+                                            ? "linear-gradient(to right, #000000, #000000)"
+                                            : "linear-gradient(to right, #FFFFFF, #FFFFFF)",
                                   );
                                 },
                               );

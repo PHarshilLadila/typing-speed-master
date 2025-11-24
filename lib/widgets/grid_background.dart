@@ -48,12 +48,10 @@ class GridPainter extends CustomPainter {
           ..color = lineColor.withOpacity(lineOpacity)
           ..strokeWidth = strokeWidth;
 
-    // vertical lines
     for (double x = 0; x <= size.width; x += cellSize) {
       canvas.drawLine(Offset(x, 0), Offset(x, size.height), paint);
     }
 
-    // horizontal lines
     for (double y = 0; y <= size.height; y += cellSize) {
       canvas.drawLine(Offset(0, y), Offset(size.width, y), paint);
     }

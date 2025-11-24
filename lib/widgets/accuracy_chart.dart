@@ -18,7 +18,7 @@ class AccuracyChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final backgroundColor = isDarkMode ? Colors.grey[800] : Colors.white;
+    final backgroundColor = isDarkMode ? Colors.grey.shade900 : Colors.white;
     final borderColor = isDarkMode ? Colors.grey[700]! : Colors.grey[200]!;
     final titleColor = isDarkMode ? Colors.white : Colors.grey[800];
     final textColor = isDarkMode ? Colors.grey[300] : Colors.grey[600];

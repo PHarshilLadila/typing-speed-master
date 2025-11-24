@@ -77,6 +77,9 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
             ),
             themeMode: themeProvider.themeMode,
             debugShowCheckedModeBanner: false,
+            scrollBehavior: const MaterialScrollBehavior().copyWith(
+              scrollbars: false,
+            ),
             home: const MainEntryPoint(),
           );
         },

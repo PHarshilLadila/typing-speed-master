@@ -51,6 +51,7 @@ dependencies:
   google_adsense: ^0.1.2
   meta_seo: ^3.0.9
   image_picker_web: ^4.0.0
+  fluttertoast: ^9.0.0
 
 
 dev_dependencies:
