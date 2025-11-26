@@ -70,7 +70,7 @@ class AppConstants {
     'Easy',
     'Medium',
     'Hard',
-    'Random',
+    // 'Random',
   ];
   static const int wordBasedTestWordCount = 150;
 

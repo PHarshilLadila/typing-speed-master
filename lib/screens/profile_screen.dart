@@ -911,7 +911,8 @@ class _ProfileScreenState extends State<ProfileScreen>
                 id: 'UserID',
                 email: 'example@gmail.com',
                 fullName: "Guest User",
-                avatarUrl: "https://avatar.iran.liara.run/public/42",
+                avatarUrl:
+                    "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
                 createdAt: DateTime.now().toUtc(),
                 updatedAt: DateTime.now().toUtc(),
                 totalTests: 0,
@@ -1490,7 +1491,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   //                 ? CachedNetworkImage(
   //                   imageUrl:
   //                       user.avatarUrl ??
-  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=profile",
+  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
   //                   fit: BoxFit.cover,
   //                   placeholder: (context, url) {
   //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
