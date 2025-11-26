@@ -91,6 +91,28 @@ class TypingProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // String getCurrentText() {
+  //   if (_currentTextPool.isEmpty) {
+  //     _initializeTextPool();
+  //   }
+
+  //   if (_currentTextIndex >= _currentTextPool.length) {
+  //     _currentTextIndex = 0;
+  //   }
+
+  //   String baseText = _currentTextPool[_currentTextIndex];
+
+  //   if (_selectedDuration.inSeconds == 0) {
+  //     return _generateWordBasedText(baseText);
+  //   }
+
+  //   return baseText;
+  // }
+
+  // typing_provider.dart માં આ ફંક્શન્સ અપડેટ કરો:
+
+  // ... existing code ...
+
   String getCurrentText() {
     if (_currentTextPool.isEmpty) {
       _initializeTextPool();
@@ -102,13 +124,16 @@ class TypingProvider with ChangeNotifier {
 
     String baseText = _currentTextPool[_currentTextIndex];
 
+    // Word-based test માટે
     if (_selectedDuration.inSeconds == 0) {
       return _generateWordBasedText(baseText);
     }
 
-    return baseText;
+    // Time-based test માટે - duration પ્રમાણે text extend કરો
+    return _generateTimeBasedText(baseText, _selectedDuration.inSeconds);
   }
 
+  /// Word-based test માટે exact word count generate કરે છે
   String _generateWordBasedText(String baseText) {
     List<String> words = baseText.split(' ');
     List<String> extendedText = [];
@@ -121,6 +146,56 @@ class TypingProvider with ChangeNotifier {
         extendedText.take(AppConstants.wordBasedTestWordCount).toList();
     return extendedText.join(' ');
   }
+
+  /// Time-based test માટે duration પ્રમાણે લાંબુ text generate કરે છે
+  String _generateTimeBasedText(String baseText, int durationSeconds) {
+    // Average typing speed: 40-60 WPM
+    // Conservative estimate: 40 WPM (0.67 words per second)
+    // Safety margin: 1.5x for comfortable typing
+    int estimatedWordsNeeded = ((durationSeconds * 0.67) * 1.5).ceil();
+
+    // Minimum words based on duration
+    int minWords = (durationSeconds / 2).ceil(); // Minimum 1 word per 2 seconds
+    estimatedWordsNeeded =
+        estimatedWordsNeeded < minWords ? minWords : estimatedWordsNeeded;
+
+    List<String> words = baseText.split(' ');
+
+    // જો base text પહેલેથી જ પૂરતું લાંબું છે
+    if (words.length >= estimatedWordsNeeded) {
+      return baseText;
+    }
+
+    // Text ને repeat કરીને પૂરતું લાંબુ બનાવો
+    List<String> extendedText = [];
+    int repetitions = (estimatedWordsNeeded / words.length).ceil() + 1;
+
+    for (int i = 0; i < repetitions; i++) {
+      extendedText.addAll(words);
+
+      // જો પૂરતા words થઈગયા હોય તો break
+      if (extendedText.length >= estimatedWordsNeeded) {
+        break;
+      }
+    }
+
+    // Exact needed words લો
+    extendedText = extendedText.take(estimatedWordsNeeded).toList();
+    return extendedText.join(' ');
+  }
+
+  // String _generateWordBasedText(String baseText) {
+  //   List<String> words = baseText.split(' ');
+  //   List<String> extendedText = [];
+
+  //   while (extendedText.length < AppConstants.wordBasedTestWordCount) {
+  //     extendedText.addAll(words);
+  //   }
+
+  //   extendedText =
+  //       extendedText.take(AppConstants.wordBasedTestWordCount).toList();
+  //   return extendedText.join(' ');
+  // }
 
   void moveToNextText() {
     _currentTextIndex = (_currentTextIndex + 1) % _currentTextPool.length;

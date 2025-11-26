@@ -55,12 +55,12 @@ class _ProfessionalAnimatedBackgroundState
         color: Colors.greenAccent,
         position: const Alignment(-0.35, 0.85),
       ),
-      AnimatedIconData(
-        icon: Icons.star,
-        size: 52,
-        color: Colors.cyanAccent,
-        position: const Alignment(0.15, 0.15),
-      ),
+      // AnimatedIconData(
+      //   icon: Icons.star,
+      //   size: 52,
+      //   color: Colors.cyanAccent,
+      //   position: const Alignment(0.15, 0.15),
+      // ),
     ]);
   }
 

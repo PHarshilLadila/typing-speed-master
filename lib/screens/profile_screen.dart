@@ -36,6 +36,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   Map<DateTime, int> _activityData = {};
   List<MonthLabel> _monthLabels = [];
   String? _profileImageUrl;
+  List<int> _availableYears = [];
 
   @override
   void initState() {
@@ -108,6 +109,17 @@ class _ProfileScreenState extends State<ProfileScreen>
         await activityProvider.fetchActivityData(
           authProvider.user!.id,
           _currentHeatmapYear,
+        );
+
+        // Calculate available years based on user's account creation
+        final userCreatedYear =
+            authProvider.user!.createdAt?.year ?? DateTime.now().year;
+        final currentYear = DateTime.now().year;
+
+        // Generate list of years from user creation to current year
+        _availableYears = List.generate(
+          currentYear - userCreatedYear + 1,
+          (index) => userCreatedYear + index,
         );
 
         if (mounted) {
@@ -383,8 +395,10 @@ class _ProfileScreenState extends State<ProfileScreen>
   }
 
   void _changeHeatmapYear(int year) {
-    _currentHeatmapYear = year;
-    _generateHeatmapData();
+    if (_availableYears.contains(year)) {
+      _currentHeatmapYear = year;
+      _generateHeatmapData();
+    }
   }
 
   Future<void> _updateProfilePicture() async {
@@ -2010,7 +2024,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                             size: isMobile ? 18 : 20,
                           ),
                           onPressed:
-                              () => _changeHeatmapYear(_currentHeatmapYear - 1),
+                              () =>
+                                  _availableYears.contains(
+                                        _currentHeatmapYear - 1,
+                                      )
+                                      ? () => _changeHeatmapYear(
+                                        _currentHeatmapYear - 1,
+                                      )
+                                      : null,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(minWidth: 36),
                         ),
@@ -2038,7 +2059,14 @@ class _ProfileScreenState extends State<ProfileScreen>
                             size: isMobile ? 18 : 20,
                           ),
                           onPressed:
-                              () => _changeHeatmapYear(_currentHeatmapYear + 1),
+                              () =>
+                                  _availableYears.contains(
+                                        _currentHeatmapYear + 1,
+                                      )
+                                      ? () => _changeHeatmapYear(
+                                        _currentHeatmapYear + 1,
+                                      )
+                                      : null,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(minWidth: 36),
                         ),

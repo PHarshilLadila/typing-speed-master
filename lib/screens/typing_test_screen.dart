@@ -195,6 +195,49 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     return provider.getCurrentText();
   }
 
+  // void onTextChanged(String value) {
+  //   if (isProcessingInput) return;
+
+  //   isProcessingInput = true;
+
+  //   try {
+  //     if (!testStarted && value.trim().isNotEmpty) {
+  //       userInput = value;
+  //       startTest();
+  //       isProcessingInput = false;
+  //       return;
+  //     }
+
+  //     if (value != userInput) {
+  //       final words = value.split(' ').where((word) => word.isNotEmpty).length;
+
+  //       if (words != wordsTyped || value.length != lastProcessedLength) {
+  //         setState(() {
+  //           userInput = value;
+  //           wordsTyped = words;
+  //           lastProcessedLength = value.length;
+  //         });
+  //       } else {
+  //         userInput = value;
+  //       }
+
+  //       final sampleText = getTargetText();
+
+  //       if (isWordBasedTest) {
+  //         if (words >= AppConstants.wordBasedTestWordCount) {
+  //           completeTest();
+  //         }
+  //       } else {
+  //         if (value.length >= sampleText.length) {
+  //           completeTest();
+  //         }
+  //       }
+  //     }
+  //   } finally {
+  //     isProcessingInput = false;
+  //   }
+  // }
+
   void onTextChanged(String value) {
     if (isProcessingInput) return;
 
@@ -224,10 +267,15 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         final sampleText = getTargetText();
 
         if (isWordBasedTest) {
-          if (words >= AppConstants.wordBasedTestWordCount) {
+          // ✅ નવી લોજિક: ફક્ત ત્યારે જ ટેસ્ટ ફિનિશ કરો જ્યારે:
+          // - વર્ડ કાઉન્ટ પૂરો થાય અને
+          // - વપરાશકર્તાએ છેલ્લું વર્ડ પૂર્ણ કર્યું હોય (space ઉમેર્યો હોય)
+          if (words >= AppConstants.wordBasedTestWordCount &&
+              value.endsWith(' ')) {
             completeTest();
           }
         } else {
+          // ટાઈમ-બેઝ્ડ ટેસ્ટ માટે મૂળ લોજિક
           if (value.length >= sampleText.length) {
             completeTest();
           }

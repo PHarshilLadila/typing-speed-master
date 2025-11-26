@@ -1,8 +1,8 @@
+// ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
+
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'dart:html' as html;
@@ -470,7 +470,7 @@ class _ProfilePictureDialog extends StatefulWidget {
 
 class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
   String? _selectedImageDataUrl;
-  bool _isLoading = false;
+  bool isLoading = false;
 
   Future<void> _pickImageFromGallery() async {
     final html.FileUploadInputElement input = html.FileUploadInputElement();
@@ -677,7 +677,7 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed:
-                            _isLoading
+                            isLoading
                                 ? null
                                 : () {
                                   Navigator.of(
@@ -690,7 +690,7 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
                           padding: const EdgeInsets.symmetric(vertical: 12),
                         ),
                         child:
-                            _isLoading
+                            isLoading
                                 ? SizedBox(
                                   height: 20,
                                   width: 20,
