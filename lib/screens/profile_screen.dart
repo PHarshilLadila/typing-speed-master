@@ -1490,7 +1490,7 @@ class _ProfileScreenState extends State<ProfileScreen>
   //                 ? CachedNetworkImage(
   //                   imageUrl:
   //                       user.avatarUrl ??
-  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
+  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=profile",
   //                   fit: BoxFit.cover,
   //                   placeholder: (context, url) {
   //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);

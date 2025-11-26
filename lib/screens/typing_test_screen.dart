@@ -40,6 +40,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   bool isFullScreen = false;
 
+  Timer? countdownTimer;
   Timer? typingSampleTimer;
   int lastSampleCharCount = 0;
 
@@ -71,6 +72,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   void dispose() {
     textController.dispose();
     textFocusNode.dispose();
+    countdownTimer?.cancel();
     typingSampleTimer?.cancel();
     super.dispose();
   }
@@ -93,11 +95,12 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     startTypingSampleTimer();
 
     if (!isWordBasedTest) {
-      startTimer();
+      startCountdownTimer();
     }
   }
 
   void startTypingSampleTimer() {
+    typingSampleTimer?.cancel();
     typingSampleTimer = Timer.periodic(Duration(seconds: 2), (timer) {
       if (!testStarted || testCompleted || !mounted) {
         timer.cancel();
@@ -113,6 +116,53 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       }
     });
   }
+
+  void startCountdownTimer() {
+    countdownTimer?.cancel();
+
+    // Use periodic timer with 100ms intervals for smooth updates
+    countdownTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
+      if (!testStarted || testCompleted || !mounted || startTime == null) {
+        timer.cancel();
+        return;
+      }
+
+      // Calculate elapsed time from start
+      final elapsed = DateTime.now().difference(startTime!);
+      final remaining = testDuration - elapsed;
+
+      if (remaining.inMilliseconds <= 0) {
+        // Time's up - complete the test
+        timer.cancel();
+        setState(() {
+          remainingTime = Duration.zero;
+        });
+        completeTest();
+      } else {
+        // Update remaining time
+        setState(() {
+          remainingTime = remaining;
+        });
+      }
+    });
+  }
+
+  // void startTypingSampleTimer() {
+  //   typingSampleTimer = Timer.periodic(Duration(seconds: 2), (timer) {
+  //     if (!testStarted || testCompleted || !mounted) {
+  //       timer.cancel();
+  //       return;
+  //     }
+
+  //     final provider = Provider.of<TypingProvider>(context, listen: false);
+  //     final currentCharCount = userInput.length;
+
+  //     if (currentCharCount > lastSampleCharCount) {
+  //       provider.recordTypingSpeedSample(currentCharCount, DateTime.now());
+  //       lastSampleCharCount = currentCharCount;
+  //     }
+  //   });
+  // }
 
   void startTimer() {
     Future.delayed(const Duration(seconds: 1), () {
@@ -130,15 +180,80 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
+  // void completeTest() {
+  //   if (startTime == null || !mounted) return;
+
+  //   typingSampleTimer?.cancel();
+
+  //   final endTime = DateTime.now();
+  //   final duration = endTime.difference(startTime!);
+  //   final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
+
+  //   final wpm = (words / (duration.inSeconds / 60)).round();
+
+  //   final provider = Provider.of<TypingProvider>(context, listen: false);
+  //   final originalText = provider.currentOriginalText;
+
+  //   final incorrectCharPositions = provider.calculateIncorrectCharPositions(
+  //     userInput,
+  //     originalText,
+  //   );
+
+  //   int correctChars = userInput.length - incorrectCharPositions.length;
+  //   int incorrectChars = incorrectCharPositions.length;
+  //   int totalChars = userInput.length;
+
+  //   final accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0.0;
+  //   final consistency = provider.calculateConsistency();
+
+  //   final result = TypingResult(
+  //     wpm: wpm,
+  //     accuracy: accuracy,
+  //     consistency: consistency,
+  //     correctChars: correctChars,
+  //     incorrectChars: incorrectChars,
+  //     totalChars: totalChars,
+  //     duration: duration,
+  //     timestamp: DateTime.now(),
+  //     difficulty: provider.selectedDifficulty,
+  //     isWordBasedTest: isWordBasedTest,
+  //     targetWords: isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
+  //     incorrectCharPositions: incorrectCharPositions,
+  //     originalText: originalText,
+  //     userInput: userInput,
+  //   );
+
+  //   setState(() {
+  //     testCompleted = true;
+  //     testStarted = false;
+  //   });
+
+  //   dev.log(
+  //     'Saving typing result - WPM: $wpm, Accuracy: $accuracy, Errors: $incorrectChars',
+  //   );
+
+  //   provider.saveResult(result);
+
+  //   final resultsProvider = TypingTestResultsProvider.of(context);
+  //   if (resultsProvider != null) {
+  //     resultsProvider.showResults(result);
+  //   }
+  // }
+
   void completeTest() {
     if (startTime == null || !mounted) return;
 
     typingSampleTimer?.cancel();
+    countdownTimer?.cancel();
 
     final endTime = DateTime.now();
-    final duration = endTime.difference(startTime!);
-    final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
+    final actualDuration = endTime.difference(startTime!);
 
+    // For time-based tests, use the selected duration
+    // For word-based tests, use the actual duration
+    final duration = isWordBasedTest ? actualDuration : testDuration;
+
+    final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
     final wpm = (words / (duration.inSeconds / 60)).round();
 
     final provider = Provider.of<TypingProvider>(context, listen: false);
@@ -179,7 +294,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
 
     dev.log(
-      'Saving typing result - WPM: $wpm, Accuracy: $accuracy, Errors: $incorrectChars',
+      'Test completed - Duration: ${duration.inSeconds}s, WPM: $wpm, Accuracy: ${accuracy.toStringAsFixed(1)}%',
     );
 
     provider.saveResult(result);
@@ -194,7 +309,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final provider = Provider.of<TypingProvider>(context, listen: false);
     return provider.getCurrentText();
   }
-
   // void onTextChanged(String value) {
   //   if (isProcessingInput) return;
 
@@ -267,15 +381,13 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         final sampleText = getTargetText();
 
         if (isWordBasedTest) {
-          // ✅ નવી લોજિક: ફક્ત ત્યારે જ ટેસ્ટ ફિનિશ કરો જ્યારે:
-          // - વર્ડ કાઉન્ટ પૂરો થાય અને
-          // - વપરાશકર્તાએ છેલ્લું વર્ડ પૂર્ણ કર્યું હોય (space ઉમેર્યો હોય)
+          // Word-based test completion logic
           if (words >= AppConstants.wordBasedTestWordCount &&
               value.endsWith(' ')) {
             completeTest();
           }
         } else {
-          // ટાઈમ-બેઝ્ડ ટેસ્ટ માટે મૂળ લોજિક
+          // Time-based test - check if user typed more than available text
           if (value.length >= sampleText.length) {
             completeTest();
           }
@@ -288,6 +400,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   void resetTest() {
     typingSampleTimer?.cancel();
+    countdownTimer?.cancel();
 
     setState(() {
       testStarted = false;
@@ -296,6 +409,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       wordsTyped = 0;
       lastProcessedLength = 0;
       remainingTime = testDuration;
+      startTime = null;
     });
 
     textController.clear();
@@ -340,6 +454,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     }
 
     if (remainingTime.inSeconds <= 10) return Colors.red;
+    if (remainingTime.inSeconds <= 30) return Colors.orange;
     return Colors.blue;
   }
 

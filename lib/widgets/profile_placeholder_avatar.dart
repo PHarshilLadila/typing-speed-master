@@ -126,7 +126,8 @@ class ProfilePlaceHolderAvatar extends StatelessWidget {
   }
 
   Widget profileImageDiceBearAvatar() {
-    final diceBearUrl = "https://api.dicebear.com/7.x/avataaars/svg?seed=John";
+    final diceBearUrl =
+        "https://api.dicebear.com/7.x/avataaars/svg?seed=marrieage";
 
     return ClipPath(
       clipper:
