@@ -132,4 +132,22 @@ class ActivityProvider with ChangeNotifier {
     _activityData.clear();
     notifyListeners();
   }
+
+  Future<void> forceRefreshActivity(String userId, int year) async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      _activityData.clear();
+
+      await fetchActivityData(userId, year);
+
+      dev.log('🔄 Activity data forcefully refreshed for $year');
+    } catch (e) {
+      dev.log('❌ Error in forceRefreshActivity: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
 }

@@ -512,18 +512,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: titleColor,
               ),
             ),
-            const Spacer(),
-            if (provider.results.isNotEmpty)
-              TextButton(
-                onPressed: provider.clearHistory,
-                child: Text(
-                  'Clear History',
-                  style: TextStyle(
-                    color:
-                        themeProvider.isDarkMode ? Colors.red[300] : Colors.red,
-                  ),
-                ),
-              ),
+            // const Spacer(),
+            // if (provider.results.isNotEmpty)
+            //   TextButton(
+            //     onPressed: provider.clearHistory,
+            //     child: Text(
+            //       'Clear History',
+            //       style: TextStyle(
+            //         color:
+            //             themeProvider.isDarkMode ? Colors.red[300] : Colors.red,
+            //       ),
+            //     ),
+            //   ),
           ],
         ),
         const SizedBox(height: 16),

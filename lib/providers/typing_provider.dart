@@ -71,7 +71,6 @@ class TypingProvider with ChangeNotifier {
     }
 
     _currentTextIndex = 0;
-    // _currentOriginalText = getCurrentText();
     dev.log(
       'Initialized text pool for $_selectedDifficulty with ${_currentTextPool.length} texts',
     );
@@ -103,19 +102,15 @@ class TypingProvider with ChangeNotifier {
     String baseText = _currentTextPool[_currentTextIndex];
     String generatedText;
 
-    // Word-based test માટે
     if (_selectedDuration.inSeconds == 0) {
       generatedText = _generateWordBasedText(baseText);
     } else {
-      // Time-based test માટે - duration પ્રમાણે text extend કરો
       generatedText = _generateTimeBasedText(
         baseText,
         _selectedDuration.inSeconds,
       );
     }
 
-    // ✅ CRITICAL FIX: Generated text ને _currentOriginalText માં save કરો
-    // આથી comparison સમયે સાચો text use થશે
     _currentOriginalText = generatedText;
 
     return generatedText;
@@ -135,44 +130,35 @@ class TypingProvider with ChangeNotifier {
   }
 
   String _generateTimeBasedText(String baseText, int durationSeconds) {
-    // Average typing speed: 40 WPM
-    // Conservative estimate: 40 WPM (0.67 words per second)
-    // Safety margin: 1.5x for comfortable typing
     int estimatedWordsNeeded = ((durationSeconds * 0.67) * 1.5).ceil();
 
-    // Minimum words based on duration (1 word per 2 seconds)
     int minWords = (durationSeconds / 2).ceil();
     estimatedWordsNeeded =
         estimatedWordsNeeded < minWords ? minWords : estimatedWordsNeeded;
 
     List<String> words = baseText.split(' ');
 
-    // જો base text પહેલેથી જ પૂરતું લાંબું છે
     if (words.length >= estimatedWordsNeeded) {
       return baseText;
     }
 
-    // Text ને repeat કરીને પૂરતું લાંબુ બનાવો
     List<String> extendedText = [];
     int repetitions = (estimatedWordsNeeded / words.length).ceil() + 1;
 
     for (int i = 0; i < repetitions; i++) {
       extendedText.addAll(words);
 
-      // જો પૂરતા words થઈગયા હોય તો break
       if (extendedText.length >= estimatedWordsNeeded) {
         break;
       }
     }
 
-    // Exact needed words લો
     extendedText = extendedText.take(estimatedWordsNeeded).toList();
     return extendedText.join(' ');
   }
 
   void moveToNextText() {
     _currentTextIndex = (_currentTextIndex + 1) % _currentTextPool.length;
-    // getCurrentText() automatically updates _currentOriginalText
     getCurrentText();
     dev.log(
       'Moved to next text. Index: $_currentTextIndex, Difficulty: $_selectedDifficulty',
@@ -183,7 +169,6 @@ class TypingProvider with ChangeNotifier {
   void getRandomText() {
     if (_currentTextPool.isNotEmpty) {
       _currentTextIndex = random.nextInt(_currentTextPool.length);
-      // getCurrentText() automatically updates _currentOriginalText
       getCurrentText();
       dev.log(
         'Selected random text. Index: $_currentTextIndex, Difficulty: $_selectedDifficulty',
@@ -480,6 +465,8 @@ class TypingProvider with ChangeNotifier {
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
         return Provider.of<ActivityProvider>(context, listen: false);
+      } else {
+        dev.log('Context is null or not mounted for ActivityProvider');
       }
     } catch (e) {
       dev.log('Error getting activity provider: $e');
@@ -487,12 +474,66 @@ class TypingProvider with ChangeNotifier {
     return null;
   }
 
+  // Future<void> deleteHistoryEntry(TypingResult result) async {
+  //   try {
+  //     _results.remove(result);
+  //     await _saveAllResultsToLocal();
+
+  //     notifyListeners();
+
+  //     if (_isUserLoggedIn) {
+  //       final user = _supabase.auth.currentUser;
+
+  //       if (user != null && result.id != null) {
+  //         dev.log(
+  //           'Attempting to delete from Supabase - User: ${user.id}, Result ID: ${result.id}',
+  //         );
+
+  //         final response =
+  //             await _supabase
+  //                 .from('typing_results')
+  //                 .delete()
+  //                 .eq('id', result.id!)
+  //                 .eq('user_id', user.id)
+  //                 .select();
+
+  //         dev.log('Supabase delete response: $response');
+
+  //         if (response.isNotEmpty) {
+  //           dev.log(
+  //             'Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
+  //           );
+  //         } else if (response.isEmpty) {
+  //           dev.log('No record found to delete');
+  //         } else {
+  //           dev.log('Unexpected null response from Supabase delete');
+  //         }
+  //       } else {
+  //         dev.log(
+  //           'Cannot delete from Supabase: ${result.id == null ? 'Result ID is null' : 'User not logged in'}',
+  //         );
+  //       }
+  //     }
+  //   } catch (e) {
+  //     dev.log("Error deleting history entry: $e");
+
+  //     _results.add(result);
+  //     await _saveAllResultsToLocal();
+  //     notifyListeners();
+
+  //     dev.log('Failed to delete: ${e.toString()}');
+  //   }
+  // }
+
   Future<void> deleteHistoryEntry(TypingResult result) async {
     try {
+      final deletedResult = result;
+
       _results.remove(result);
-      await _saveAllResultsToLocal();
 
       notifyListeners();
+
+      await _saveAllResultsToLocal();
 
       if (_isUserLoggedIn) {
         final user = _supabase.auth.currentUser;
@@ -516,6 +557,12 @@ class TypingProvider with ChangeNotifier {
             dev.log(
               'Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
             );
+
+            await _updateUserStatsAfterDeletion(deletedResult);
+            await _updateActivityLogsAfterDeletion(
+              user.id,
+              deletedResult.timestamp,
+            );
           } else if (response.isEmpty) {
             dev.log('No record found to delete');
           } else {
@@ -535,6 +582,241 @@ class TypingProvider with ChangeNotifier {
       notifyListeners();
 
       dev.log('Failed to delete: ${e.toString()}');
+    }
+  }
+
+  Future<void> _updateUserStatsAfterDeletion(TypingResult deletedResult) async {
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user == null) {
+        dev.log('No user found for stats update after deletion');
+        return;
+      }
+
+      dev.log('🔄 Updating user stats after deletion for user: ${user.id}');
+
+      final response =
+          await _supabase.from('profiles').select().eq('id', user.id).single();
+
+      final currentProfile = response;
+      dev.log('✅ Current profile fetched for stats update');
+
+      final previousTotalTests = currentProfile['total_tests'] ?? 1;
+      final previousTotalWords = currentProfile['total_words'] ?? 0;
+      final previousAverageWpm =
+          (currentProfile['average_wpm'] ?? 0).toDouble();
+      final previousAverageAccuracy =
+          (currentProfile['average_accuracy'] ?? 0).toDouble();
+
+      final newTotalTests = max(0, previousTotalTests - 1);
+
+      final wordsFromDeletedTest = deletedResult.wpm;
+      final newTotalWords = max(0, previousTotalWords - wordsFromDeletedTest);
+
+      double newAverageWpm = 0.0;
+      double newAverageAccuracy = 0.0;
+
+      if (newTotalTests > 0) {
+        final totalWpmBeforeDeletion = previousAverageWpm * previousTotalTests;
+        newAverageWpm =
+            (totalWpmBeforeDeletion - deletedResult.wpm) / newTotalTests;
+
+        final totalAccuracyBeforeDeletion =
+            previousAverageAccuracy * previousTotalTests;
+        newAverageAccuracy =
+            (totalAccuracyBeforeDeletion - deletedResult.accuracy) /
+            newTotalTests;
+      }
+
+      newAverageWpm = max(0.0, newAverageWpm);
+      newAverageAccuracy = max(0.0, newAverageAccuracy);
+
+      dev.log('🧮 Stats after deletion:');
+      dev.log('   - Tests: $previousTotalTests → $newTotalTests');
+      dev.log('   - Total Words: $previousTotalWords → $newTotalWords');
+      dev.log(
+        '   - WPM: ${previousAverageWpm.toStringAsFixed(1)} → ${newAverageWpm.toStringAsFixed(1)}',
+      );
+      dev.log(
+        '   - Accuracy: ${previousAverageAccuracy.toStringAsFixed(1)} → ${newAverageAccuracy.toStringAsFixed(1)}',
+      );
+
+      final updates = {
+        'total_tests': newTotalTests,
+        'total_words': newTotalWords,
+        'average_wpm': newAverageWpm,
+        'average_accuracy': newAverageAccuracy,
+        'updated_at': DateTime.now().toIso8601String(),
+      };
+
+      dev.log('💾 Updating profile after deletion: $updates');
+
+      final updateResponse =
+          await _supabase
+              .from('profiles')
+              .update(updates)
+              .eq('id', user.id)
+              .select();
+
+      dev.log(
+        '✅ Profile update after deletion response: ${updateResponse.isNotEmpty ? "SUCCESS" : "EMPTY"}',
+      );
+
+      if (updateResponse.isNotEmpty) {
+        dev.log('🎉 User stats updated successfully after deletion!');
+
+        await _forceImmediateProfileRefresh(user.id);
+      }
+    } catch (e) {
+      dev.log('💥 Error updating user stats after deletion: $e');
+      if (e is PostgrestException) {
+        dev.log('💥 Postgrest error: ${e.message}');
+      }
+    }
+  }
+
+  Future<void> _forceImmediateProfileRefresh(String userId) async {
+    try {
+      final authProvider = _getAuthProvider();
+      if (authProvider != null) {
+        await authProvider.fetchUserProfile(userId);
+        dev.log('🔄 Forced immediate profile refresh in AuthProvider');
+      } else {
+        dev.log('❌ AuthProvider not available for immediate refresh');
+      }
+    } catch (e) {
+      dev.log('💥 Error forcing profile refresh: $e');
+    }
+  }
+
+  Future<void> _updateActivityLogsAfterDeletion(
+    String userId,
+    DateTime testTimestamp,
+  ) async {
+    try {
+      dev.log('🔄 Updating activity logs after deletion for user: $userId');
+
+      final testDate = DateTime(
+        testTimestamp.year,
+        testTimestamp.month,
+        testTimestamp.day,
+      );
+      final dateString = testDate.toIso8601String().split('T')[0];
+
+      dev.log('📅 Checking activity log for date: $dateString');
+
+      final existingActivity =
+          await _supabase
+              .from('activity_logs')
+              .select()
+              .eq('user_id', userId)
+              .eq('activity_date', dateString)
+              .maybeSingle();
+
+      if (existingActivity != null) {
+        final currentTestCount = existingActivity['test_count'] as int;
+        dev.log('📊 Current test count for $dateString: $currentTestCount');
+
+        if (currentTestCount > 1) {
+          final newTestCount = currentTestCount - 1;
+
+          await _supabase
+              .from('activity_logs')
+              .update({
+                'test_count': newTestCount,
+                'updated_at': DateTime.now().toIso8601String(),
+              })
+              .eq('user_id', userId)
+              .eq('activity_date', dateString);
+
+          dev.log(
+            '✅ Updated activity log: $currentTestCount → $newTestCount tests on $dateString',
+          );
+        } else {
+          await _supabase
+              .from('activity_logs')
+              .delete()
+              .eq('user_id', userId)
+              .eq('activity_date', dateString);
+
+          dev.log(
+            '🗑️ Deleted activity log entry for $dateString (no more tests)',
+          );
+        }
+
+        await _forceRefreshActivityProvider(userId, testDate.year);
+      } else {
+        dev.log('ℹ️ No activity log found for date: $dateString');
+
+        await _recalculateActivityForDate(userId, testDate);
+      }
+    } catch (e) {
+      dev.log('💥 Error updating activity logs after deletion: $e');
+      if (e is PostgrestException) {
+        dev.log('💥 Postgrest error: ${e.message}');
+      }
+    }
+  }
+
+  Future<void> _forceRefreshActivityProvider(String userId, int year) async {
+    try {
+      final activityProvider = _getActivityProvider();
+      if (activityProvider != null) {
+        activityProvider.clearData();
+
+        await activityProvider.fetchActivityData(userId, year);
+
+        dev.log('🔄 Activity provider forcefully refreshed for year: $year');
+      } else {
+        dev.log('❌ ActivityProvider not available for force refresh');
+
+        final tempActivityProvider = ActivityProvider();
+        await tempActivityProvider.fetchActivityData(userId, year);
+      }
+    } catch (e) {
+      dev.log('💥 Error forcing activity provider refresh: $e');
+    }
+  }
+
+  Future<void> _recalculateActivityForDate(String userId, DateTime date) async {
+    try {
+      final dateString = date.toIso8601String().split('T')[0];
+
+      final response =
+          await _supabase
+              .from('typing_results')
+              .select()
+              .eq('user_id', userId)
+              .gte('timestamp', '${dateString}T00:00:00.000Z')
+              .lte('timestamp', '${dateString}T23:59:59.999Z')
+              .count();
+
+      final remainingTests = response.count;
+
+      dev.log('🔍 Recalculated tests for $dateString: $remainingTests');
+
+      if (remainingTests > 0) {
+        await _supabase.from('activity_logs').upsert({
+          'user_id': userId,
+          'activity_date': dateString,
+          'test_count': remainingTests,
+          'updated_at': DateTime.now().toIso8601String(),
+        }).select();
+
+        dev.log(
+          '✅ Recreated activity log for $dateString with $remainingTests tests',
+        );
+      } else {
+        await _supabase
+            .from('activity_logs')
+            .delete()
+            .eq('user_id', userId)
+            .eq('activity_date', dateString);
+
+        dev.log('🗑️ Deleted activity log for $dateString (no tests remain)');
+      }
+    } catch (e) {
+      dev.log('💥 Error recalculating activity for date: $e');
     }
   }
 
@@ -753,7 +1035,6 @@ class TypingProvider with ChangeNotifier {
   void resetCurrentTest() {
     _currentUserInput = '';
     resetConsistencyTracking();
-    // getCurrentText() automatically updates _currentOriginalText
     getCurrentText();
     notifyListeners();
   }

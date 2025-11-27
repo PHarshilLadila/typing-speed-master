@@ -15,6 +15,7 @@ import 'package:typing_speed_master/models/test_text.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/providers/activity_provider.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/providers/typing_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
 import 'package:typing_speed_master/widgets/stats_card.dart';
@@ -25,25 +26,25 @@ class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen>
+class ProfileScreenState extends State<ProfileScreen>
     with WidgetsBindingObserver {
-  bool _isFirstLoad = true;
-  List<List<DateTime?>> _heatmapWeeks = [];
-  int _currentHeatmapYear = DateTime.now().year;
-  Map<DateTime, int> _activityData = {};
-  List<MonthLabel> _monthLabels = [];
-  String? _profileImageUrl;
-  List<int> _availableYears = [];
+  bool isFirstLoad = true;
+  List<List<DateTime?>> heatmapWeeks = [];
+  int currentHeatmapYear = DateTime.now().year;
+  Map<DateTime, int> activityData = {};
+  List<MonthLabel> monthLabels = [];
+  String? profileImageUrl;
+  List<int> availableYears = [];
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _loadProfileData();
-    _generateHeatmapData();
+    loadProfileData();
+    generateHeatmapData();
   }
 
   @override
@@ -60,7 +61,7 @@ class _ProfileScreenState extends State<ProfileScreen>
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
       if (authProvider.isLoggedIn && authProvider.user != null) {
-        _generateHeatmapData();
+        generateHeatmapData();
       }
     });
   }
@@ -68,26 +69,26 @@ class _ProfileScreenState extends State<ProfileScreen>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _refreshProfileData();
+      refreshProfileData();
     }
   }
 
-  Future<void> _loadProfileData() async {
+  Future<void> loadProfileData() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isLoggedIn && authProvider.user != null) {
       await authProvider.fetchUserProfile(authProvider.user!.id);
     }
-    _isFirstLoad = false;
+    isFirstLoad = false;
   }
 
-  Future<void> _refreshProfileData() async {
+  Future<void> refreshProfileData() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isLoggedIn && authProvider.user != null) {
       await authProvider.fetchUserProfile(authProvider.user!.id);
     }
   }
 
-  void _generateHeatmapData() async {
+  void generateHeatmapData() async {
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
@@ -101,38 +102,40 @@ class _ProfileScreenState extends State<ProfileScreen>
 
       if (mounted) {
         setState(() {
-          _activityData = {};
+          activityData = {};
         });
       }
 
       try {
         await activityProvider.fetchActivityData(
           authProvider.user!.id,
-          _currentHeatmapYear,
+          currentHeatmapYear,
+        );
+        await activityProvider.forceRefreshActivity(
+          authProvider.user!.id,
+          currentHeatmapYear,
         );
 
-        // Calculate available years based on user's account creation
         final userCreatedYear =
             authProvider.user!.createdAt?.year ?? DateTime.now().year;
         final currentYear = DateTime.now().year;
 
-        // Generate list of years from user creation to current year
-        _availableYears = List.generate(
+        availableYears = List.generate(
           currentYear - userCreatedYear + 1,
           (index) => userCreatedYear + index,
         );
 
         if (mounted) {
           setState(() {
-            _activityData = Map.from(activityProvider.activityData);
-            _generateHeatmapWeeks();
-            _calculateMonthLabels();
+            activityData = Map.from(activityProvider.activityData);
+            generateHeatmapWeeks();
+            calculateMonthLabels();
           });
 
-          dev.log('✅ Heatmap data generated: ${_activityData.length} days');
-          if (_activityData.isNotEmpty) {
+          dev.log('✅ Heatmap data generated: ${activityData.length} days');
+          if (activityData.isNotEmpty) {
             dev.log(
-              '📊 Sample activity: ${_activityData.entries.take(3).map((e) => '${e.key}: ${e.value}').join(', ')}',
+              '📊 Sample activity: ${activityData.entries.take(3).map((e) => '${e.key}: ${e.value}').join(', ')}',
             );
           }
         }
@@ -140,27 +143,27 @@ class _ProfileScreenState extends State<ProfileScreen>
         dev.log('❌ Error generating heatmap data: $e');
         if (mounted) {
           setState(() {
-            _activityData = {};
-            _generateHeatmapWeeks();
-            _calculateMonthLabels();
+            activityData = {};
+            generateHeatmapWeeks();
+            calculateMonthLabels();
           });
         }
       }
     } else {
       if (mounted) {
         setState(() {
-          _activityData = {};
-          _generateHeatmapWeeks();
-          _calculateMonthLabels();
+          activityData = {};
+          generateHeatmapWeeks();
+          calculateMonthLabels();
         });
       }
     }
   }
 
-  void _generateHeatmapWeeks() {
-    _heatmapWeeks = [];
+  void generateHeatmapWeeks() {
+    heatmapWeeks = [];
 
-    DateTime currentDate = DateTime(_currentHeatmapYear, 1, 1);
+    DateTime currentDate = DateTime(currentHeatmapYear, 1, 1);
 
     while (currentDate.weekday != DateTime.monday) {
       currentDate = currentDate.subtract(const Duration(days: 1));
@@ -174,21 +177,21 @@ class _ProfileScreenState extends State<ProfileScreen>
         weekDays.add(date);
       }
 
-      _heatmapWeeks.add(weekDays);
+      heatmapWeeks.add(weekDays);
     }
   }
 
-  void _calculateMonthLabels() {
-    _monthLabels = [];
+  void calculateMonthLabels() {
+    monthLabels = [];
 
     Map<int, List<int>> monthWeeks = {};
 
-    for (int weekIndex = 0; weekIndex < _heatmapWeeks.length; weekIndex++) {
-      final week = _heatmapWeeks[weekIndex];
+    for (int weekIndex = 0; weekIndex < heatmapWeeks.length; weekIndex++) {
+      final week = heatmapWeeks[weekIndex];
 
       final monthCount = <int, int>{};
       for (final date in week) {
-        if (date != null && date.year == _currentHeatmapYear) {
+        if (date != null && date.year == currentHeatmapYear) {
           monthCount[date.month] = (monthCount[date.month] ?? 0) + 1;
         }
       }
@@ -210,13 +213,13 @@ class _ProfileScreenState extends State<ProfileScreen>
       if (weeks.isNotEmpty) {
         final startWeek = weeks.first;
         final weekCount = weeks.length;
-        final monthName = _getMonthAbbreviation(month);
-        _monthLabels.add(MonthLabel(monthName, startWeek, weekCount));
+        final monthName = getMonthAbbreviation(month);
+        monthLabels.add(MonthLabel(monthName, startWeek, weekCount));
       }
     }
   }
 
-  String _getMonthAbbreviation(int month) {
+  String getMonthAbbreviation(int month) {
     const months = [
       'Jan',
       'Feb',
@@ -234,7 +237,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return months[month - 1];
   }
 
-  Widget _buildCustomHeatmap(bool isDark, bool isMobile, bool isTablet) {
+  Widget customHeatmap(bool isDark, bool isMobile, bool isTablet) {
     final double squareSize = isMobile ? 10 : 12;
     final double spacing = isMobile ? 1.5 : 2;
     final double containerHeight = isMobile ? 110 : 130;
@@ -243,7 +246,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     final bool shouldScroll = isMobile || isTablet;
 
-    Widget heatmapContent = _buildHeatmapContent(
+    Widget heatmapContent = customHeatmapContent(
       isDark,
       isMobile,
       squareSize,
@@ -263,7 +266,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     }
   }
 
-  Widget _buildHeatmapContent(
+  Widget customHeatmapContent(
     bool isDark,
     bool isMobile,
     double squareSize,
@@ -289,10 +292,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                 children: [
                   SizedBox(width: dayLabelWidth),
                   SizedBox(
-                    width: _heatmapWeeks.length * weekWidth,
+                    width: heatmapWeeks.length * weekWidth,
                     child: Stack(
                       children:
-                          _monthLabels.map((monthLabel) {
+                          monthLabels.map((monthLabel) {
                             return Positioned(
                               left:
                                   monthLabel.startWeek * weekWidth +
@@ -332,11 +335,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       SizedBox(height: squareSize * 0.3 + spacing),
-                      Text('Mon', style: _dayLabelStyle(isDark)),
+                      Text('Mon', style: dayLabelStyle(isDark)),
                       SizedBox(height: squareSize * 1.4 + spacing),
-                      Text('Wed', style: _dayLabelStyle(isDark)),
+                      Text('Wed', style: dayLabelStyle(isDark)),
                       SizedBox(height: squareSize * 1.4 + spacing),
-                      Text('Fri', style: _dayLabelStyle(isDark)),
+                      Text('Fri', style: dayLabelStyle(isDark)),
                     ],
                   ),
                 ),
@@ -346,7 +349,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                   height: containerHeight,
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: List.generate(_heatmapWeeks.length, (weekIndex) {
+                    children: List.generate(heatmapWeeks.length, (weekIndex) {
                       return Container(
                         margin: EdgeInsets.symmetric(horizontal: spacing),
                         child: Column(
@@ -354,7 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                           children: List.generate(7, (dayIndex) {
                             return Container(
                               margin: EdgeInsets.symmetric(vertical: spacing),
-                              child: _buildHeatmapSquare(
+                              child: customHeatmapBoxes(
                                 weekIndex,
                                 dayIndex,
                                 isDark,
@@ -375,12 +378,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Color _getActivityColor(int level, bool isDark) {
+  Color getActivityColor(int level, bool isDark) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     switch (level) {
       case 0:
-        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.02);
+        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.07);
       case 1:
         return themeProvider.primaryColor.shade100;
       case 2:
@@ -390,18 +393,18 @@ class _ProfileScreenState extends State<ProfileScreen>
       case 4:
         return themeProvider.primaryColor.shade700;
       default:
-        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.02);
+        return isDark ? Colors.white12 : Colors.black12.withOpacity(0.07);
     }
   }
 
-  void _changeHeatmapYear(int year) {
-    if (_availableYears.contains(year)) {
-      _currentHeatmapYear = year;
-      _generateHeatmapData();
+  void changeHeatmapYear(int year) {
+    if (availableYears.contains(year)) {
+      currentHeatmapYear = year;
+      generateHeatmapData();
     }
   }
 
-  Future<void> _updateProfilePicture() async {
+  Future<void> updateProfilePicture() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final currentUser = authProvider.user;
     final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
@@ -417,15 +420,12 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     if (newImageDataUrl != null && mounted) {
       try {
-        // Show loading state
         setState(() {
-          _profileImageUrl = newImageDataUrl;
+          profileImageUrl = newImageDataUrl;
         });
 
-        // Update in backend
-        await _uploadProfilePictureToServer(newImageDataUrl);
+        await uploadProfilePictureToServer(newImageDataUrl);
 
-        // Show success message
         Fluttertoast.showToast(
           msg: "Profile picture updated successfully!",
           toastLength: Toast.LENGTH_SHORT,
@@ -440,7 +440,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                   : "linear-gradient(to right, #FFFFFF, #FFFFFF)",
         );
       } catch (e) {
-        // Show error message
         Fluttertoast.showToast(
           msg: "Failed to update profile picture",
           toastLength: Toast.LENGTH_SHORT,
@@ -455,104 +454,36 @@ class _ProfileScreenState extends State<ProfileScreen>
                   : "linear-gradient(to right, #FFFFFF, #FFFFFF)",
         );
 
-        // Revert to original image
         setState(() {
-          _profileImageUrl = null;
+          profileImageUrl = null;
         });
       }
     }
   }
 
-  // Add this method to handle server upload
-  Future<void> _uploadProfilePictureToServer(String imageDataUrl) async {
+  Future<void> uploadProfilePictureToServer(String imageDataUrl) async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Here you would typically upload the image to your backend
-    // For now, we'll just update the local user data
     if (authProvider.user != null) {
-      // Convert data URL to a format your backend expects
-      // This might involve uploading to cloud storage and getting a URL back
-
-      // For demo purposes, we'll use the data URL directly
-      // In production, you should upload to your server and get a proper URL
       await authProvider.updateProfile(avatarUrl: imageDataUrl);
-
-      // Refresh user data
       await authProvider.fetchUserProfile(authProvider.user!.id);
     }
   }
 
-  // Update the profileAvatar method to use the new image URL
-  // Widget profileAvatar(
-  //   UserModel? user,
-  //   bool isDark,
-  //   double size,
-  //   void Function()? onTap,
-  // ) {
-  //   final currentImageUrl = _profileImageUrl ?? user?.avatarUrl;
-
-  //   return InkWell(
-  //     onTap: _updateProfilePicture, // Update this line to use the new method
-  //     borderRadius: BorderRadius.circular(size / 2),
-  //     child: Stack(
-  //       children: [
-  //         Container(
-  //           width: size,
-  //           height: size,
-  //           decoration: BoxDecoration(
-  //             shape: BoxShape.circle,
-  //             border: Border.all(
-  //               color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
-  //               width: 2,
-  //             ),
-  //           ),
-  //           child: ClipOval(
-  //             child:
-  //                 currentImageUrl != null && currentImageUrl.isNotEmpty
-  //                     ? _buildProfileImage(currentImageUrl, isDark, size)
-  //                     : ProfilePlaceHolderAvatar(
-  //                       isDark: isDark,
-  //                       size: size * 0.8,
-  //                     ),
-  //           ),
-  //         ),
-  //         // Add edit icon overlay
-  //         Positioned(
-  //           bottom: 0,
-  //           right: 0,
-  //           child: Container(
-  //             width: size * 0.3,
-  //             height: size * 0.3,
-  //             decoration: BoxDecoration(
-  //               color: Colors.blue,
-  //               shape: BoxShape.circle,
-  //               border: Border.all(
-  //                 color: isDark ? Colors.grey[900]! : Colors.white,
-  //                 width: 2,
-  //               ),
-  //             ),
-  //             child: Icon(Icons.edit, color: Colors.white, size: size * 0.15),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
   Widget profileAvatar(
     UserModel? user,
     bool isDark,
     double size,
     void Function()? onTap,
   ) {
-    final currentImageUrl = _profileImageUrl ?? user?.avatarUrl;
+    final currentImageUrl = profileImageUrl ?? user?.avatarUrl;
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return InkWell(
-      onTap: _updateProfilePicture,
+      onTap: updateProfilePicture,
       borderRadius: BorderRadius.circular(size / 2),
       child: Stack(
         children: [
-          // Profile Image Container
           Container(
             width: size,
             height: size,
@@ -566,7 +497,7 @@ class _ProfileScreenState extends State<ProfileScreen>
             child: ClipOval(
               child:
                   currentImageUrl != null && currentImageUrl.isNotEmpty
-                      ? _buildEnhancedProfileImage(
+                      ? showProfileImage(
                         currentImageUrl,
                         isDark,
                         size,
@@ -579,7 +510,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
 
-          // Edit Icon Overlay
           Positioned(
             bottom: 0,
             right: 0,
@@ -609,24 +539,20 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Enhanced profile image builder with smooth loading and better error handling
-  Widget _buildEnhancedProfileImage(
+  Widget showProfileImage(
     String imageUrl,
     bool isDark,
     double size,
     ThemeProvider themeProvider,
   ) {
     if (imageUrl.startsWith('data:image')) {
-      // Handle data URL (base64 image from camera/gallery)
-      return _buildDataUrlImage(imageUrl, isDark, size);
+      return profileDataUrlImage(imageUrl, isDark, size);
     } else {
-      // Handle regular network image with cached_network_image
-      return _buildNetworkImage(imageUrl, isDark, size, themeProvider);
+      return profileNetworkImage(imageUrl, isDark, size, themeProvider);
     }
   }
 
-  // Build image from data URL (base64)
-  Widget _buildDataUrlImage(String dataUrl, bool isDark, double size) {
+  Widget profileDataUrlImage(String dataUrl, bool isDark, double size) {
     return Image.network(
       dataUrl,
       fit: BoxFit.cover,
@@ -635,7 +561,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       loadingBuilder: (context, child, loadingProgress) {
         if (loadingProgress == null) return child;
 
-        // Smooth loading animation
         final double progress =
             loadingProgress.expectedTotalBytes != null
                 ? loadingProgress.cumulativeBytesLoaded /
@@ -651,7 +576,6 @@ class _ProfileScreenState extends State<ProfileScreen>
           ),
           child: Stack(
             children: [
-              // Background shimmer effect
               AnimatedContainer(
                 duration: const Duration(milliseconds: 500),
                 decoration: BoxDecoration(
@@ -667,7 +591,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
 
-              // Progress indicator
               Center(
                 child: CircularProgressIndicator(
                   value: progress,
@@ -679,7 +602,6 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
               ),
 
-              // Percentage text for larger images
               if (size > 80)
                 Center(
                   child: Text(
@@ -696,11 +618,9 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       },
       errorBuilder: (context, error, stackTrace) {
-        // Fallback to placeholder with error animation
-        return _buildErrorState(isDark, size, error.toString());
+        return profileErrorState(isDark, size, error.toString());
       },
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        // Smooth fade-in animation when image loads
         if (wasSynchronouslyLoaded) {
           return child;
         }
@@ -714,8 +634,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Build network image with cached_network_image for better performance
-  Widget _buildNetworkImage(
+  Widget profileNetworkImage(
     String imageUrl,
     bool isDark,
     double size,
@@ -726,12 +645,11 @@ class _ProfileScreenState extends State<ProfileScreen>
       fit: BoxFit.cover,
       width: size,
       height: size,
-      placeholder: (context, url) => _buildLoadingState(isDark, size),
+      placeholder: (context, url) => profileLoadingState(isDark, size),
       errorWidget:
           (context, url, error) =>
-              _buildErrorState(isDark, size, error.toString()),
+              profileErrorState(isDark, size, error.toString()),
       imageBuilder: (context, imageProvider) {
-        // Smooth image rendering with fade-in effect
         return AnimatedContainer(
           duration: const Duration(milliseconds: 500),
           decoration: BoxDecoration(
@@ -757,8 +675,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Loading state widget
-  Widget _buildLoadingState(bool isDark, double size) {
+  Widget profileLoadingState(bool isDark, double size) {
     return Container(
       width: size,
       height: size,
@@ -768,7 +685,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       ),
       child: Stack(
         children: [
-          // Shimmer effect
           AnimatedContainer(
             duration: const Duration(milliseconds: 1000),
             decoration: BoxDecoration(
@@ -785,7 +701,6 @@ class _ProfileScreenState extends State<ProfileScreen>
             ),
           ),
 
-          // Pulsing animation
           Center(
             child: TweenAnimationBuilder<double>(
               tween: Tween(begin: 0.3, end: 0.8),
@@ -808,80 +723,40 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Error state widget
-  Widget _buildErrorState(bool isDark, double size, String error) {
+  Widget profileErrorState(bool isDark, double size, String error) {
     dev.log('❌ Profile image loading error: $error');
 
-    return Container(
+    return CachedNetworkImage(
+      imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
+      fit: BoxFit.cover,
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        color: isDark ? Colors.grey[800] : Colors.grey[200],
-        shape: BoxShape.circle,
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.error_outline,
-            size: size * 0.3,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
+      placeholder: (context, url) => profileLoadingState(isDark, size),
+      imageBuilder: (context, imageProvider) {
+        return AnimatedContainer(
+          duration: const Duration(milliseconds: 500),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
           ),
-          if (size > 60)
-            Padding(
-              padding: const EdgeInsets.all(4.0),
-              child: Text(
-                'Error',
-                style: TextStyle(
-                  fontSize: size * 0.1,
-                  color: isDark ? Colors.grey[400] : Colors.grey[600],
-                ),
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [Colors.transparent, Colors.black.withOpacity(0.1)],
               ),
             ),
-        ],
-      ),
+          ),
+        );
+      },
+      fadeInDuration: const Duration(milliseconds: 300),
+      fadeInCurve: Curves.easeInOut,
+      fadeOutDuration: const Duration(milliseconds: 200),
+      fadeOutCurve: Curves.easeOut,
     );
   }
-
-  // Helper method to build profile image with better error handling
-  // Widget _buildProfileImage(String imageUrl, bool isDark, double size) {
-  //   if (imageUrl.startsWith('data:image')) {
-  //     // Handle data URL (base64 image)
-  //     return Image.network(
-  //       imageUrl,
-  //       fit: BoxFit.cover,
-  //       width: size,
-  //       height: size,
-  //       loadingBuilder: (context, child, loadingProgress) {
-  //         if (loadingProgress == null) return child;
-  //         return Center(
-  //           child: CircularProgressIndicator(
-  //             value:
-  //                 loadingProgress.expectedTotalBytes != null
-  //                     ? loadingProgress.cumulativeBytesLoaded /
-  //                         loadingProgress.expectedTotalBytes!
-  //                     : null,
-  //           ),
-  //         );
-  //       },
-  //       errorBuilder: (context, error, stackTrace) {
-  //         return ProfilePlaceHolderAvatar(isDark: isDark, size: size * 0.8);
-  //       },
-  //     );
-  //   } else {
-  //     // Handle regular network image
-  //     return CachedNetworkImage(
-  //       imageUrl: imageUrl,
-  //       fit: BoxFit.cover,
-  //       placeholder:
-  //           (context, url) =>
-  //               Center(child: CircularProgressIndicator(strokeWidth: 2)),
-  //       errorWidget: (context, url, error) {
-  //         return ProfilePlaceHolderAvatar(isDark: isDark, size: size * 0.8);
-  //       },
-  //     );
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -892,9 +767,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       builder: (context, authProvider, child) {
         if (authProvider.isLoggedIn &&
             authProvider.user != null &&
-            !_isFirstLoad) {
+            !isFirstLoad) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            _refreshProfileData();
+            refreshProfileData();
           });
         }
 
@@ -1467,45 +1342,6 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  // Widget profileAvatar(
-  //   UserModel? user,
-  //   bool isDark,
-  //   double size,
-  //   void Function()? onTap,
-  // ) {
-  //   return InkWell(
-  //     onTap: onTap,
-  //     child: Container(
-  //       width: size,
-  //       height: size,
-  //       decoration: BoxDecoration(
-  //         shape: BoxShape.circle,
-  //         border: Border.all(
-  //           color: isDark ? Colors.grey[800]! : Colors.grey.shade300,
-  //           width: 1,
-  //         ),
-  //       ),
-  //       child: ClipOval(
-  //         child:
-  //             user?.avatarUrl != null && user!.avatarUrl!.isNotEmpty
-  //                 ? CachedNetworkImage(
-  //                   imageUrl:
-  //                       user.avatarUrl ??
-  //                       "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
-  //                   fit: BoxFit.cover,
-  //                   placeholder: (context, url) {
-  //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
-  //                   },
-  //                   errorWidget: (context, url, error) {
-  //                     return ProfilePlaceHolderAvatar(isDark: isDark, size: 80);
-  //                   },
-  //                 )
-  //                 : ProfilePlaceHolderAvatar(isDark: isDark, size: 80),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget profileUserInfo(
     AuthProvider authProvider,
     UserModel? user,
@@ -1891,6 +1727,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     final cardColor = isDark ? Colors.grey[850] : Colors.white;
     final borderColor =
         isDark ? Colors.grey[700]! : Colors.grey.withOpacity(0.2);
+    final typingProvider = Provider.of<TypingProvider>(context, listen: false);
 
     return Container(
       width: double.infinity,
@@ -1964,7 +1801,7 @@ class _ProfileScreenState extends State<ProfileScreen>
               StatsCard(
                 width: 200,
                 title: 'Accuracy',
-                value: '${user.averageAccuracy.round()}%',
+                value: '${typingProvider.averageAccuracy.round()}%',
                 unit: '',
                 color: Colors.grey,
                 icon: Icons.flag,
@@ -2026,11 +1863,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           onPressed:
                               () =>
-                                  _availableYears.contains(
-                                        _currentHeatmapYear - 1,
+                                  availableYears.contains(
+                                        currentHeatmapYear - 1,
                                       )
-                                      ? () => _changeHeatmapYear(
-                                        _currentHeatmapYear - 1,
+                                      ? () => changeHeatmapYear(
+                                        currentHeatmapYear - 1,
                                       )
                                       : null,
                           padding: EdgeInsets.zero,
@@ -2046,7 +1883,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(
-                            '$_currentHeatmapYear',
+                            '$currentHeatmapYear',
                             style: TextStyle(
                               fontSize: isMobile ? 12 : 14,
                               fontWeight: FontWeight.bold,
@@ -2061,11 +1898,11 @@ class _ProfileScreenState extends State<ProfileScreen>
                           ),
                           onPressed:
                               () =>
-                                  _availableYears.contains(
-                                        _currentHeatmapYear + 1,
+                                  availableYears.contains(
+                                        currentHeatmapYear + 1,
                                       )
-                                      ? () => _changeHeatmapYear(
-                                        _currentHeatmapYear + 1,
+                                      ? () => changeHeatmapYear(
+                                        currentHeatmapYear + 1,
                                       )
                                       : null,
                           padding: EdgeInsets.zero,
@@ -2077,7 +1914,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 SizedBox(height: isMobile ? 12 : 20),
 
-                _buildCustomHeatmap(isDark, isMobile, isTablet),
+                customHeatmap(isDark, isMobile, isTablet),
                 SizedBox(height: isMobile ? 12 : 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
@@ -2090,15 +1927,15 @@ class _ProfileScreenState extends State<ProfileScreen>
                       ),
                     ),
                     SizedBox(width: 8),
-                    _buildColorIndicator(0, isDark),
+                    profileColorIndicator(0, isDark),
                     SizedBox(width: 2),
-                    _buildColorIndicator(1, isDark),
+                    profileColorIndicator(1, isDark),
                     SizedBox(width: 2),
-                    _buildColorIndicator(2, isDark),
+                    profileColorIndicator(2, isDark),
                     SizedBox(width: 2),
-                    _buildColorIndicator(3, isDark),
+                    profileColorIndicator(3, isDark),
                     SizedBox(width: 2),
-                    _buildColorIndicator(4, isDark),
+                    profileColorIndicator(4, isDark),
                     SizedBox(width: 8),
                     Text(
                       'More',
@@ -2117,21 +1954,21 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildHeatmapSquare(
+  Widget customHeatmapBoxes(
     int weekIndex,
     int dayIndex,
     bool isDark,
     double squareSize,
   ) {
-    final date = _heatmapWeeks[weekIndex][dayIndex];
+    final date = heatmapWeeks[weekIndex][dayIndex];
 
-    if (date == null || date.year != _currentHeatmapYear) {
+    if (date == null || date.year != currentHeatmapYear) {
       return SizedBox(width: squareSize, height: squareSize);
     }
 
     final normalizedDate = DateTime(date.year, date.month, date.day);
 
-    final activityEntry = _activityData.entries.firstWhere(
+    final activityEntry = activityData.entries.firstWhere(
       (entry) =>
           entry.key.year == normalizedDate.year &&
           entry.key.month == normalizedDate.month &&
@@ -2143,7 +1980,7 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     int activityLevel = getActivityLevel(testCount);
 
-    final color = _getActivityColor(activityLevel, isDark);
+    final color = getActivityColor(activityLevel, isDark);
 
     return Container(
       width: squareSize,
@@ -2184,7 +2021,7 @@ class _ProfileScreenState extends State<ProfileScreen>
     return 4;
   }
 
-  TextStyle _dayLabelStyle(bool isDark) {
+  TextStyle dayLabelStyle(bool isDark) {
     return TextStyle(
       fontSize: 12,
       color: isDark ? Colors.grey[400] : Colors.grey[600],
@@ -2192,12 +2029,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     );
   }
 
-  Widget _buildColorIndicator(int intensity, bool isDark) {
+  Widget profileColorIndicator(int intensity, bool isDark) {
     return Container(
       width: 10,
       height: 10,
       decoration: BoxDecoration(
-        color: _getActivityColor(intensity, isDark),
+        color: getActivityColor(intensity, isDark),
         borderRadius: BorderRadius.circular(2),
       ),
     );

@@ -38,29 +38,17 @@ class _ProfessionalAnimatedBackgroundState
         position: const Alignment(-0.85, -0.8),
       ),
       AnimatedIconData(
-        icon: Icons.emoji_events,
-        size: 36,
-        color: Colors.redAccent,
-        position: const Alignment(-0.75, 0.65),
-      ),
-      AnimatedIconData(
-        icon: Icons.speed,
-        size: 44,
-        color: Colors.purpleAccent,
+        icon: FontAwesomeIcons.trophy,
+        size: 34,
+        color: Colors.green,
         position: const Alignment(0.78, 0.35),
       ),
       AnimatedIconData(
-        faIcon: FontAwesomeIcons.trophy,
-        size: 38,
-        color: Colors.greenAccent,
-        position: const Alignment(-0.35, 0.85),
+        icon: Icons.speed,
+        size: 36,
+        color: Colors.purple,
+        position: const Alignment(-0.75, 0.65),
       ),
-      // AnimatedIconData(
-      //   icon: Icons.star,
-      //   size: 52,
-      //   color: Colors.cyanAccent,
-      //   position: const Alignment(0.15, 0.15),
-      // ),
     ]);
   }
 
