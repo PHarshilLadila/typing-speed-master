@@ -371,6 +371,8 @@
 //   bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
 // }
 
+// ignore_for_file: deprecated_member_use
+
 // game_card_widget.dart
 import 'dart:math';
 
@@ -711,20 +713,24 @@ class GameCardWidget extends StatelessWidget {
               ],
             ),
           ),
-          child: Center(
-            child: Transform(
-              alignment: Alignment.center,
-              transform:
-                  Matrix4.identity()
-                    ..setEntry(3, 2, 0.001)
-                    ..rotateX(-0.4),
-              child: Text(
-                gameCard.title,
-                style: TextStyle(
-                  fontSize: 38,
-                  fontWeight: FontWeight.bold,
-                  color: gameCard.backgroundColor.withOpacity(0.8),
-                  letterSpacing: 2,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0),
+            child: Center(
+              child: Transform(
+                alignment: Alignment.center,
+                transform:
+                    Matrix4.identity()
+                      ..setEntry(3, 2, 0.001)
+                      ..rotateX(-0.4),
+                child: Text(
+                  gameCard.title,
+                  style: TextStyle(
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                    color: gameCard.backgroundColor.withOpacity(0.8),
+                    letterSpacing: 2,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),

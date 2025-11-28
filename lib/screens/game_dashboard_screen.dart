@@ -325,7 +325,7 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final gameCards = getGameCards(context);
+    // final gameCards = getGameCards(context);
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -364,10 +364,11 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
                 ];
 
                 // Custom responsive layout
-                if (screenWidth > 980)
+                if (screenWidth > 980) {
                   return _buildDesktopLayout(context, gameCards);
-                else
+                } else {
                   return _buildMobileLayout(gameCards);
+                }
               },
             ),
           ],
