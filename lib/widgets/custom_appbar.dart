@@ -6,6 +6,7 @@ import 'dart:html' as html;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
@@ -18,6 +19,8 @@ class CustomAppBar extends StatelessWidget {
   final int selectedIndex;
   final Function(int) onMenuClick;
   final bool isMobile;
+  final bool isTablet;
+  final double screenWidth;
   final bool isDarkMode;
 
   const CustomAppBar({
@@ -25,6 +28,8 @@ class CustomAppBar extends StatelessWidget {
     required this.selectedIndex,
     required this.onMenuClick,
     required this.isMobile,
+    required this.isTablet,
+    required this.screenWidth,
     required this.isDarkMode,
   });
 
@@ -38,7 +43,7 @@ class CustomAppBar extends StatelessWidget {
       elevation: 0.5,
       excludeHeaderSemantics: true,
       leading:
-          isMobile
+          isMobile || isTablet
               ? Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: IconButton(
@@ -67,9 +72,11 @@ class CustomAppBar extends StatelessWidget {
                   color: themeProvider.primaryColor,
                   size: 26,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Padding(
-                  padding: EdgeInsets.only(right: isMobile ? 16.0 : 40.0),
+                  padding: EdgeInsets.only(
+                    right: (isMobile || isTablet) ? 16.0 : 40.0,
+                  ),
                   child: Text(
                     "TypeMaster",
                     style: TextStyle(
@@ -83,79 +90,188 @@ class CustomAppBar extends StatelessWidget {
             ),
           ),
 
-          if (!isMobile) appbarNavigationItems(context),
+          if (!isMobile && !isTablet) _buildDesktopNavigation(),
 
-          Spacer(),
+          const Spacer(),
 
-          if (!isMobile) appbarRightSideItems(context),
+          if (!isMobile) _buildRightSideItems(context),
         ],
       ),
     );
   }
 
-  Widget appbarNavigationItems(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final availableWidth = mediaQuery.size.width - 200;
-    final hasSpaceForNav = availableWidth > 400;
+  Widget _buildDesktopNavigation() {
+    final double availableWidth = screenWidth - 300;
 
-    if (!hasSpaceForNav) {
-      return SizedBox.shrink();
+    if (availableWidth < 400) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildIconOnlyNavItem(Icons.keyboard, 0),
+            const SizedBox(width: 4),
+            _buildIconOnlyNavItem(Icons.dashboard_outlined, 1),
+            const SizedBox(width: 4),
+            _buildIconOnlyNavItem(Icons.history_toggle_off_outlined, 2),
+            const SizedBox(width: 4),
+            _buildIconOnlyNavItem(FontAwesomeIcons.fire, 3),
+            const SizedBox(width: 4),
+            _buildIconOnlyNavItem(Icons.person_outline, 4),
+          ],
+        ),
+      );
+    } else if (availableWidth < 500) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildCompactNavItem("Test", Icons.keyboard, 0),
+            const SizedBox(width: 6),
+            _buildCompactNavItem("Stats", Icons.dashboard_outlined, 1),
+            const SizedBox(width: 6),
+            _buildCompactNavItem(
+              "History",
+              Icons.history_toggle_off_outlined,
+              2,
+            ),
+            const SizedBox(width: 6),
+            _buildCompactNavItem("Games", FontAwesomeIcons.fire, 3),
+            const SizedBox(width: 6),
+            _buildCompactNavItem("Profile", Icons.person_outline, 4),
+          ],
+        ),
+      );
+    } else {
+      return Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            CustomNavItem(
+              icon: Icons.keyboard,
+              label: "Test",
+              selected: selectedIndex == 0,
+              onTap: () => onMenuClick(0),
+              isDarkTheme: isDarkMode,
+            ),
+            const SizedBox(width: 8),
+            CustomNavItem(
+              icon: Icons.dashboard_outlined,
+              label: "Dashboard",
+              selected: selectedIndex == 1,
+              onTap: () => onMenuClick(1),
+              isDarkTheme: isDarkMode,
+            ),
+            const SizedBox(width: 8),
+            CustomNavItem(
+              icon: Icons.history_toggle_off_outlined,
+              label: "History",
+              selected: selectedIndex == 2,
+              onTap: () => onMenuClick(2),
+              isDarkTheme: isDarkMode,
+            ),
+            const SizedBox(width: 8),
+            CustomNavItem(
+              icon: FontAwesomeIcons.fire,
+              label: "Games",
+              selected: selectedIndex == 3,
+              onTap: () => onMenuClick(3),
+              isDarkTheme: isDarkMode,
+            ),
+            const SizedBox(width: 8),
+            CustomNavItem(
+              icon: Icons.person_outline,
+              label: "Profile",
+              selected: selectedIndex == 4,
+              onTap: () => onMenuClick(4),
+              isDarkTheme: isDarkMode,
+            ),
+          ],
+        ),
+      );
     }
+  }
 
+  Widget _buildIconOnlyNavItem(IconData icon, int index) {
+    return IconButton(
+      icon: Icon(
+        icon,
+        color:
+            selectedIndex == index
+                ? Colors.amber
+                : (isDarkMode ? Colors.white70 : Colors.black54),
+        size: 20,
+      ),
+      onPressed: () => onMenuClick(index),
+      tooltip: _getTooltipForIndex(index),
+    );
+  }
+
+  Widget _buildCompactNavItem(String label, IconData icon, int index) {
+    return GestureDetector(
+      onTap: () => onMenuClick(index),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        decoration: BoxDecoration(
+          color:
+              selectedIndex == index
+                  ? Colors.amber.withOpacity(0.2)
+                  : Colors.transparent,
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color:
+                  selectedIndex == index
+                      ? Colors.amber
+                      : (isDarkMode ? Colors.white70 : Colors.black54),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color:
+                    selectedIndex == index
+                        ? Colors.amber
+                        : (isDarkMode ? Colors.white70 : Colors.black54),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _getTooltipForIndex(int index) {
+    switch (index) {
+      case 0:
+        return "Typing Test";
+      case 1:
+        return "Dashboard";
+      case 2:
+        return "History";
+      case 3:
+        return "Games";
+      case 4:
+        return "Profile";
+      default:
+        return "";
+    }
+  }
+
+  Widget _buildRightSideItems(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 12),
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          CustomNavItem(
-            icon: Icons.keyboard,
-            label: "Test",
-            selected: selectedIndex == 0,
-            onTap: () => onMenuClick(0),
-            isDarkTheme: isDarkMode,
-          ),
-          const SizedBox(width: 8),
-          CustomNavItem(
-            icon: Icons.dashboard_outlined,
-            label: "Dashboard",
-            selected: selectedIndex == 1,
-            onTap: () => onMenuClick(1),
-            isDarkTheme: isDarkMode,
-          ),
-          const SizedBox(width: 8),
-          CustomNavItem(
-            icon: Icons.history_toggle_off_outlined,
-            label: "History",
-            selected: selectedIndex == 2,
-            onTap: () => onMenuClick(2),
-            isDarkTheme: isDarkMode,
-          ),
-          const SizedBox(width: 8),
-          CustomNavItem(
-            icon: Icons.person_outline,
-            label: "Profile",
-            selected: selectedIndex == 3,
-            onTap: () => onMenuClick(3),
-            isDarkTheme: isDarkMode,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget appbarRightSideItems(BuildContext context) {
-    final mediaQuery = MediaQuery.of(context);
-    final availableWidth = mediaQuery.size.width - 200;
-    final hasSpaceForRightSide = availableWidth > 150;
-
-    if (!hasSpaceForRightSide) {
-      return SizedBox.shrink();
-    }
-
-    return Padding(
-      padding: const EdgeInsets.only(top: 12),
-      child: Row(
-        mainAxisSize: MainAxisSize.max,
         children: [
           IconButton.filled(
             onPressed: () {
@@ -173,11 +289,11 @@ class CustomAppBar extends StatelessWidget {
               },
             ),
           ),
-          SizedBox(width: 8),
+          const SizedBox(width: 8),
           ProfileDropdown(
             onProfileAction: () {
-              if (selectedIndex != 3) {
-                onMenuClick(3);
+              if (selectedIndex != 4) {
+                onMenuClick(4);
               }
             },
           ),
@@ -220,7 +336,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                         MediaQuery.of(context).size.width -
                         offset.dx -
                         size.width,
-                    child: appbarProfileCard(),
+                    child: _appbarProfileCard(),
                   ),
                 ],
               ),
@@ -236,10 +352,10 @@ class ProfileDropdownState extends State<ProfileDropdown> {
     overlayEntry = null;
   }
 
-  Widget appbarProfileCard() {
+  Widget _appbarProfileCard() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final themeProvide = Provider.of<ThemeProvider>(context);
-    bool isDarkTheme = themeProvide.isDarkMode;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    bool isDarkTheme = themeProvider.isDarkMode;
 
     return Material(
       elevation: 4,
@@ -267,9 +383,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                   authProvider.user?.avatarUrl != null
                       ? ClipOval(
                         child: CachedNetworkImage(
-                          imageUrl:
-                              authProvider.user!.avatarUrl ??
-                              "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
+                          imageUrl: authProvider.user!.avatarUrl!,
                           width: 60,
                           height: 60,
                           fit: BoxFit.cover,
@@ -380,7 +494,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
                         Navigator.of(context, rootNavigator: true).pop();
 
                         await authProvider.signOut();
-                        await Future.delayed(Duration(milliseconds: 500));
+                        await Future.delayed(const Duration(milliseconds: 500));
                         if (kIsWeb) {
                           html.window.location.assign(
                             html.window.location.href,
@@ -453,9 +567,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
             authProvider.isLoggedIn && authProvider.user?.avatarUrl != null
                 ? ClipOval(
                   child: CachedNetworkImage(
-                    imageUrl:
-                        authProvider.user!.avatarUrl ??
-                        "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
+                    imageUrl: authProvider.user!.avatarUrl!,
                     width: 40,
                     height: 40,
                     fit: BoxFit.cover,

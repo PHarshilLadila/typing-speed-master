@@ -9,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
+import 'package:typing_speed_master/providers/game_dashboard_provider.dart';
 import 'package:typing_speed_master/screens/main_entry_point_.dart';
 import 'package:typing_speed_master/theme/dark_theme.dart';
 import 'package:typing_speed_master/theme/light_theme.dart';
@@ -64,6 +65,7 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
         ChangeNotifierProvider(create: (_) => TypingProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ActivityProvider()),
+        ChangeNotifierProvider(create: (_) => GameDashboardProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

@@ -2,11 +2,13 @@
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/typing_result.dart';
 import 'package:typing_speed_master/providers/theme_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/screens/dashboard_screen.dart';
+import 'package:typing_speed_master/screens/game_dashboard_screen.dart';
 import 'package:typing_speed_master/screens/history_screen.dart';
 import 'package:typing_speed_master/screens/profile_screen.dart';
 import 'package:typing_speed_master/screens/typing_test_screen.dart';
@@ -30,6 +32,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
     const TypingTestScreen(),
     const DashboardScreen(),
     const HistoryScreen(),
+    const GameDashboardScreen(),
     const ProfileScreen(),
   ];
 
@@ -82,7 +85,10 @@ class MainEntryPointState extends State<MainEntryPoint> {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        bool isMobile = constraints.maxWidth < 800;
+        final double screenWidth = constraints.maxWidth;
+        bool isMobile = screenWidth < 768;
+        bool isTablet = screenWidth >= 768 && screenWidth < 1024;
+
         final themeProvider = Provider.of<ThemeProvider>(context);
         final authProvider = Provider.of<AuthProvider>(context);
 
@@ -103,350 +109,309 @@ class MainEntryPointState extends State<MainEntryPoint> {
               selectedIndex: selectedIndex,
               onMenuClick: onMenuClick,
               isMobile: isMobile,
+              isTablet: isTablet,
+              screenWidth: screenWidth,
               isDarkMode: themeProvider.isDarkMode,
             ),
           ),
           drawer:
-              isMobile
-                  ? Drawer(
-                    width: 300,
-                    elevation: 16,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.horizontal(
-                        right: Radius.circular(20),
-                      ),
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(),
-                      child: ListView(
-                        children: [
-                          Container(
-                            height: 180,
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [
-                                  Colors.amber.shade500,
-                                  Colors.amber.shade300,
-                                ],
-                              ),
-                              borderRadius: const BorderRadius.only(
-                                bottomRight: Radius.circular(30),
-                              ),
-                            ),
-                            child: Stack(
-                              children: [
-                                Positioned(
-                                  top: 5,
-                                  left: 120,
-                                  child: Icon(
-                                    Icons.speed_outlined,
-                                    size: 80,
-                                    color:
-                                        themeProvider.isDarkMode
-                                            ? Colors.black.withOpacity(0.05)
-                                            : Colors.white.withOpacity(0.25),
-                                  ),
-                                ),
-                                Positioned(
-                                  bottom: 20,
-                                  right: 20,
-                                  child: Icon(
-                                    Icons.keyboard_alt_outlined,
-                                    size: 60,
-                                    color:
-                                        themeProvider.isDarkMode
-                                            ? Colors.black.withOpacity(0.02)
-                                            : Colors.white.withOpacity(0.15),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(20),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.end,
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(2),
-                                        decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          borderRadius: BorderRadius.circular(
-                                            50,
-                                          ),
-                                        ),
-                                        child:
-                                            authProvider.isLoggedIn &&
-                                                    authProvider
-                                                            .user
-                                                            ?.avatarUrl !=
-                                                        null
-                                                ? ClipOval(
-                                                  child: CachedNetworkImage(
-                                                    imageUrl:
-                                                        authProvider
-                                                            .user!
-                                                            .avatarUrl!,
-                                                    width: 48,
-                                                    height: 48,
-                                                    fit: BoxFit.cover,
-                                                    placeholder:
-                                                        (
-                                                          context,
-                                                          url,
-                                                        ) => Container(
-                                                          width: 48,
-                                                          height: 48,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                color:
-                                                                    Colors
-                                                                        .amber
-                                                                        .shade100,
-                                                                shape:
-                                                                    BoxShape
-                                                                        .circle,
-                                                              ),
-                                                          child: Icon(
-                                                            Icons.person,
-                                                            color:
-                                                                Colors
-                                                                    .amber
-                                                                    .shade800,
-                                                            size: 24,
-                                                          ),
-                                                        ),
-                                                    errorWidget:
-                                                        (
-                                                          context,
-                                                          url,
-                                                          error,
-                                                        ) => Container(
-                                                          width: 48,
-                                                          height: 48,
-                                                          decoration:
-                                                              BoxDecoration(
-                                                                color:
-                                                                    Colors
-                                                                        .amber
-                                                                        .shade100,
-                                                                shape:
-                                                                    BoxShape
-                                                                        .circle,
-                                                              ),
-                                                          child: Icon(
-                                                            Icons.person,
-                                                            color:
-                                                                Colors
-                                                                    .amber
-                                                                    .shade800,
-                                                            size: 24,
-                                                          ),
-                                                        ),
-                                                  ),
-                                                )
-                                                : Container(
-                                                  width: 48,
-                                                  height: 48,
-                                                  decoration: BoxDecoration(
-                                                    color:
-                                                        Colors.amber.shade100,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                  child: Icon(
-                                                    Icons.person,
-                                                    color:
-                                                        Colors.amber.shade800,
-                                                    size: 24,
-                                                  ),
-                                                ),
-                                      ),
-                                      const SizedBox(height: 16),
-                                      Text(
-                                        authProvider.isLoggedIn
-                                            ? authProvider.user?.fullName ??
-                                                'User'
-                                            : "Guest User",
-                                        style: TextStyle(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color:
-                                              themeProvider.isDarkMode
-                                                  ? Colors.black
-                                                  : Colors.white,
-                                          letterSpacing: 1.2,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        authProvider.isLoggedIn
-                                            ? authProvider.user?.email ?? ''
-                                            : "Sign in to save progress",
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          color:
-                                              themeProvider.isDarkMode
-                                                  ? Colors.black.withOpacity(
-                                                    0.8,
-                                                  )
-                                                  : Colors.white.withOpacity(
-                                                    0.8,
-                                                  ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 20),
-
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 8),
-                            child: Column(
-                              children: [
-                                DrawerTile(
-                                  icon: Icons.keyboard_alt_outlined,
-                                  label: "Typing Test",
-                                  isDarkMode: themeProvider.isDarkMode,
-                                  selected:
-                                      selectedIndex == 0 && currentPage == null,
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    onMenuClick(0);
-                                  },
-                                ),
-                                DrawerTile(
-                                  icon: Icons.dashboard_outlined,
-                                  label: "Dashboard",
-                                  isDarkMode: themeProvider.isDarkMode,
-
-                                  selected:
-                                      selectedIndex == 1 && currentPage == null,
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    onMenuClick(1);
-                                  },
-                                ),
-                                DrawerTile(
-                                  icon: Icons.history_toggle_off_outlined,
-                                  label: "History",
-                                  isDarkMode: themeProvider.isDarkMode,
-
-                                  selected:
-                                      selectedIndex == 2 && currentPage == null,
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    onMenuClick(2);
-                                  },
-                                ),
-                                DrawerTile(
-                                  icon: Icons.person_outline_outlined,
-                                  label: "Profile",
-                                  isDarkMode: themeProvider.isDarkMode,
-
-                                  selected:
-                                      selectedIndex == 3 && currentPage == null,
-                                  onTap: () {
-                                    Navigator.pop(context);
-                                    onMenuClick(3);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 30),
-
-                          Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 12,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        themeProvider.isDarkMode
-                                            ? Colors.grey.shade800.withOpacity(
-                                              0.5,
-                                            )
-                                            : Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color:
-                                          themeProvider.isDarkMode
-                                              ? Colors.grey.shade700
-                                              : Colors.grey.shade300,
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        themeProvider.isDarkMode
-                                            ? Icons.dark_mode
-                                            : Icons.light_mode,
-                                        color:
-                                            themeProvider.isDarkMode
-                                                ? Colors.amber
-                                                : Colors.orange,
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          themeProvider.isDarkMode
-                                              ? "Dark Mode"
-                                              : "Light Mode",
-                                          style: TextStyle(
-                                            fontWeight: FontWeight.w500,
-                                            color:
-                                                themeProvider.isDarkMode
-                                                    ? Colors.grey.shade300
-                                                    : Colors.grey.shade800,
-                                          ),
-                                        ),
-                                      ),
-                                      CupertinoSwitch(
-                                        applyTheme: true,
-                                        value: themeProvider.isDarkMode,
-                                        onChanged: (value) {
-                                          themeProvider.toggleTheme();
-                                        },
-                                        activeColor: Colors.amber,
-                                        trackColor: Colors.grey,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-
-                                const SizedBox(height: 16),
-
-                                Text(
-                                  "Version 1.0.0",
-                                  style: TextStyle(
-                                    color:
-                                        themeProvider.isDarkMode
-                                            ? Colors.grey.shade500
-                                            : Colors.grey.shade600,
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  )
+              isMobile || isTablet
+                  ? _buildDrawer(themeProvider, authProvider)
                   : null,
           body: buildBody(finalBodyContent),
         );
       },
+    );
+  }
+
+  Widget _buildDrawer(ThemeProvider themeProvider, AuthProvider authProvider) {
+    return Drawer(
+      width: 300,
+      elevation: 16,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.horizontal(right: Radius.circular(20)),
+      ),
+      child: Container(
+        decoration: BoxDecoration(),
+        child: ListView(
+          children: [
+            Container(
+              height: 180,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.amber.shade500, Colors.amber.shade300],
+                ),
+                borderRadius: const BorderRadius.only(
+                  bottomRight: Radius.circular(30),
+                ),
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    top: 5,
+                    left: 120,
+                    child: Icon(
+                      Icons.speed_outlined,
+                      size: 80,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.black.withOpacity(0.05)
+                              : Colors.white.withOpacity(0.25),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 20,
+                    right: 20,
+                    child: Icon(
+                      Icons.keyboard_alt_outlined,
+                      size: 60,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.black.withOpacity(0.02)
+                              : Colors.white.withOpacity(0.15),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          child:
+                              authProvider.isLoggedIn &&
+                                      authProvider.user?.avatarUrl != null
+                                  ? ClipOval(
+                                    child: CachedNetworkImage(
+                                      imageUrl: authProvider.user!.avatarUrl!,
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                      placeholder:
+                                          (context, url) => Container(
+                                            width: 48,
+                                            height: 48,
+                                            decoration: BoxDecoration(
+                                              color: Colors.amber.shade100,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.person,
+                                              color: Colors.amber.shade800,
+                                              size: 24,
+                                            ),
+                                          ),
+                                      errorWidget:
+                                          (context, url, error) => Container(
+                                            width: 48,
+                                            height: 48,
+                                            decoration: BoxDecoration(
+                                              color: Colors.amber.shade100,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Icon(
+                                              Icons.person,
+                                              color: Colors.amber.shade800,
+                                              size: 24,
+                                            ),
+                                          ),
+                                    ),
+                                  )
+                                  : Container(
+                                    width: 48,
+                                    height: 48,
+                                    decoration: BoxDecoration(
+                                      color: Colors.amber.shade100,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      Icons.person,
+                                      color: Colors.amber.shade800,
+                                      size: 24,
+                                    ),
+                                  ),
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          authProvider.isLoggedIn
+                              ? authProvider.user?.fullName ?? 'User'
+                              : "Guest User",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.black
+                                    : Colors.white,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          authProvider.isLoggedIn
+                              ? authProvider.user?.email ?? ''
+                              : "Sign in to save progress",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.black.withOpacity(0.8)
+                                    : Colors.white.withOpacity(0.8),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Column(
+                children: [
+                  DrawerTile(
+                    icon: Icons.keyboard_alt_outlined,
+                    label: "Typing Test",
+                    isDarkMode: themeProvider.isDarkMode,
+                    selected: selectedIndex == 0,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onMenuClick(0);
+                    },
+                  ),
+                  DrawerTile(
+                    icon: Icons.dashboard_outlined,
+                    label: "Dashboard",
+                    isDarkMode: themeProvider.isDarkMode,
+                    selected: selectedIndex == 1,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onMenuClick(1);
+                    },
+                  ),
+                  DrawerTile(
+                    icon: Icons.history_toggle_off_outlined,
+                    label: "History",
+                    isDarkMode: themeProvider.isDarkMode,
+                    selected: selectedIndex == 2,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onMenuClick(2);
+                    },
+                  ),
+                  DrawerTile(
+                    icon: FontAwesomeIcons.fire,
+                    label: "Games",
+                    isDarkMode: themeProvider.isDarkMode,
+                    selected: selectedIndex == 3,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onMenuClick(3);
+                    },
+                  ),
+                  DrawerTile(
+                    icon: Icons.person_outline_outlined,
+                    label: "Profile",
+                    isDarkMode: themeProvider.isDarkMode,
+                    selected: selectedIndex == 4,
+                    onTap: () {
+                      Navigator.pop(context);
+                      onMenuClick(4);
+                    },
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 30),
+
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey.shade800.withOpacity(0.5)
+                              : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey.shade700
+                                : Colors.grey.shade300,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          themeProvider.isDarkMode
+                              ? Icons.dark_mode
+                              : Icons.light_mode,
+                          color:
+                              themeProvider.isDarkMode
+                                  ? Colors.amber
+                                  : Colors.orange,
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            themeProvider.isDarkMode
+                                ? "Dark Mode"
+                                : "Light Mode",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w500,
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey.shade300
+                                      : Colors.grey.shade800,
+                            ),
+                          ),
+                        ),
+                        CupertinoSwitch(
+                          applyTheme: true,
+                          value: themeProvider.isDarkMode,
+                          onChanged: (value) {
+                            themeProvider.toggleTheme();
+                          },
+                          activeColor: Colors.amber,
+                          trackColor: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    "Version 1.0.0",
+                    style: TextStyle(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey.shade500
+                              : Colors.grey.shade600,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
