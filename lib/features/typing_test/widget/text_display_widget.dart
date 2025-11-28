@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
 class TextDisplayWidget extends StatefulWidget {
   final String sampleText;

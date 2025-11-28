@@ -1,4 +1,4 @@
-class ActivityLog {
+class UserActivityModel {
   final String? id;
   final String userId;
   final DateTime activityDate;
@@ -6,7 +6,7 @@ class ActivityLog {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  ActivityLog({
+  UserActivityModel({
     this.id,
     required this.userId,
     required this.activityDate,
@@ -15,8 +15,8 @@ class ActivityLog {
     this.updatedAt,
   });
 
-  factory ActivityLog.fromJson(Map<String, dynamic> json) {
-    return ActivityLog(
+  factory UserActivityModel.fromJson(Map<String, dynamic> json) {
+    return UserActivityModel(
       id: json['id']?.toString(),
       userId: json['user_id'] ?? '',
       activityDate: DateTime.parse(json['activity_date']),

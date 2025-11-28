@@ -2,7 +2,7 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-class ActivityProvider with ChangeNotifier {
+class UserActivityProvider with ChangeNotifier {
   final SupabaseClient _supabase = Supabase.instance.client;
 
   Map<DateTime, int> _activityData = {};

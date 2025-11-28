@@ -10,10 +10,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/custom_nav_item.dart';
-import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
+import 'package:typing_speed_master/features/profile/widget/profile_placeholder_avatar.dart';
 
 class CustomAppBar extends StatelessWidget {
   final int selectedIndex;

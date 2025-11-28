@@ -37,7 +37,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
       'AD_WIDGET_DART: Initializing AdSense for slot: ${widget.adSlotId}',
     );
 
-    // Create container
     final html.DivElement container =
         html.DivElement()
           ..id = viewId
@@ -46,7 +45,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
           ..style.textAlign = 'center'
           ..style.overflow = 'hidden';
 
-    // Create ad element
     final html.Element adElement =
         html.Element.tag('ins')
           ..className = 'adsbygoogle'
@@ -58,7 +56,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
 
     container.children.add(adElement);
 
-    // Create script with unique variable names and better error handling
     final html.ScriptElement scriptElement =
         html.ScriptElement()
           ..innerHtml = '''
@@ -100,8 +97,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
 
     container.children.add(scriptElement);
 
-    // Register the view
-    // ignore: undefined_prefixed_name
     ui_web.platformViewRegistry.registerViewFactory(
       viewId,
       (int viewId) => container,
@@ -117,7 +112,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
       height: widget.adHeight,
       child: Stack(
         children: [
-          // Placeholder background
           Container(
             color: Colors.grey[100],
             alignment: Alignment.center,
@@ -133,7 +127,6 @@ class AdWidgetWebState extends State<AdWidgetWeb> {
               ],
             ),
           ),
-          // Ad container
           HtmlElementView(
             viewType: viewId,
             onPlatformViewCreated: (id) {

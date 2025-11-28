@@ -63,15 +63,10 @@ class AppConstants {
     Duration(seconds: 120),
     Duration(seconds: 180),
     Duration(seconds: 300),
-    Duration(seconds: 0), // No time limit - Word based test
+    Duration(seconds: 0),
   ];
 
-  static const List<String> difficultyLevels = [
-    'Easy',
-    'Medium',
-    'Hard',
-    // 'Random',
-  ];
+  static const List<String> difficultyLevels = ['Easy', 'Medium', 'Hard'];
   static const int wordBasedTestWordCount = 150;
 
   static List<String> easyWords = [

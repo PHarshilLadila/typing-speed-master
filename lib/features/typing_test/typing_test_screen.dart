@@ -6,15 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import 'package:typing_speed_master/screens/main_entry_point_.dart';
+import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/utils/constants.dart';
-import 'package:typing_speed_master/widgets/animated_icon_background.dart';
+import 'package:typing_speed_master/widgets/backgrounds/icons_background.dart';
 import 'package:typing_speed_master/widgets/custom_dropdown.dart';
-import 'package:typing_speed_master/widgets/grid_background.dart';
-import '../providers/typing_provider.dart';
-import '../providers/theme_provider.dart';
-import '../widgets/text_display_widget.dart';
-import '../models/typing_result.dart';
+import 'package:typing_speed_master/widgets/backgrounds/grid_background.dart';
+import 'provider/typing_test_provider.dart';
+import '../../theme/provider/theme_provider.dart';
+import 'widget/text_display_widget.dart';
+import '../../models/typing_test_result_model.dart';
 
 class TypingTestScreen extends StatefulWidget {
   const TypingTestScreen({super.key});
@@ -271,7 +271,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0.0;
     final consistency = provider.calculateConsistency();
 
-    final result = TypingResult(
+    final result = TypingTestResultModel(
       wpm: wpm,
       accuracy: accuracy,
       consistency: consistency,
@@ -508,7 +508,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   @override
   Widget build(BuildContext context) {
     return GridBackgroundPage(
-      child: ProfessionalAnimatedBackground(
+      child: IconsBackground(
         child: KeyedSubtree(
           key: ValueKey('typing_test_screen'),
           child: LayoutBuilder(

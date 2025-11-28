@@ -3,11 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
-import '../models/typing_result.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import '../../../models/typing_test_result_model.dart';
 
 class AccuracyChart extends StatelessWidget {
-  final List<TypingResult> results;
+  final List<TypingTestResultModel> results;
   final bool isDarkMode;
 
   const AccuracyChart({
@@ -109,14 +109,16 @@ class AccuracyChart extends StatelessWidget {
                   color: isDarkMode ? Colors.white : Colors.black,
                 ),
               ),
-              series: <CartesianSeries<TypingResult, int>>[
-                AreaSeries<TypingResult, int>(
+              series: <CartesianSeries<TypingTestResultModel, int>>[
+                AreaSeries<TypingTestResultModel, int>(
                   dataSource: recentResults,
                   enableTooltip: true,
                   enableTrackball: true,
                   isVisibleInLegend: true,
-                  xValueMapper: (TypingResult result, int index) => index,
-                  yValueMapper: (TypingResult result, _) => result.accuracy,
+                  xValueMapper:
+                      (TypingTestResultModel result, int index) => index,
+                  yValueMapper:
+                      (TypingTestResultModel result, _) => result.accuracy,
                   color: themeProvider.primaryColor.withOpacity(
                     isDarkMode ? 0.3 : 0.2,
                   ),
@@ -143,7 +145,10 @@ class AccuracyChart extends StatelessWidget {
     );
   }
 
-  Widget _buildLegend(List<TypingResult> recentResults, Color textColor) {
+  Widget _buildLegend(
+    List<TypingTestResultModel> recentResults,
+    Color textColor,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [

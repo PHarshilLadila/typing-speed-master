@@ -5,12 +5,12 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/responsive_layout.dart';
-import 'package:typing_speed_master/widgets/typing_result_card.dart';
-import '../providers/typing_provider.dart';
-import '../widgets/stats_card.dart';
-import '../widgets/accuracy_chart.dart';
+import 'package:typing_speed_master/widgets/custom_typing_result_card.dart';
+import '../typing_test/provider/typing_test_provider.dart';
+import '../../widgets/custom_stats_card.dart';
+import 'widget/accuracy_chart.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -130,7 +130,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             ),
           ),
           const SizedBox(height: 38),
-          StatsCard(
+          CustomStatsCard(
             title: 'Average WPM',
             value: provider.averageWPM.toStringAsFixed(1),
             unit: 'WPM',
@@ -139,7 +139,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           const SizedBox(height: 16),
-          StatsCard(
+          CustomStatsCard(
             title: 'Consistency',
             value: provider.averageConsistency.toStringAsFixed(1),
             unit: '%',
@@ -148,7 +148,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           const SizedBox(height: 16),
-          StatsCard(
+          CustomStatsCard(
             title: 'Average Accuracy',
             value: provider.averageAccuracy.toStringAsFixed(1),
             unit: '%',
@@ -157,7 +157,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           const SizedBox(height: 16),
-          StatsCard(
+          CustomStatsCard(
             title: 'Total Tests',
             value: provider.totalTests.toString(),
             unit: 'Tests',
@@ -166,7 +166,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           const SizedBox(height: 16),
-          StatsCard(
+          CustomStatsCard(
             title: 'Best WPM',
             value:
                 provider.results.isNotEmpty
@@ -211,7 +211,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average WPM',
                   value: provider.averageWPM.toStringAsFixed(1),
                   unit: 'WPM',
@@ -222,7 +222,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
@@ -237,7 +237,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average Accuracy',
                   value: provider.averageAccuracy.toStringAsFixed(1),
                   unit: '%',
@@ -249,7 +249,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Total Tests',
                   value: provider.totalTests.toString(),
                   unit: 'Tests',
@@ -265,7 +265,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Best WPM',
                   value:
                       provider.results.isNotEmpty
@@ -316,7 +316,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average WPM',
                   value: provider.averageWPM.toStringAsFixed(1),
                   unit: 'WPM',
@@ -327,7 +327,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
@@ -338,7 +338,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average Accuracy',
                   value: provider.averageAccuracy.toStringAsFixed(1),
                   unit: '%',
@@ -354,7 +354,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Total Tests',
                   value: provider.totalTests.toString(),
                   unit: 'Tests',
@@ -367,7 +367,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
               Expanded(
                 flex: 1,
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Best WPM',
                   value:
                       provider.results.isNotEmpty
@@ -418,7 +418,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average WPM',
                   value: provider.averageWPM.toStringAsFixed(1),
                   unit: 'WPM',
@@ -429,7 +429,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Consistency',
                   value: provider.averageConsistency.toStringAsFixed(1),
                   unit: '%',
@@ -440,7 +440,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Average Accuracy',
                   value: provider.averageAccuracy.toStringAsFixed(1),
                   unit: '%',
@@ -451,7 +451,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Total Tests',
                   value: provider.totalTests.toString(),
                   unit: 'Tests',
@@ -462,7 +462,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Best WPM',
                   value:
                       provider.results.isNotEmpty
@@ -600,7 +600,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               ),
               const SizedBox(height: 20),
               ...recentResults.map(
-                (result) => TypingResultCard(
+                (result) => CustomTypingResultCard(
                   result: result,
                   subtitleFontSize: 16,
                   isDarkMode: themeProvider.isDarkMode,

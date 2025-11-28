@@ -3,18 +3,16 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class ProfessionalAnimatedBackground extends StatefulWidget {
+class IconsBackground extends StatefulWidget {
   final Widget child;
 
-  const ProfessionalAnimatedBackground({super.key, required this.child});
+  const IconsBackground({super.key, required this.child});
 
   @override
-  State<ProfessionalAnimatedBackground> createState() =>
-      _ProfessionalAnimatedBackgroundState();
+  State<IconsBackground> createState() => _IconsBackgroundState();
 }
 
-class _ProfessionalAnimatedBackgroundState
-    extends State<ProfessionalAnimatedBackground> {
+class _IconsBackgroundState extends State<IconsBackground> {
   final List<AnimatedIconData> _icons = [];
 
   @override

@@ -1,4 +1,4 @@
-class TypingResult {
+class TypingTestResultModel {
   final String? id;
   final String? userId;
 
@@ -16,7 +16,7 @@ class TypingResult {
   final List<int> incorrectCharPositions;
   final String originalText;
   final String userInput;
-  TypingResult({
+  TypingTestResultModel({
     this.id,
     this.userId,
     required this.wpm,
@@ -56,8 +56,8 @@ class TypingResult {
     };
   }
 
-  factory TypingResult.fromMap(Map<String, dynamic> map) {
-    return TypingResult(
+  factory TypingTestResultModel.fromMap(Map<String, dynamic> map) {
+    return TypingTestResultModel(
       id: map['id']?.toString(),
       userId: map['userId'],
       wpm: map['wpm'],

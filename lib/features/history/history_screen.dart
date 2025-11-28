@@ -5,14 +5,14 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/models/typing_result.dart';
-import 'package:typing_speed_master/providers/activity_provider.dart';
+import 'package:typing_speed_master/models/typing_test_result_model.dart';
+import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
-import 'package:typing_speed_master/providers/typing_provider.dart';
-import 'package:typing_speed_master/screens/main_entry_point_.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
+import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
-import 'package:typing_speed_master/widgets/typing_result_card.dart';
+import 'package:typing_speed_master/widgets/custom_typing_result_card.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -27,7 +27,7 @@ class HistoryScreenState extends State<HistoryScreen> {
   String selectedFilterDuration = 'all';
   Timer? _filterDebounceTimer;
 
-  List<TypingResult> _cachedFilteredResults = [];
+  List<TypingTestResultModel> _cachedFilteredResults = [];
   String _lastFilterKey = '';
 
   final Map<String, String> _sortOptions = {
@@ -80,7 +80,9 @@ class HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
-  List<TypingResult> getFilteredAndSortedResults(List<TypingResult> results) {
+  List<TypingTestResultModel> getFilteredAndSortedResults(
+    List<TypingTestResultModel> results,
+  ) {
     final cacheKey =
         '$selectedSortOption-$selectedFilterDifficulty-$selectedFilterDuration';
 
@@ -88,7 +90,7 @@ class HistoryScreenState extends State<HistoryScreen> {
       return _cachedFilteredResults;
     }
 
-    List<TypingResult> filteredResults =
+    List<TypingTestResultModel> filteredResults =
         results.where((result) {
           if (selectedFilterDifficulty != 'all' &&
               result.difficulty != selectedFilterDifficulty) {
@@ -418,11 +420,11 @@ class HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Future<void> _deleteHistoryEntry(TypingResult result) async {
+  Future<void> _deleteHistoryEntry(TypingTestResultModel result) async {
     try {
       final provider = Provider.of<TypingProvider>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
-      final activityProvider = Provider.of<ActivityProvider>(
+      final activityProvider = Provider.of<UserActivityProvider>(
         context,
         listen: false,
       );
@@ -494,20 +496,37 @@ class HistoryScreenState extends State<HistoryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             historyFilterAndSortOptions(context),
-            const SizedBox(height: 20),
+            const SizedBox(height: 30),
 
-            if (filteredResults.isNotEmpty)
+            if (filteredResults.isNotEmpty || provider.results.isNotEmpty)
               Padding(
                 padding: const EdgeInsets.only(bottom: 12),
-                child: Text(
-                  'Showing ${filteredResults.length} result${filteredResults.length == 1 ? '' : 's'}',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[400]
-                            : Colors.grey[600],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Showing ${filteredResults.length} result${filteredResults.length == 1 ? '' : 's'}',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[400]
+                                : Colors.grey[600],
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: provider.clearHistory,
+                      child: Text(
+                        'Clear All',
+                        style: TextStyle(
+                          color:
+                              themeProvider.isDarkMode
+                                  ? Colors.red[300]
+                                  : Colors.red,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
 
@@ -595,7 +614,7 @@ class HistoryScreenState extends State<HistoryScreen> {
                 itemCount: filteredResults.length,
                 itemBuilder: (context, index) {
                   final result = filteredResults[index];
-                  return TypingResultCard(
+                  return CustomTypingResultCard(
                     result: result,
                     subtitleFontSize: getResponsiveSubtitleFontSize(context),
                     isDarkMode: themeProvider.isDarkMode,

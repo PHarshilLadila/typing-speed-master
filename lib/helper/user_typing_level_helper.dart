@@ -1,7 +1,7 @@
 // utils/user_level_helper.dart
 import 'package:flutter/material.dart';
 
-class UserLevelHelper {
+class UserTypingLevelHelper {
   static String calculateLevel(double averageWpm, int totalTests) {
     if (totalTests < 3) return 'Beginner';
 

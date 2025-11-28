@@ -7,14 +7,14 @@ import 'package:google_adsense/google_adsense.dart';
 import 'package:meta_seo/meta_seo.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:typing_speed_master/providers/activity_provider.dart';
+import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
-import 'package:typing_speed_master/providers/game_dashboard_provider.dart';
-import 'package:typing_speed_master/screens/main_entry_point_.dart';
+import 'package:typing_speed_master/features/games/provider/game_dashboard_provider.dart';
+import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/theme/dark_theme.dart';
 import 'package:typing_speed_master/theme/light_theme.dart';
-import 'providers/typing_provider.dart';
-import 'providers/theme_provider.dart';
+import 'features/typing_test/provider/typing_test_provider.dart';
+import 'theme/provider/theme_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -64,7 +64,7 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
         ChangeNotifierProvider(create: (_) => ThemeProvider()),
         ChangeNotifierProvider(create: (_) => TypingProvider()),
         ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => ActivityProvider()),
+        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
         ChangeNotifierProvider(create: (_) => GameDashboardProvider()),
       ],
       child: Consumer<ThemeProvider>(
@@ -82,7 +82,7 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
             scrollBehavior: const MaterialScrollBehavior().copyWith(
               scrollbars: false,
             ),
-            home: const MainEntryPoint(),
+            home: const AppEntryPoint(),
           );
         },
       ),

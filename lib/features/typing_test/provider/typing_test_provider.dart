@@ -6,13 +6,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:typing_speed_master/providers/activity_provider.dart';
+import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
-import '../models/typing_result.dart';
-import '../utils/constants.dart';
+import '../../../models/typing_test_result_model.dart';
+import '../../../utils/constants.dart';
 
 class TypingProvider with ChangeNotifier {
-  List<TypingResult> _results = [];
+  List<TypingTestResultModel> _results = [];
   bool _isLoading = false;
   String _selectedDifficulty = 'Easy';
   Duration _selectedDuration = Duration(seconds: 60);
@@ -26,7 +26,7 @@ class TypingProvider with ChangeNotifier {
   String _currentOriginalText = '';
   String _currentUserInput = '';
 
-  List<TypingResult> get results => _results;
+  List<TypingTestResultModel> get results => _results;
   bool get isLoading => _isLoading;
   String get selectedDifficulty => _selectedDifficulty;
   Duration get selectedDuration => _selectedDuration;
@@ -281,7 +281,7 @@ class TypingProvider with ChangeNotifier {
     final accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0.0;
     final consistency = calculateConsistency();
 
-    final result = TypingResult(
+    final result = TypingTestResultModel(
       wpm: wpm,
       accuracy: accuracy,
       consistency: consistency,
@@ -360,7 +360,10 @@ class TypingProvider with ChangeNotifier {
 
       if (resultsString != null) {
         final List<dynamic> jsonList = json.decode(resultsString);
-        _results = jsonList.map((json) => TypingResult.fromMap(json)).toList();
+        _results =
+            jsonList
+                .map((json) => TypingTestResultModel.fromMap(json))
+                .toList();
         dev.log('Loaded ${_results.length} results from local storage');
       }
     } catch (e) {
@@ -399,14 +402,17 @@ class TypingProvider with ChangeNotifier {
                 .where((map) => map.isNotEmpty)
                 .toList());
 
-        _results = resultsList.map((map) => TypingResult.fromMap(map)).toList();
+        _results =
+            resultsList
+                .map((map) => TypingTestResultModel.fromMap(map))
+                .toList();
       }
     } catch (e) {
       dev.log('Error loading old format results: $e');
     }
   }
 
-  Future<void> saveResult(TypingResult result) async {
+  Future<void> saveResult(TypingTestResultModel result) async {
     _results.add(result);
     _results.sort((a, b) => b.timestamp.compareTo(a.timestamp));
 
@@ -423,7 +429,7 @@ class TypingProvider with ChangeNotifier {
             dev.log('✅ Activity recorded in heatmap');
           } else {
             dev.log('❌ ActivityProvider not found - creating temporary one');
-            final tempActivityProvider = ActivityProvider();
+            final tempActivityProvider = UserActivityProvider();
             await tempActivityProvider.recordActivity(user.id);
           }
         }
@@ -460,11 +466,11 @@ class TypingProvider with ChangeNotifier {
     return null;
   }
 
-  ActivityProvider? _getActivityProvider() {
+  UserActivityProvider? _getActivityProvider() {
     try {
       final context = navigatorKey.currentContext;
       if (context != null && context.mounted) {
-        return Provider.of<ActivityProvider>(context, listen: false);
+        return Provider.of<UserActivityProvider>(context, listen: false);
       } else {
         dev.log('Context is null or not mounted for ActivityProvider');
       }
@@ -525,7 +531,7 @@ class TypingProvider with ChangeNotifier {
   //   }
   // }
 
-  Future<void> deleteHistoryEntry(TypingResult result) async {
+  Future<void> deleteHistoryEntry(TypingTestResultModel result) async {
     try {
       final deletedResult = result;
 
@@ -585,7 +591,9 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _updateUserStatsAfterDeletion(TypingResult deletedResult) async {
+  Future<void> _updateUserStatsAfterDeletion(
+    TypingTestResultModel deletedResult,
+  ) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {
@@ -770,7 +778,7 @@ class TypingProvider with ChangeNotifier {
       } else {
         dev.log('❌ ActivityProvider not available for force refresh');
 
-        final tempActivityProvider = ActivityProvider();
+        final tempActivityProvider = UserActivityProvider();
         await tempActivityProvider.fetchActivityData(userId, year);
       }
     } catch (e) {
@@ -831,7 +839,7 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _saveResultToSupabase(TypingResult result) async {
+  Future<void> _saveResultToSupabase(TypingTestResultModel result) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {
@@ -874,7 +882,7 @@ class TypingProvider with ChangeNotifier {
         final savedResult = response[0];
         final supabaseId = savedResult['id']?.toString();
 
-        final updatedResult = TypingResult(
+        final updatedResult = TypingTestResultModel(
           id: supabaseId,
           userId: user.id,
           wpm: result.wpm,
@@ -976,15 +984,17 @@ class TypingProvider with ChangeNotifier {
 
   int get totalTests => _results.length;
 
-  List<TypingResult> getRecentResults(int count) {
+  List<TypingTestResultModel> getRecentResults(int count) {
     return _results.take(count).toList();
   }
 
-  List<TypingResult> getAllRecentResults() {
+  List<TypingTestResultModel> getAllRecentResults() {
     return _results.toList();
   }
 
-  TypingResult _typingResultFromSupabaseJson(Map<String, dynamic> json) {
+  TypingTestResultModel _typingResultFromSupabaseJson(
+    Map<String, dynamic> json,
+  ) {
     List<int> incorrectPositions = [];
     if (json['incorrect_char_positions'] != null) {
       if (json['incorrect_char_positions'] is List) {
@@ -992,7 +1002,7 @@ class TypingProvider with ChangeNotifier {
       }
     }
 
-    return TypingResult(
+    return TypingTestResultModel(
       id: json['id']?.toString(),
       userId: json['user_id']?.toString(),
       wpm: json['wpm'],
@@ -1012,7 +1022,7 @@ class TypingProvider with ChangeNotifier {
     );
   }
 
-  TypingResult? getResultByTimestamp(DateTime timestamp) {
+  TypingTestResultModel? getResultByTimestamp(DateTime timestamp) {
     try {
       return _results.firstWhere(
         (result) =>
@@ -1024,11 +1034,11 @@ class TypingProvider with ChangeNotifier {
     }
   }
 
-  String getOriginalTextForResult(TypingResult result) {
+  String getOriginalTextForResult(TypingTestResultModel result) {
     return result.originalText;
   }
 
-  String getUserInputForResult(TypingResult result) {
+  String getUserInputForResult(TypingTestResultModel result) {
     return result.userInput;
   }
 
@@ -1039,7 +1049,7 @@ class TypingProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> _updateUserStatsDirectly(TypingResult result) async {
+  Future<void> _updateUserStatsDirectly(TypingTestResultModel result) async {
     try {
       final user = _supabase.auth.currentUser;
       if (user == null) {

@@ -5,8 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:typing_speed_master/models/typing_result.dart';
-import 'package:typing_speed_master/providers/typing_provider.dart';
+import 'package:typing_speed_master/models/typing_test_result_model.dart';
+import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
 import '../models/user_model.dart';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -220,7 +220,7 @@ class AuthProvider with ChangeNotifier {
     return null;
   }
 
-  Future<void> updateUserStats(TypingResult result) async {
+  Future<void> updateUserStats(TypingTestResultModel result) async {
     try {
       if (_isSignOut || _user == null) {
         dev.log(

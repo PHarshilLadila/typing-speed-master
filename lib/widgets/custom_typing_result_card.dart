@@ -6,11 +6,11 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_difficulty_container.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_progress_indicator.dart';
-import 'package:typing_speed_master/models/typing_result.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/models/typing_test_result_model.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
-class TypingResultCard extends StatelessWidget {
-  final TypingResult result;
+class CustomTypingResultCard extends StatelessWidget {
+  final TypingTestResultModel result;
   final double subtitleFontSize;
   final bool isDarkMode;
   final VoidCallback? onViewDetails;
@@ -18,7 +18,7 @@ class TypingResultCard extends StatelessWidget {
   final String? indexOfNumbers;
   final void Function()? onTap;
 
-  const TypingResultCard({
+  const CustomTypingResultCard({
     super.key,
     required this.result,
     this.subtitleFontSize = 16,

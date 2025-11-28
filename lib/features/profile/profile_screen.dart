@@ -11,15 +11,15 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restart_app/restart_app.dart';
-import 'package:typing_speed_master/models/test_text.dart';
+import 'package:typing_speed_master/models/user_activity_month_lable_model.dart';
 import 'package:typing_speed_master/models/user_model.dart';
-import 'package:typing_speed_master/providers/activity_provider.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
-import 'package:typing_speed_master/providers/typing_provider.dart';
+import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
-import 'package:typing_speed_master/widgets/profile_placeholder_avatar.dart';
-import 'package:typing_speed_master/widgets/stats_card.dart';
-import '../providers/auth_provider.dart';
+import 'package:typing_speed_master/features/profile/widget/profile_placeholder_avatar.dart';
+import 'package:typing_speed_master/widgets/custom_stats_card.dart';
+import '../../providers/auth_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -35,7 +35,7 @@ class ProfileScreenState extends State<ProfileScreen>
   List<List<DateTime?>> heatmapWeeks = [];
   int currentHeatmapYear = DateTime.now().year;
   Map<DateTime, int> activityData = {};
-  List<MonthLabel> monthLabels = [];
+  List<UserActivityMonthLabelModel> monthLabels = [];
   String? profileImageUrl;
   List<int> availableYears = [];
 
@@ -92,7 +92,7 @@ class ProfileScreenState extends State<ProfileScreen>
     if (!mounted) return;
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final activityProvider = Provider.of<ActivityProvider>(
+    final activityProvider = Provider.of<UserActivityProvider>(
       context,
       listen: false,
     );
@@ -214,7 +214,9 @@ class ProfileScreenState extends State<ProfileScreen>
         final startWeek = weeks.first;
         final weekCount = weeks.length;
         final monthName = getMonthAbbreviation(month);
-        monthLabels.add(MonthLabel(monthName, startWeek, weekCount));
+        monthLabels.add(
+          UserActivityMonthLabelModel(monthName, startWeek, weekCount),
+        );
       }
     }
   }
@@ -1767,7 +1769,7 @@ class ProfileScreenState extends State<ProfileScreen>
             spacing: 16,
             runSpacing: 16,
             children: [
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Total Tests',
                 value: '${user.totalTests}',
@@ -1777,7 +1779,7 @@ class ProfileScreenState extends State<ProfileScreen>
                 isDarkMode: isDark,
                 isProfile: true,
               ),
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Average WPM',
                 value: '${user.averageWpm.round()}',
@@ -1787,7 +1789,7 @@ class ProfileScreenState extends State<ProfileScreen>
                 isDarkMode: isDark,
                 isProfile: true,
               ),
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Total Words',
                 value: '${user.totalWords}',
@@ -1798,7 +1800,7 @@ class ProfileScreenState extends State<ProfileScreen>
                 isProfile: true,
               ),
 
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Accuracy',
                 value: '${typingProvider.averageAccuracy.round()}%',
@@ -1808,7 +1810,7 @@ class ProfileScreenState extends State<ProfileScreen>
                 isDarkMode: isDark,
                 isProfile: true,
               ),
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Current Streak',
                 value: '${user.currentStreak} days',
@@ -1818,7 +1820,7 @@ class ProfileScreenState extends State<ProfileScreen>
                 isDarkMode: isDark,
                 isProfile: true,
               ),
-              StatsCard(
+              CustomStatsCard(
                 width: 200,
                 title: 'Longest Streak',
                 value: '${user.longestStreak} days',

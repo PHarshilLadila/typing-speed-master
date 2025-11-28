@@ -2,14 +2,14 @@
 
 import 'package:flutter/material.dart';
 
-class DrawerTile extends StatefulWidget {
+class CustomDrawerTile extends StatefulWidget {
   final IconData icon;
   final String label;
   final bool selected;
   final VoidCallback onTap;
   final bool isDarkMode;
 
-  const DrawerTile({
+  const CustomDrawerTile({
     super.key,
     required this.icon,
     required this.label,
@@ -19,10 +19,10 @@ class DrawerTile extends StatefulWidget {
   });
 
   @override
-  State<DrawerTile> createState() => _DrawerTileState();
+  State<CustomDrawerTile> createState() => _CustomDrawerTileState();
 }
 
-class _DrawerTileState extends State<DrawerTile> {
+class _CustomDrawerTileState extends State<CustomDrawerTile> {
   bool _isHovered = false;
 
   @override

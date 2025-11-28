@@ -4,29 +4,33 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/models/typing_result.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/models/typing_test_result_model.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
-import 'package:typing_speed_master/screens/dashboard_screen.dart';
-import 'package:typing_speed_master/screens/game_dashboard_screen.dart';
-import 'package:typing_speed_master/screens/history_screen.dart';
-import 'package:typing_speed_master/screens/profile_screen.dart';
-import 'package:typing_speed_master/screens/typing_test_screen.dart';
-import 'package:typing_speed_master/screens/results_screen.dart';
+import 'package:typing_speed_master/features/dashboard/dashboard_screen.dart';
+import 'package:typing_speed_master/features/games/character_rush/game_character_rush.dart';
+import 'package:typing_speed_master/features/games/game_dashboard_screen.dart';
+import 'package:typing_speed_master/features/games/word_master/game_word_master.dart';
+import 'package:typing_speed_master/features/history/history_screen.dart';
+import 'package:typing_speed_master/features/profile/profile_screen.dart';
+import 'package:typing_speed_master/features/typing_test/typing_test_screen.dart';
+import 'package:typing_speed_master/features/typing_test/results_screen.dart';
 import 'package:typing_speed_master/widgets/custom_appbar.dart';
-import 'package:typing_speed_master/widgets/drawer_tiles.dart';
+import 'package:typing_speed_master/widgets/custom_drawer_tiles.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-class MainEntryPoint extends StatefulWidget {
-  const MainEntryPoint({super.key});
+class AppEntryPoint extends StatefulWidget {
+  const AppEntryPoint({super.key});
 
   @override
-  State<MainEntryPoint> createState() => MainEntryPointState();
+  State<AppEntryPoint> createState() => AppEntryPointState();
 }
 
-class MainEntryPointState extends State<MainEntryPoint> {
+class AppEntryPointState extends State<AppEntryPoint> {
   int selectedIndex = 0;
   Widget? currentPage;
+  bool get isInGameScreen =>
+      currentPage is GameCharacterRush || currentPage is GameWordMaster;
 
   final List<Widget> pages = [
     const TypingTestScreen(),
@@ -36,10 +40,15 @@ class MainEntryPointState extends State<MainEntryPoint> {
     const ProfileScreen(),
   ];
 
+  final List<Widget> _pageHistory = [];
+  final List<int> _indexHistory = [];
+
   @override
   void initState() {
     super.initState();
     currentPage = pages[selectedIndex];
+    _pageHistory.add(currentPage!);
+    _indexHistory.add(selectedIndex);
   }
 
   void onMenuClick(int index) {
@@ -47,8 +56,47 @@ class MainEntryPointState extends State<MainEntryPoint> {
       selectedIndex = index;
       currentPage = pages[index];
 
-      if (index == 3) {
+      if (index == 4) {
         _refreshProfileData();
+      }
+      if (index == 3 && isInGameScreen) {
+        currentPage = pages[3];
+      } else if (index != 3 && isInGameScreen) {
+        currentPage = pages[index];
+      } else {
+        currentPage = pages[index];
+      }
+      if (_pageHistory.isEmpty || _pageHistory.last != currentPage) {
+        _pageHistory.add(currentPage!);
+        _indexHistory.add(selectedIndex);
+      }
+    });
+  }
+
+  Future<bool> _onWillPop() async {
+    if (_pageHistory.length > 1) {
+      _pageHistory.removeLast();
+      _indexHistory.removeLast();
+
+      setState(() {
+        currentPage = _pageHistory.last;
+        selectedIndex = _indexHistory.last;
+      });
+      return false;
+    }
+    return true;
+  }
+
+  void launchGame(String gameId) {
+    setState(() {
+      selectedIndex = 3;
+      switch (gameId) {
+        case "character_rush":
+          currentPage = const GameCharacterRush();
+          break;
+        case "word_master":
+          currentPage = const GameWordMaster();
+          break;
       }
     });
   }
@@ -60,7 +108,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
     }
   }
 
-  void showResultsScreen(TypingResult result) {
+  void showResultsScreen(TypingTestResultModel result) {
     setState(() {
       currentPage = ResultsScreen(
         key: ValueKey(result.timestamp),
@@ -102,23 +150,27 @@ class MainEntryPointState extends State<MainEntryPoint> {
                   child: bodyContent,
                 );
 
-        return Scaffold(
-          appBar: PreferredSize(
-            preferredSize: const Size.fromHeight(70),
-            child: CustomAppBar(
-              selectedIndex: selectedIndex,
-              onMenuClick: onMenuClick,
-              isMobile: isMobile,
-              isTablet: isTablet,
-              screenWidth: screenWidth,
-              isDarkMode: themeProvider.isDarkMode,
+        return WillPopScope(
+          onWillPop: _onWillPop,
+
+          child: Scaffold(
+            appBar: PreferredSize(
+              preferredSize: const Size.fromHeight(70),
+              child: CustomAppBar(
+                selectedIndex: isInGameScreen ? 3 : selectedIndex,
+                onMenuClick: onMenuClick,
+                isMobile: isMobile,
+                isTablet: isTablet,
+                screenWidth: screenWidth,
+                isDarkMode: themeProvider.isDarkMode,
+              ),
             ),
+            drawer:
+                isMobile || isTablet
+                    ? _buildDrawer(themeProvider, authProvider)
+                    : null,
+            body: buildBody(finalBodyContent),
           ),
-          drawer:
-              isMobile || isTablet
-                  ? _buildDrawer(themeProvider, authProvider)
-                  : null,
-          body: buildBody(finalBodyContent),
         );
       },
     );
@@ -279,7 +331,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Column(
                 children: [
-                  DrawerTile(
+                  CustomDrawerTile(
                     icon: Icons.keyboard_alt_outlined,
                     label: "Typing Test",
                     isDarkMode: themeProvider.isDarkMode,
@@ -289,7 +341,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
                       onMenuClick(0);
                     },
                   ),
-                  DrawerTile(
+                  CustomDrawerTile(
                     icon: Icons.dashboard_outlined,
                     label: "Dashboard",
                     isDarkMode: themeProvider.isDarkMode,
@@ -299,7 +351,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
                       onMenuClick(1);
                     },
                   ),
-                  DrawerTile(
+                  CustomDrawerTile(
                     icon: Icons.history_toggle_off_outlined,
                     label: "History",
                     isDarkMode: themeProvider.isDarkMode,
@@ -309,7 +361,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
                       onMenuClick(2);
                     },
                   ),
-                  DrawerTile(
+                  CustomDrawerTile(
                     icon: FontAwesomeIcons.fire,
                     label: "Games",
                     isDarkMode: themeProvider.isDarkMode,
@@ -319,7 +371,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
                       onMenuClick(3);
                     },
                   ),
-                  DrawerTile(
+                  CustomDrawerTile(
                     icon: Icons.person_outline_outlined,
                     label: "Profile",
                     isDarkMode: themeProvider.isDarkMode,
@@ -421,7 +473,7 @@ class MainEntryPointState extends State<MainEntryPoint> {
 }
 
 class TypingTestResultsProvider extends StatefulWidget {
-  final Function(TypingResult) showResultsScreen;
+  final Function(TypingTestResultModel) showResultsScreen;
   final Widget child;
 
   const TypingTestResultsProvider({
@@ -442,7 +494,7 @@ class TypingTestResultsProvider extends StatefulWidget {
 }
 
 class TypingTestResultsProviderState extends State<TypingTestResultsProvider> {
-  void showResults(TypingResult result) {
+  void showResults(TypingTestResultModel result) {
     widget.showResultsScreen(result);
   }
 

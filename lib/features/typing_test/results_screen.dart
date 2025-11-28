@@ -7,14 +7,14 @@ import 'package:google_adsense/experimental/ad_unit_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
-import 'package:typing_speed_master/providers/typing_provider.dart';
-import 'package:typing_speed_master/widgets/charecter_analysis_widget.dart';
-import '../models/typing_result.dart';
-import '../widgets/stats_card.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
+import 'package:typing_speed_master/features/typing_test/widget/charecter_analysis_widget.dart';
+import '../../models/typing_test_result_model.dart';
+import '../../widgets/custom_stats_card.dart';
 
 class ResultsScreen extends StatefulWidget {
-  final TypingResult result;
+  final TypingTestResultModel result;
   final VoidCallback onBackToTest;
   final VoidCallback onBackToDashboard;
   final bool isViewDetails;
@@ -349,7 +349,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
       return Row(
         children: [
           Expanded(
-            child: StatsCard(
+            child: CustomStatsCard(
               title: 'Words Per Minute',
               value: widget.result.wpm.toString(),
               unit: 'WPM',
@@ -360,7 +360,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(width: 16),
           Expanded(
-            child: StatsCard(
+            child: CustomStatsCard(
               title: 'Consistency',
               value: widget.result.consistency.toString(),
               unit: '%',
@@ -371,7 +371,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(width: 16),
           Expanded(
-            child: StatsCard(
+            child: CustomStatsCard(
               title: 'Accuracy',
               value: widget.result.accuracy.toStringAsFixed(1),
               unit: '%',
@@ -382,7 +382,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(width: 16),
           Expanded(
-            child: StatsCard(
+            child: CustomStatsCard(
               title: 'Duration',
               value: widget.result.duration.inSeconds.toString(),
               unit: 'seconds',
@@ -393,7 +393,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(width: 16),
           Expanded(
-            child: StatsCard(
+            child: CustomStatsCard(
               title: 'Difficulty',
               value: widget.result.difficulty,
               unit: '',
@@ -410,7 +410,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Words Per Minute',
                   value: widget.result.wpm.toString(),
                   unit: 'WPM',
@@ -421,7 +421,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ),
               SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Consistency',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
@@ -436,7 +436,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Accuracy',
                   value: widget.result.accuracy.toStringAsFixed(1),
                   unit: '%',
@@ -448,7 +448,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
               SizedBox(width: 16),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Duration',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: 'seconds',
@@ -464,7 +464,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Difficulty',
                   value: widget.result.difficulty,
                   unit: '',
@@ -484,7 +484,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Words Per Minute',
                   value: widget.result.wpm.toString(),
                   unit: 'WPM',
@@ -495,7 +495,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
               ),
               SizedBox(width: 12),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Consistency',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: '%',
@@ -510,7 +510,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Row(
             children: [
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Accuracy',
                   value: widget.result.accuracy.toStringAsFixed(1),
                   unit: '%',
@@ -522,7 +522,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
               SizedBox(width: 12),
               Expanded(
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Duration',
                   value: widget.result.duration.inSeconds.toString(),
                   unit: 'seconds',
@@ -538,7 +538,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 flex: 1,
-                child: StatsCard(
+                child: CustomStatsCard(
                   title: 'Difficulty',
                   value: widget.result.difficulty,
                   unit: '',
@@ -555,7 +555,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
     } else {
       return Column(
         children: [
-          StatsCard(
+          CustomStatsCard(
             title: 'Words Per Minute',
             value: widget.result.wpm.toString(),
             unit: 'WPM',
@@ -564,7 +564,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           SizedBox(height: 12),
-          StatsCard(
+          CustomStatsCard(
             title: 'Accuracy',
             value: widget.result.accuracy.toStringAsFixed(1),
             unit: '%',
@@ -573,7 +573,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           SizedBox(height: 12),
-          StatsCard(
+          CustomStatsCard(
             title: 'Duration',
             value: widget.result.duration.inSeconds.toString(),
             unit: 'seconds',
@@ -582,7 +582,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
             isDarkMode: themeProvider.isDarkMode,
           ),
           SizedBox(height: 12),
-          StatsCard(
+          CustomStatsCard(
             title: 'Difficulty',
             value: widget.result.difficulty,
             unit: '',

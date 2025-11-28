@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/providers/theme_provider.dart';
+import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
 class CustomNavItem extends StatelessWidget {
   final IconData icon;

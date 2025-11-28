@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-class StatsCard extends StatefulWidget {
+class CustomStatsCard extends StatefulWidget {
   final String title;
   final String value;
   final String unit;
@@ -12,7 +12,7 @@ class StatsCard extends StatefulWidget {
   final double width;
   final bool isProfile;
 
-  const StatsCard({
+  const CustomStatsCard({
     super.key,
     required this.title,
     required this.value,
@@ -25,10 +25,10 @@ class StatsCard extends StatefulWidget {
   });
 
   @override
-  State<StatsCard> createState() => _StatsCardState();
+  State<CustomStatsCard> createState() => _CustomStatsCardState();
 }
 
-class _StatsCardState extends State<StatsCard>
+class _CustomStatsCardState extends State<CustomStatsCard>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _rotationAnimation;
