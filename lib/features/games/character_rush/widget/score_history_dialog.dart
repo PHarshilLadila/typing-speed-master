@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/model/character_rush_model.dart';
@@ -25,7 +27,6 @@ class ScoreHistoryDialog extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -54,7 +55,6 @@ class ScoreHistoryDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              // Clear History Button
               if (gameProvider.scores.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -72,8 +72,6 @@ class ScoreHistoryDialog extends StatelessWidget {
                             confirmButtonColor: Colors.red,
                             isDestructive: true,
                             onConfirm: () {
-                              // Add clear history method to GameProvider
-                              // gameProvider.clearHistory();
                               Navigator.pop(context);
                             },
                           );
@@ -89,7 +87,6 @@ class ScoreHistoryDialog extends StatelessWidget {
                   ),
                 ),
 
-              // Scores List
               Expanded(
                 child:
                     gameProvider.scores.isEmpty
@@ -100,7 +97,6 @@ class ScoreHistoryDialog extends StatelessWidget {
                         ),
               ),
 
-              // Close Button
               const SizedBox(height: 16),
               SizedBox(
                 width: double.infinity,
@@ -177,7 +173,6 @@ class ScoreHistoryDialog extends StatelessWidget {
       ),
       child: Row(
         children: [
-          // Rank Badge
           Container(
             width: 40,
             height: 40,
@@ -205,7 +200,6 @@ class ScoreHistoryDialog extends StatelessWidget {
           ),
           const SizedBox(width: 16),
 
-          // Score Details
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,7 +246,6 @@ class ScoreHistoryDialog extends StatelessWidget {
             ),
           ),
 
-          // Date
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -317,11 +310,11 @@ class ScoreHistoryDialog extends StatelessWidget {
   Color _getRankColor(int rank) {
     switch (rank) {
       case 1:
-        return const Color(0xFFFFD700); // Gold
+        return const Color(0xFFFFD700);
       case 2:
-        return const Color(0xFFC0C0C0); // Silver
+        return const Color(0xFFC0C0C0);
       case 3:
-        return const Color(0xFFCD7F32); // Bronze
+        return const Color(0xFFCD7F32);
       default:
         return Colors.blue;
     }

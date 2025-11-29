@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
@@ -213,10 +215,8 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
         ),
         child: Stack(
           children: [
-            // Game area background
             _buildGameBackground(themeProvider.isDarkMode),
 
-            // Falling characters
             for (int i = 0; i < gameProvider.activeCharacters.length; i++)
               Positioned(
                 left:
@@ -225,13 +225,10 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                 top: gameProvider.characterPositions[i].dy * gameAreaHeight,
                 child: CharRushCharacterWidget(
                   character: gameProvider.activeCharacters[i],
-                  onCollected: () {
-                    // This will be handled by keyboard input
-                  },
+                  onCollected: () {},
                 ),
               ),
 
-            // Game instructions or start button
             if (!gameProvider.isGameRunning)
               Center(
                 child: Container(
@@ -297,7 +294,6 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                 ),
               ),
 
-            // Hidden text field for keyboard input
             Offstage(
               child: TextField(
                 controller: _textController,

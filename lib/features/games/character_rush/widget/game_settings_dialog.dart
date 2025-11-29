@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/model/character_rush_settings_model.dart';
@@ -78,7 +80,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -118,14 +119,12 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
               ),
               const SizedBox(height: 24),
 
-              // Settings Content
               Expanded(
                 child: SingleChildScrollView(
                   physics: const BouncingScrollPhysics(),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Difficulty Settings
                       _buildSectionHeader(
                         'Difficulty Settings',
                         Icons.speed,
@@ -190,7 +189,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
 
                       const SizedBox(height: 24),
 
-                      // Game Preferences
                       _buildSectionHeader(
                         'Game Preferences',
                         Icons.settings,
@@ -215,7 +213,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                 ),
               ),
 
-              // Action Buttons
               const SizedBox(height: 24),
               Row(
                 children: [
