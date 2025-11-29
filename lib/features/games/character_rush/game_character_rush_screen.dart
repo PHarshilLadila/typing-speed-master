@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
-import 'package:typing_speed_master/features/games/character_rush/widget/character_rush_%20character_widget.dart';
+import 'package:typing_speed_master/features/games/character_rush/widget/char_rush_%20character_widget.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/game_settings_dialog.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/score_history_dialog.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
-class GameCharacterRush extends StatefulWidget {
-  const GameCharacterRush({super.key});
+class GameCharacterRushScreen extends StatefulWidget {
+  const GameCharacterRushScreen({super.key});
 
   @override
-  State<GameCharacterRush> createState() => _GameCharacterRushState();
+  State<GameCharacterRushScreen> createState() =>
+      _GameCharacterRushScreenState();
 }
 
-class _GameCharacterRushState extends State<GameCharacterRush> {
+class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   final FocusNode _focusNode = FocusNode();
   final TextEditingController _textController = TextEditingController();
 
@@ -191,7 +192,7 @@ class _GameCharacterRushState extends State<GameCharacterRush> {
     Size screenSize,
   ) {
     final isMobile = screenSize.width <= 768;
-    final gameAreaHeight = isMobile ? 180.0 : 340.0;
+    final gameAreaHeight = isMobile ? 340.0 : 480.0;
 
     return GestureDetector(
       onTap: () {
@@ -222,7 +223,7 @@ class _GameCharacterRushState extends State<GameCharacterRush> {
                     gameProvider.characterPositions[i].dx *
                     (screenSize.width - 80),
                 top: gameProvider.characterPositions[i].dy * gameAreaHeight,
-                child: CharacterWidget(
+                child: CharRushCharacterWidget(
                   character: gameProvider.activeCharacters[i],
                   onCollected: () {
                     // This will be handled by keyboard input
@@ -233,55 +234,65 @@ class _GameCharacterRushState extends State<GameCharacterRush> {
             // Game instructions or start button
             if (!gameProvider.isGameRunning)
               Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(20.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.keyboard,
-                        size: 48,
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[400]
-                                : Colors.grey[600],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        gameProvider.charactersCollected > 0
-                            ? 'Game Over! Final Score: ${gameProvider.score}'
-                            : 'Tap to focus and start typing!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 18,
+                child: Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.grey[800]
+                            : Colors.grey[100],
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.keyboard,
+                          size: 48,
                           color:
                               themeProvider.isDarkMode
                                   ? Colors.grey[400]
                                   : Colors.grey[600],
                         ),
-                      ),
-                      const SizedBox(height: 16),
-                      ElevatedButton.icon(
-                        onPressed: () {
-                          gameProvider.startGame();
-                          _focusNode.requestFocus();
-                        },
-                        icon: const Icon(Icons.play_arrow),
-                        label: Text(
+                        const SizedBox(height: 16),
+                        Text(
                           gameProvider.charactersCollected > 0
-                              ? 'Play Again'
-                              : 'Start Game',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue,
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                              ? 'Game Over! Final Score: ${gameProvider.score}'
+                              : 'Tap to focus and start typing!',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 18,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () {
+                            gameProvider.startGame();
+                            _focusNode.requestFocus();
+                          },
+                          icon: const Icon(Icons.play_arrow),
+                          label: Text(
+                            gameProvider.charactersCollected > 0
+                                ? 'Play Again'
+                                : 'Start Game',
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: themeProvider.primaryColor,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -403,9 +414,9 @@ class _GameCharacterRushState extends State<GameCharacterRush> {
           Text(
             '• Type the falling characters on your keyboard\n'
             '• Characters can be typed in uppercase or lowercase\n'
-            '• Game speed increases every 10 seconds\n'
+            '• Game speed increases every 15 seconds\n'
             '• Score more points for faster characters\n'
-            '• Collect as many as you can before they reach the bottom!',
+            '• Game lasts 60 seconds - collect as many as you can!',
             style: TextStyle(
               fontSize: 14,
               color: isDarkMode ? Colors.grey[400] : Colors.grey[600],

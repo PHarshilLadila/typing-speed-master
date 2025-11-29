@@ -156,7 +156,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                             'How much speed increases every 10 seconds',
                         value: _currentSettings.speedIncrement,
                         min: 0.05,
-                        max: 0.5,
+                        max: 0.9,
                         divisions: 9,
                         unit: 'x',
                         onChanged: (value) {

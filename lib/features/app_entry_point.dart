@@ -8,7 +8,7 @@ import 'package:typing_speed_master/models/typing_test_result_model.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/features/dashboard/dashboard_screen.dart';
-import 'package:typing_speed_master/features/games/character_rush/game_character_rush.dart';
+import 'package:typing_speed_master/features/games/character_rush/game_character_rush_screen.dart';
 import 'package:typing_speed_master/features/games/game_dashboard_screen.dart';
 import 'package:typing_speed_master/features/games/word_master/game_word_master.dart';
 import 'package:typing_speed_master/features/history/history_screen.dart';
@@ -30,7 +30,7 @@ class AppEntryPointState extends State<AppEntryPoint> {
   int selectedIndex = 0;
   Widget? currentPage;
   bool get isInGameScreen =>
-      currentPage is GameCharacterRush || currentPage is GameWordMaster;
+      currentPage is GameCharacterRushScreen || currentPage is GameWordMaster;
 
   final List<Widget> pages = [
     const TypingTestScreen(),
@@ -92,7 +92,7 @@ class AppEntryPointState extends State<AppEntryPoint> {
       selectedIndex = 3;
       switch (gameId) {
         case "character_rush":
-          currentPage = const GameCharacterRush();
+          currentPage = const GameCharacterRushScreen();
           break;
         case "word_master":
           currentPage = const GameWordMaster();

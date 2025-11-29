@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/game_dashboard_card.dart';
 import 'package:typing_speed_master/features/games/provider/game_dashboard_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
-import 'package:typing_speed_master/features/games/character_rush/game_character_rush.dart';
+import 'package:typing_speed_master/features/games/character_rush/game_character_rush_screen.dart';
 import 'package:typing_speed_master/features/games/word_master/game_word_master.dart';
 import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/features/games/widget/game_card_widget.dart';
@@ -127,7 +127,9 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
         case "character_rush":
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const GameCharacterRush()),
+            MaterialPageRoute(
+              builder: (context) => const GameCharacterRushScreen(),
+            ),
           );
           break;
         case "word_master":
