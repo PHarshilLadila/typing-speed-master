@@ -98,7 +98,7 @@ class ProfileScreenState extends State<ProfileScreen>
     );
 
     if (authProvider.user != null) {
-      dev.log('🔄 Generating heatmap data for user: ${authProvider.user!.id}');
+      dev.log('Generating heatmap data for user: ${authProvider.user!.id}');
 
       if (mounted) {
         setState(() {
@@ -132,7 +132,7 @@ class ProfileScreenState extends State<ProfileScreen>
             calculateMonthLabels();
           });
 
-          dev.log('✅ Heatmap data generated: ${activityData.length} days');
+          dev.log('Heatmap data generated: ${activityData.length} days');
           if (activityData.isNotEmpty) {
             dev.log(
               '📊 Sample activity: ${activityData.entries.take(3).map((e) => '${e.key}: ${e.value}').join(', ')}',
@@ -140,7 +140,7 @@ class ProfileScreenState extends State<ProfileScreen>
           }
         }
       } catch (e) {
-        dev.log('❌ Error generating heatmap data: $e');
+        dev.log('Error generating heatmap data: $e');
         if (mounted) {
           setState(() {
             activityData = {};
@@ -726,7 +726,7 @@ class ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget profileErrorState(bool isDark, double size, String error) {
-    dev.log('❌ Profile image loading error: $error');
+    dev.log('Profile image loading error: $error');
 
     return CachedNetworkImage(
       imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
@@ -1600,7 +1600,7 @@ class ProfileScreenState extends State<ProfileScreen>
                           Restart.restartApp();
                         }
                         debugPrint(
-                          "✅ User Sign Out Successful and App Restarted",
+                          "User Sign Out Successful and App Restarted",
                         );
                       },
                     );

@@ -16,15 +16,19 @@ class CharacterRushProvider with ChangeNotifier {
   int _score = 0;
   int _charactersCollected = 0;
   bool _isGameRunning = false;
+  bool _isGamePaused = false;
+
   double _currentSpeed = 1.0;
   int _gameDuration = 0;
   Timer? _gameTimer;
+  int _selectedGameTime = 60;
   Timer? _characterSpawnerTimer;
   Timer? _positionUpdateTimer;
   List<String> _activeCharacters = [];
   List<Offset> _characterPositions = [];
   DateTime? _gameStartTime;
   DateTime? _lastUpdateTime;
+  final List<int> _gameTimeOptions = [30, 60, 120, 180, 240, 300];
 
   CharacterRushSettingsModel _settings = CharacterRushSettingsModel(
     initialSpeed: 1.0,
@@ -38,8 +42,11 @@ class CharacterRushProvider with ChangeNotifier {
   int get score => _score;
   int get charactersCollected => _charactersCollected;
   bool get isGameRunning => _isGameRunning;
+  bool get isGamePaused => _isGamePaused;
   double get currentSpeed => _currentSpeed;
   int get gameDuration => _gameDuration;
+  int get selectedGameTime => _selectedGameTime;
+  List<int> get gameTimeOptions => _gameTimeOptions;
   List<String> get activeCharacters => _activeCharacters;
   List<Offset> get characterPositions => _characterPositions;
   CharacterRushSettingsModel get settings => _settings;
@@ -103,6 +110,11 @@ class CharacterRushProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void updateGameTime(int newTime) {
+    _selectedGameTime = newTime;
+    notifyListeners();
+  }
+
   Future<void> clearHistory() async {
     _scores.clear();
     final prefs = await SharedPreferences.getInstance();
@@ -112,6 +124,7 @@ class CharacterRushProvider with ChangeNotifier {
 
   void startGame() {
     _resetGame();
+    _isGamePaused = false;
     _isGameRunning = true;
     _gameStartTime = DateTime.now();
     _lastUpdateTime = DateTime.now();
@@ -119,6 +132,27 @@ class CharacterRushProvider with ChangeNotifier {
     _startCharacterSpawner();
     _startPositionUpdates();
     notifyListeners();
+  }
+
+  void pauseGame() {
+    if (_isGameRunning && !_isGamePaused) {
+      _isGamePaused = true;
+      _gameTimer?.cancel();
+      _characterSpawnerTimer?.cancel();
+      _positionUpdateTimer?.cancel();
+      notifyListeners();
+    }
+  }
+
+  void resumeGame() {
+    if (_isGameRunning && _isGamePaused) {
+      _isGamePaused = false;
+      _lastUpdateTime = DateTime.now();
+      _startGameTimer();
+      _startCharacterSpawner();
+      _startPositionUpdates();
+      notifyListeners();
+    }
   }
 
   void _resetGame() {
@@ -133,11 +167,12 @@ class CharacterRushProvider with ChangeNotifier {
     _positionUpdateTimer?.cancel();
     _gameStartTime = null;
     _lastUpdateTime = null;
+    _isGamePaused = false;
   }
 
   void _startGameTimer() {
     _gameTimer = Timer.periodic(const Duration(milliseconds: 500), (timer) {
-      if (_isGameRunning) {
+      if (_isGameRunning && !_isGamePaused) {
         _gameDuration++;
 
         if (_gameStartTime != null) {
@@ -145,7 +180,7 @@ class CharacterRushProvider with ChangeNotifier {
           _gameDuration = elapsed;
         }
 
-        if (_gameDuration >= 60) {
+        if (_gameDuration >= _selectedGameTime) {
           endGame();
           return;
         }
@@ -168,6 +203,7 @@ class CharacterRushProvider with ChangeNotifier {
 
     _characterSpawnerTimer = Timer.periodic(spawnInterval, (timer) {
       if (_isGameRunning &&
+          !_isGamePaused &&
           _activeCharacters.length < _settings.maxCharacters) {
         _spawnCharacter();
       } else if (!_isGameRunning) {
@@ -180,7 +216,7 @@ class CharacterRushProvider with ChangeNotifier {
     _positionUpdateTimer = Timer.periodic(const Duration(milliseconds: 16), (
       timer,
     ) {
-      if (_isGameRunning) {
+      if (_isGameRunning && !_isGamePaused) {
         _updateCharacterPositions();
       } else {
         timer.cancel();
@@ -256,7 +292,7 @@ class CharacterRushProvider with ChangeNotifier {
   }
 
   void checkCharacter(String typedChar) {
-    if (!_isGameRunning || typedChar.isEmpty) return;
+    if (!_isGameRunning || _isGamePaused || typedChar.isEmpty) return;
 
     final upperChar = typedChar.toUpperCase();
 
@@ -282,6 +318,7 @@ class CharacterRushProvider with ChangeNotifier {
     if (!_isGameRunning) return;
 
     _isGameRunning = false;
+    _isGamePaused = false;
     _gameTimer?.cancel();
     _characterSpawnerTimer?.cancel();
     _positionUpdateTimer?.cancel();

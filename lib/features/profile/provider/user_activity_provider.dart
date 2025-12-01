@@ -19,7 +19,7 @@ class UserActivityProvider with ChangeNotifier {
       final startDate = DateTime(year, 1, 1);
       final endDate = DateTime(year, 12, 31);
 
-      dev.log('📊 Fetching activity data for user: $userId, year: $year');
+      dev.log('Fetching activity data for user: $userId, year: $year');
 
       final response = await _supabase
           .from('activity_logs')
@@ -39,15 +39,15 @@ class UserActivityProvider with ChangeNotifier {
 
       _activityData = newActivityData;
 
-      dev.log('✅ Loaded ${_activityData.length} activity days for $year');
+      dev.log('Loaded ${_activityData.length} activity days for $year');
       dev.log(
         '📅 Activity data sample: ${_activityData.entries.take(5).toList()}',
       );
     } catch (e) {
-      dev.log('❌ Error fetching activity data: $e');
+      dev.log('Error fetching activity data: $e');
       if (e is PostgrestException) {
-        dev.log('❌ Postgrest error: ${e.message}');
-        dev.log('❌ Details: ${e.details}');
+        dev.log('Postgrest error: ${e.message}');
+        dev.log('Details: ${e.details}');
       }
       _activityData = {};
     } finally {
@@ -62,7 +62,7 @@ class UserActivityProvider with ChangeNotifier {
       final dateOnly = DateTime(today.year, today.month, today.day);
       final dateString = dateOnly.toIso8601String().split('T')[0];
 
-      dev.log('📝 Recording activity for user: $userId on $dateString');
+      dev.log('Recording activity for user: $userId on $dateString');
 
       final existing =
           await _supabase
@@ -75,7 +75,7 @@ class UserActivityProvider with ChangeNotifier {
       if (existing != null) {
         final newCount = (existing['test_count'] as int) + 1;
 
-        dev.log('📝 Updating existing activity: $newCount tests');
+        dev.log('Updating existing activity: $newCount tests');
 
         await _supabase
             .from('activity_logs')
@@ -87,9 +87,9 @@ class UserActivityProvider with ChangeNotifier {
             .eq('activity_date', dateString);
 
         _activityData[dateOnly] = newCount;
-        dev.log('✅ Updated activity count to $newCount');
+        dev.log('Updated activity count to $newCount');
       } else {
-        dev.log('📝 Creating new activity record');
+        dev.log('Creating new activity record');
 
         final insertData = {
           'user_id': userId,
@@ -97,25 +97,25 @@ class UserActivityProvider with ChangeNotifier {
           'test_count': 1,
         };
 
-        dev.log('📝 Insert data: $insertData');
+        dev.log('Insert data: $insertData');
 
         final response =
             await _supabase.from('activity_logs').insert(insertData).select();
 
-        dev.log('📝 Insert response: $response');
+        dev.log('Insert response: $response');
 
         _activityData[dateOnly] = 1;
-        dev.log('✅ Created new activity record');
+        dev.log('Created new activity record');
       }
 
       notifyListeners();
     } catch (e) {
-      dev.log('❌ Error recording activity: $e');
+      dev.log('Error recording activity: $e');
       if (e is PostgrestException) {
-        dev.log('❌ Postgrest error: ${e.message}');
-        dev.log('❌ Details: ${e.details}');
-        dev.log('❌ Hint: ${e.hint}');
-        dev.log('❌ Code: ${e.code}');
+        dev.log('Postgrest error: ${e.message}');
+        dev.log('Details: ${e.details}');
+        dev.log('Hint: ${e.hint}');
+        dev.log('Code: ${e.code}');
       }
     }
   }
@@ -142,9 +142,9 @@ class UserActivityProvider with ChangeNotifier {
 
       await fetchActivityData(userId, year);
 
-      dev.log('🔄 Activity data forcefully refreshed for $year');
+      dev.log('Activity data forcefully refreshed for $year');
     } catch (e) {
-      dev.log('❌ Error in forceRefreshActivity: $e');
+      dev.log('Error in forceRefreshActivity: $e');
     } finally {
       _isLoading = false;
       notifyListeners();

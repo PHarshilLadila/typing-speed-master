@@ -94,6 +94,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                         : _buildScoresList(
                           gameProvider,
                           themeProvider.isDarkMode,
+                          themeProvider,
                         ),
               ),
 
@@ -148,19 +149,28 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildScoresList(CharacterRushProvider gameProvider, bool isDarkMode) {
+  Widget _buildScoresList(
+    CharacterRushProvider gameProvider,
+    bool isDarkMode,
+    ThemeProvider themeProvider,
+  ) {
     return ListView.builder(
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
       itemCount: gameProvider.scores.length,
       itemBuilder: (context, index) {
         final score = gameProvider.scores[index];
-        return _buildScoreItem(score, index + 1, isDarkMode);
+        return _buildScoreItem(score, index + 1, isDarkMode, themeProvider);
       },
     );
   }
 
-  Widget _buildScoreItem(CharacterRushModel score, int rank, bool isDarkMode) {
+  Widget _buildScoreItem(
+    CharacterRushModel score,
+    int rank,
+    bool isDarkMode,
+    ThemeProvider themeProvider,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -177,7 +187,7 @@ class ScoreHistoryDialog extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _getRankColor(rank),
+              color: _getRankColor(rank, themeProvider),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -282,7 +292,7 @@ class ScoreHistoryDialog extends StatelessWidget {
       color = Colors.purple;
       text = 'GREAT!';
     } else if (score >= 200) {
-      color = Colors.blue;
+      color = Colors.amber;
       text = 'GOOD!';
     } else {
       color = Colors.green;
@@ -307,7 +317,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Color _getRankColor(int rank) {
+  Color _getRankColor(int rank, ThemeProvider themeProvider) {
     switch (rank) {
       case 1:
         return const Color(0xFFFFD700);
@@ -316,7 +326,7 @@ class ScoreHistoryDialog extends StatelessWidget {
       case 3:
         return const Color(0xFFCD7F32);
       default:
-        return Colors.blue;
+        return themeProvider.primaryColor;
     }
   }
 

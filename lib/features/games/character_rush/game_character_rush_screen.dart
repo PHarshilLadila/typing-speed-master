@@ -76,10 +76,23 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
           children: [
             IconButton(
               onPressed: () {
+                final gameProvider = Provider.of<CharacterRushProvider>(
+                  context,
+                  listen: false,
+                );
+                final bool wasGameRunning = gameProvider.isGameRunning;
+                final bool wasGamePaused = gameProvider.isGamePaused;
+
+                if (wasGameRunning && !wasGamePaused) {
+                  gameProvider.pauseGame();
+                }
                 showDialog(
                   context: context,
                   builder: (context) => const ScoreHistoryDialog(),
                 );
+                if (wasGameRunning && !wasGamePaused) {
+                  gameProvider.resumeGame();
+                }
               },
               icon: Icon(
                 Icons.leaderboard,
@@ -90,10 +103,24 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             ),
             IconButton(
               onPressed: () {
+                final gameProvider = Provider.of<CharacterRushProvider>(
+                  context,
+                  listen: false,
+                );
+                final bool wasGameRunning = gameProvider.isGameRunning;
+                final bool wasGamePaused = gameProvider.isGamePaused;
+
+                if (wasGameRunning && !wasGamePaused) {
+                  gameProvider.pauseGame();
+                }
+
                 showDialog(
                   context: context,
                   builder: (context) => const GameSettingsDialog(),
                 );
+                if (wasGameRunning && !wasGamePaused) {
+                  gameProvider.resumeGame();
+                }
               },
               icon: Icon(
                 Icons.settings,
@@ -111,6 +138,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   Widget _buildGameStats(
     CharacterRushProvider gameProvider,
     ThemeProvider themeProvider,
+    BuildContext context,
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -145,13 +173,106 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             Icons.speed,
             Colors.blue,
           ),
-          _buildStatItem(
-            'Time',
-            '${gameProvider.gameDuration}s',
-            Icons.timer,
-            Colors.purple,
-          ),
+          _buildTimerDropdown(gameProvider, themeProvider, context),
+          // InkWell(
+          //   onTap: () {
+          //     debugPrint("Ontap of Timer.");
+          //   },
+          //   child: Container(
+          //     padding: EdgeInsets.all(16),
+          //     decoration: BoxDecoration(
+          //       color: Colors.purple.withOpacity(0.2),
+          //       borderRadius: BorderRadius.circular(8),
+          //     ),
+          //     child: _buildStatItem(
+          //       'Time',
+          //       '${gameProvider.gameDuration}s',
+          //       Icons.timer,
+          //       Colors.purple,
+          //     ),
+          //   ),
+          // ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildTimerDropdown(
+    CharacterRushProvider gameProvider,
+    ThemeProvider themeProvider,
+    BuildContext context,
+  ) {
+    return PopupMenuButton<int>(
+      offset: Offset(0, 50),
+      onSelected: (int newTime) {
+        if (!gameProvider.isGameRunning) {
+          gameProvider.updateGameTime(newTime);
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cannot change game time while game is running'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
+      },
+
+      itemBuilder: (BuildContext context) {
+        return gameProvider.gameTimeOptions.map((int time) {
+          return PopupMenuItem<int>(
+            value: time,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('$time seconds'),
+                if (time == gameProvider.selectedGameTime)
+                  Icon(Icons.check, color: themeProvider.primaryColor),
+              ],
+            ),
+          );
+        }).toList();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.purple.withOpacity(0.2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.timer, color: Colors.purple, size: 24),
+                const SizedBox(width: 4),
+                Text(
+                  '${gameProvider.selectedGameTime}s',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[800],
+                  ),
+                ),
+                const SizedBox(width: 2),
+                Icon(Icons.arrow_drop_down, color: Colors.purple, size: 20),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Game Time',
+              style: TextStyle(
+                fontSize: 12,
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -229,7 +350,63 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                 ),
               ),
 
-            if (!gameProvider.isGameRunning)
+            if (gameProvider.isGamePaused)
+              Center(
+                child: Container(
+                  height: 180,
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.grey[800]!.withOpacity(0.9)
+                            : Colors.grey[100]!.withOpacity(0.9),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.pause_circle_filled,
+                          size: 48,
+                          color:
+                              themeProvider.isDarkMode
+                                  ? Colors.grey[400]
+                                  : Colors.grey[600],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          'Game Paused',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.white
+                                    : Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Click anywhere to resume',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.grey[400]
+                                    : Colors.grey[600],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+
+            if (!gameProvider.isGameRunning && !gameProvider.isGamePaused)
               Center(
                 child: Container(
                   height: 200,
@@ -288,6 +465,17 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Game Duration: ${gameProvider.selectedGameTime} seconds',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.grey[500]
+                                    : Colors.grey[700],
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -302,7 +490,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                 style: const TextStyle(color: Colors.transparent),
                 decoration: const InputDecoration(border: InputBorder.none),
                 onChanged: (value) {
-                  if (value.isNotEmpty) {
+                  if (value.isNotEmpty && !gameProvider.isGamePaused) {
                     gameProvider.checkCharacter(value);
                     Future.microtask(() => _textController.clear());
                   }
@@ -375,7 +563,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
               children: [
                 gameDashboardHeader(context),
                 const SizedBox(height: 40),
-                _buildGameStats(gameProvider, themeProvider),
+                _buildGameStats(gameProvider, themeProvider, context),
                 const SizedBox(height: 20),
                 _buildGameArea(gameProvider, themeProvider, screenSize),
                 const SizedBox(height: 20),
@@ -412,7 +600,8 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             '• Characters can be typed in uppercase or lowercase\n'
             '• Game speed increases every 15 seconds\n'
             '• Score more points for faster characters\n'
-            '• Game lasts 60 seconds - collect as many as you can!',
+            '• Game automatically pauses when opening settings/score history\n'
+            '• Click the timer to change game duration (before starting)',
             style: TextStyle(
               fontSize: 14,
               color: isDarkMode ? Colors.grey[400] : Colors.grey[600],

@@ -186,28 +186,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         },
                         themeProvider: themeProvider,
                       ),
-
-                      const SizedBox(height: 24),
-
-                      _buildSectionHeader(
-                        'Game Preferences',
-                        Icons.settings,
-                        themeProvider,
-                      ),
-
-                      _buildToggleSetting(
-                        title: 'Sound Effects',
-                        description: 'Enable or disable game sounds',
-                        value: _currentSettings.soundEnabled,
-                        onChanged: (value) {
-                          setState(() {
-                            _currentSettings = _currentSettings.copyWith(
-                              soundEnabled: value,
-                            );
-                          });
-                        },
-                        themeProvider: themeProvider,
-                      ),
                     ],
                   ),
                 ),
@@ -384,65 +362,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                 ),
               ),
             ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildToggleSetting({
-    required String title,
-    required String description,
-    required bool value,
-    required Function(bool) onChanged,
-    required ThemeProvider themeProvider,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color:
-              themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
-        ),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color:
-                        themeProvider.isDarkMode ? Colors.white : Colors.black,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[400]
-                            : Colors.grey[600],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Switch(
-            value: value,
-            onChanged: onChanged,
-            activeColor: themeProvider.primaryColor,
           ),
         ],
       ),

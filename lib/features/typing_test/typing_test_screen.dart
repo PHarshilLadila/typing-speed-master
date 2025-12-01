@@ -120,26 +120,22 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   void startCountdownTimer() {
     countdownTimer?.cancel();
 
-    // Use periodic timer with 100ms intervals for smooth updates
     countdownTimer = Timer.periodic(Duration(milliseconds: 100), (timer) {
       if (!testStarted || testCompleted || !mounted || startTime == null) {
         timer.cancel();
         return;
       }
 
-      // Calculate elapsed time from start
       final elapsed = DateTime.now().difference(startTime!);
       final remaining = testDuration - elapsed;
 
       if (remaining.inMilliseconds <= 0) {
-        // Time's up - complete the test
         timer.cancel();
         setState(() {
           remainingTime = Duration.zero;
         });
         completeTest();
       } else {
-        // Update remaining time
         setState(() {
           remainingTime = remaining;
         });
@@ -249,8 +245,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final endTime = DateTime.now();
     final actualDuration = endTime.difference(startTime!);
 
-    // For time-based tests, use the selected duration
-    // For word-based tests, use the actual duration
     final duration = isWordBasedTest ? actualDuration : testDuration;
 
     final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
@@ -381,13 +375,11 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         final sampleText = getTargetText();
 
         if (isWordBasedTest) {
-          // Word-based test completion logic
           if (words >= AppConstants.wordBasedTestWordCount &&
               value.endsWith(' ')) {
             completeTest();
           }
         } else {
-          // Time-based test - check if user typed more than available text
           if (value.length >= sampleText.length) {
             completeTest();
           }
