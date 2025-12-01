@@ -52,6 +52,8 @@ dependencies:
   meta_seo: ^3.0.9
   fluttertoast: ^9.0.0
   image_picker: ^1.2.1
+  go_router: ^17.0.0
+  url_strategy: ^0.3.0
 
 
 dev_dependencies:

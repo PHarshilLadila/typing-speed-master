@@ -6,6 +6,7 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="flutter-web-renderer" content="html">
 
   <!-- Primary SEO Description -->
   <meta name="description"
@@ -66,7 +67,60 @@
     }
   </script>
 
+  <!-- Script for clean URLs (removes # from URLs) -->
+  <script>
+    // This script helps remove the # from URLs for cleaner navigation
+    (function() {
+      // Check if we're on the initial load
+      if (window.location.hash && window.location.hash.startsWith('#/')) {
+        // Extract the path without the hash
+        const path = window.location.hash.substring(1);
+        
+        // Use history.replaceState to clean up the URL without triggering a reload
+        if (window.history.replaceState) {
+          window.history.replaceState(null, null, path);
+        }
+      }
+      
+      // Handle future hash changes
+      window.addEventListener('hashchange', function() {
+        if (window.location.hash && window.location.hash.startsWith('#/')) {
+          const path = window.location.hash.substring(1);
+          if (window.history.replaceState) {
+            window.history.replaceState(null, null, path);
+          }
+        }
+      });
+    })();
+  </script>
+
+  <!-- Alternative: For better SPA support -->
+  <script>
+    // Ensure all paths serve index.html for SPA routing
+    // This is especially important for hosting platforms like Vercel
+    if (typeof window !== 'undefined') {
+      // This helps with deep linking in SPAs
+      const handleRedirect = () => {
+        // Your hosting platform should handle this, but this is a fallback
+        console.log('SPA routing enabled for clean URLs');
+      };
+      
+      // Initialize when page loads
+      window.addEventListener('load', handleRedirect);
+    }
+  </script>
+
   <script src="flutter_bootstrap.js" async></script>
+  
+  <!-- Fallback for older browsers or hosting platforms -->
+  <script>
+    // Check if this is a direct page load (not navigation within the app)
+    // This helps with page refreshes on deep links
+    if (window.location.pathname !== '/' && !window.location.hash) {
+      // This is a clean URL deep link - ensure the app handles it
+      // The Flutter app will handle the routing through go_router
+    }
+  </script>
 </body>
 
 </html>

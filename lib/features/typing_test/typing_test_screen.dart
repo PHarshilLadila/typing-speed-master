@@ -4,6 +4,7 @@ import 'dart:developer' as dev;
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
 import 'package:typing_speed_master/features/app_entry_point.dart';
@@ -293,10 +294,11 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     provider.saveResult(result);
 
-    final resultsProvider = TypingTestResultsProvider.of(context);
-    if (resultsProvider != null) {
-      resultsProvider.showResults(result);
-    }
+    // final resultsProvider = TypingTestResultsProvider.of(context);
+    // if (resultsProvider != null) {
+    //   resultsProvider.showResults(result);
+    // }
+    context.push('/results?from=test', extra: result);
   }
 
   String getTargetText() {
