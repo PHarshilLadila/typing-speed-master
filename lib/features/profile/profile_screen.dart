@@ -1589,7 +1589,8 @@ class ProfileScreenState extends State<ProfileScreen>
                     CustomDialog.showSignOutDialog(
                       context: context,
                       onConfirm: () async {
-                        Navigator.of(context, rootNavigator: true).pop();
+                        // Navigator.of(context, rootNavigator: true).pop();
+                        // context.pop();
                         await authProvider.signOut();
                         await Future.delayed(Duration(milliseconds: 500));
                         if (kIsWeb) {

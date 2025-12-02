@@ -90,8 +90,8 @@ class ScoreHistoryDialog extends StatelessWidget {
               Expanded(
                 child:
                     gameProvider.scores.isEmpty
-                        ? _buildEmptyState(themeProvider.isDarkMode)
-                        : _buildScoresList(
+                        ? charRushEmptyState(themeProvider.isDarkMode)
+                        : charRUshScoresList(
                           gameProvider,
                           themeProvider.isDarkMode,
                           themeProvider,
@@ -118,7 +118,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildEmptyState(bool isDarkMode) {
+  Widget charRushEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -149,7 +149,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildScoresList(
+  Widget charRUshScoresList(
     CharacterRushProvider gameProvider,
     bool isDarkMode,
     ThemeProvider themeProvider,
@@ -160,12 +160,12 @@ class ScoreHistoryDialog extends StatelessWidget {
       itemCount: gameProvider.scores.length,
       itemBuilder: (context, index) {
         final score = gameProvider.scores[index];
-        return _buildScoreItem(score, index + 1, isDarkMode, themeProvider);
+        return charRushScoreItem(score, index + 1, isDarkMode, themeProvider);
       },
     );
   }
 
-  Widget _buildScoreItem(
+  Widget charRushScoreItem(
     CharacterRushModel score,
     int rank,
     bool isDarkMode,
@@ -187,7 +187,7 @@ class ScoreHistoryDialog extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: _getRankColor(rank, themeProvider),
+              color: charRushGetRankColor(rank, themeProvider),
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
@@ -225,7 +225,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _buildScoreBadge(score.score, isDarkMode),
+                    charRushScoreBadge(score.score, isDarkMode),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -260,7 +260,7 @@ class ScoreHistoryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                _formatDate(score.timestamps),
+                charRushDateFormate(score.timestamps),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -268,7 +268,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                 ),
               ),
               Text(
-                _formatTime(score.timestamps),
+                charRushTimeFormate(score.timestamps),
                 style: TextStyle(
                   fontSize: 11,
                   color: isDarkMode ? Colors.grey[500] : Colors.grey[500],
@@ -281,7 +281,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget _buildScoreBadge(int score, bool isDarkMode) {
+  Widget charRushScoreBadge(int score, bool isDarkMode) {
     Color color;
     String text;
 
@@ -317,7 +317,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Color _getRankColor(int rank, ThemeProvider themeProvider) {
+  Color charRushGetRankColor(int rank, ThemeProvider themeProvider) {
     switch (rank) {
       case 1:
         return const Color(0xFFFFD700);
@@ -330,11 +330,11 @@ class ScoreHistoryDialog extends StatelessWidget {
     }
   }
 
-  String _formatDate(DateTime date) {
+  String charRushDateFormate(DateTime date) {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  String _formatTime(DateTime date) {
+  String charRushTimeFormate(DateTime date) {
     return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
   }
 }

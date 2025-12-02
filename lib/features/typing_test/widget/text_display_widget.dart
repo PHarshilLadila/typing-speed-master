@@ -25,70 +25,70 @@ class TextDisplayWidget extends StatefulWidget {
 
 class _TextDisplayWidgetState extends State<TextDisplayWidget>
     with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _cursorAnimation;
-  late Animation<Color?> _colorAnimation;
+  late AnimationController animationController;
+  late Animation<double> cursorAnimation;
+  late Animation<Color?> colorAnimation;
 
-  String _previousUserInput = '';
-  double _currentFontSize = 24.0;
-  final double _minFontSize = 16.0;
-  final double _maxFontSize = 38.0;
-  final double _fontSizeStep = 2.0;
+  String previousUserInput = '';
+  double currentFontSize = 24.0;
+  final double minFontSize = 16.0;
+  final double maxFontSize = 38.0;
+  final double fontSizeStep = 2.0;
 
   @override
   void initState() {
     super.initState();
-    _loadFontSize();
-    _initializeAnimations();
+    loadFontSize();
+    initializeAnimations();
   }
 
-  void _initializeAnimations() {
-    _animationController = AnimationController(
+  void initializeAnimations() {
+    animationController = AnimationController(
       duration: const Duration(milliseconds: 600),
       vsync: this,
     );
 
-    _cursorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    cursorAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
     );
 
-    _colorAnimation = ColorTween(
+    colorAnimation = ColorTween(
       begin: Colors.blue.withOpacity(0.3),
       end: Colors.blue.withOpacity(0.7),
     ).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+      CurvedAnimation(parent: animationController, curve: Curves.easeInOut),
     );
 
-    _animationController.repeat(reverse: true);
+    animationController.repeat(reverse: true);
   }
 
-  Future<void> _loadFontSize() async {
+  Future<void> loadFontSize() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _currentFontSize = prefs.getDouble('text_font_size') ?? 24.0;
+      currentFontSize = prefs.getDouble('text_font_size') ?? 24.0;
     });
   }
 
-  Future<void> _saveFontSize(double fontSize) async {
+  Future<void> saveFontSize(double fontSize) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('text_font_size', fontSize);
   }
 
-  void _increaseFontSize() {
-    if (_currentFontSize < _maxFontSize) {
+  void increaseFontSize() {
+    if (currentFontSize < maxFontSize) {
       setState(() {
-        _currentFontSize += _fontSizeStep;
+        currentFontSize += fontSizeStep;
       });
-      _saveFontSize(_currentFontSize);
+      saveFontSize(currentFontSize);
     }
   }
 
-  void _decreaseFontSize() {
-    if (_currentFontSize > _minFontSize) {
+  void decreaseFontSize() {
+    if (currentFontSize > minFontSize) {
       setState(() {
-        _currentFontSize -= _fontSizeStep;
+        currentFontSize -= fontSizeStep;
       });
-      _saveFontSize(_currentFontSize);
+      saveFontSize(currentFontSize);
     }
   }
 
@@ -96,27 +96,27 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
   void didUpdateWidget(TextDisplayWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    if (widget.userInput != _previousUserInput) {
-      _handleInputChange(oldWidget.userInput, widget.userInput);
-      _previousUserInput = widget.userInput;
+    if (widget.userInput != previousUserInput) {
+      handleInputChange(oldWidget.userInput, widget.userInput);
+      previousUserInput = widget.userInput;
     }
   }
 
-  void _handleInputChange(String oldInput, String newInput) {
+  void handleInputChange(String oldInput, String newInput) {
     if (newInput.length > oldInput.length) {
-      _triggerCharacterAnimation();
+      triggerCharacterAnimation();
     }
   }
 
-  void _triggerCharacterAnimation() {
-    _animationController
+  void triggerCharacterAnimation() {
+    animationController
       ..stop()
       ..forward(from: 0.0);
   }
 
   @override
   void dispose() {
-    _animationController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
@@ -138,7 +138,7 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
             borderRadius: BorderRadius.circular(8),
           ),
           child: IntrinsicWidth(
-            child: IntrinsicHeight(child: _buildAnimatedText()),
+            child: IntrinsicHeight(child: typingAnimatedText()),
           ),
         ),
 
@@ -161,12 +161,12 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
               mainAxisSize: MainAxisSize.min,
               children: [
                 IconButton(
-                  onPressed: _decreaseFontSize,
+                  onPressed: decreaseFontSize,
                   icon: Icon(
                     Icons.remove,
                     size: 18,
                     color:
-                        _currentFontSize <= _minFontSize
+                        currentFontSize <= minFontSize
                             ? Colors.grey
                             : widget.isDarkMode
                             ? Colors.white
@@ -182,7 +182,7 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
-                    '${_currentFontSize.toInt()}',
+                    '${currentFontSize.toInt()}',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
@@ -191,12 +191,12 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
                   ),
                 ),
                 IconButton(
-                  onPressed: _increaseFontSize,
+                  onPressed: increaseFontSize,
                   icon: Icon(
                     Icons.add,
                     size: 18,
                     color:
-                        _currentFontSize >= _maxFontSize
+                        currentFontSize >= maxFontSize
                             ? Colors.grey
                             : widget.isDarkMode
                             ? Colors.white
@@ -217,11 +217,11 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
     );
   }
 
-  Widget _buildAnimatedText() {
+  Widget typingAnimatedText() {
     return Text.rich(
-      TextSpan(children: _buildAnimatedTextSpans()),
+      TextSpan(children: typingAnimatedTextSpans()),
       style: TextStyle(
-        fontSize: _currentFontSize,
+        fontSize: currentFontSize,
         fontWeight: FontWeight.w400,
         height: 1.5,
         fontFamily: 'Monospace',
@@ -231,21 +231,21 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
     );
   }
 
-  List<TextSpan> _buildAnimatedTextSpans() {
+  List<TextSpan> typingAnimatedTextSpans() {
     final List<TextSpan> spans = [];
     final defaultTextColor =
         widget.isDarkMode ? Colors.grey[300] : Colors.grey[800];
 
     for (int i = 0; i < widget.sampleText.length; i++) {
       final char = widget.sampleText[i];
-      final textSpan = _buildTextSpanForChar(i, char, defaultTextColor!);
+      final textSpan = typingTextSpanForChar(i, char, defaultTextColor!);
       spans.add(textSpan);
     }
 
     return spans;
   }
 
-  TextSpan _buildTextSpanForChar(
+  TextSpan typingTextSpanForChar(
     int index,
     String char,
     Color defaultTextColor,
@@ -257,11 +257,11 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
     if (index < widget.userInput.length) {
       if (widget.userInput[index] == char) {
         color = widget.isDarkMode ? Colors.green[300]! : Colors.green[700]!;
-        backgroundColor = _getBackgroundColor(Colors.green);
+        backgroundColor = getBackgroundColor(Colors.green);
         fontWeight = FontWeight.w500;
       } else {
         color = widget.isDarkMode ? Colors.red[300]! : Colors.red[700]!;
-        backgroundColor = _getBackgroundColor(Colors.red);
+        backgroundColor = getBackgroundColor(Colors.red);
         fontWeight = FontWeight.w500;
       }
     } else if (index == widget.userInput.length && widget.isTestActive) {
@@ -269,9 +269,9 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
         text: char,
         style: TextStyle(
           color: widget.isDarkMode ? Colors.blue[100] : Colors.blue[900],
-          backgroundColor: _colorAnimation.value,
+          backgroundColor: colorAnimation.value,
           fontWeight: FontWeight.w600,
-          fontSize: _currentFontSize,
+          fontSize: currentFontSize,
         ),
       );
     }
@@ -282,15 +282,15 @@ class _TextDisplayWidgetState extends State<TextDisplayWidget>
         color: color,
         backgroundColor: backgroundColor,
         fontWeight: fontWeight,
-        fontSize: _currentFontSize,
+        fontSize: currentFontSize,
       ),
     );
   }
 
-  Color _getBackgroundColor(Color baseColor) {
+  Color getBackgroundColor(Color baseColor) {
     if (!widget.isTestActive) return Colors.transparent;
 
-    final animationValue = _cursorAnimation.value;
+    final animationValue = cursorAnimation.value;
     return baseColor.withOpacity(
       widget.isDarkMode
           ? 0.1 + (animationValue * 0.1)

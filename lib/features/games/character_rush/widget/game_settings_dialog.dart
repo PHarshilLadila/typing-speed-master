@@ -15,7 +15,7 @@ class GameSettingsDialog extends StatefulWidget {
 }
 
 class _GameSettingsDialogState extends State<GameSettingsDialog> {
-  late CharacterRushSettingsModel _currentSettings;
+  late CharacterRushSettingsModel currentSettings;
 
   @override
   void initState() {
@@ -24,10 +24,10 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
       context,
       listen: false,
     );
-    _currentSettings = gameProvider.settings;
+    currentSettings = gameProvider.settings;
   }
 
-  void _resetToDefaults() {
+  void charRushresetToDefaults() {
     CustomDialog.showConfirmationDialog(
       context: context,
       title: 'Reset Settings',
@@ -36,7 +36,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
       confirmButtonColor: Colors.orange,
       onConfirm: () {
         setState(() {
-          _currentSettings = CharacterRushSettingsModel(
+          currentSettings = CharacterRushSettingsModel(
             initialSpeed: 1.0,
             speedIncrement: 0.1,
             maxCharacters: 5,
@@ -47,12 +47,12 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
     );
   }
 
-  void _saveSettings() {
+  void charRushSaveSettings() {
     final gameProvider = Provider.of<CharacterRushProvider>(
       context,
       listen: false,
     );
-    gameProvider.updateSettings(_currentSettings);
+    gameProvider.updateSettings(currentSettings);
 
     CustomDialog.showSuccessDialog(
       context: context,
@@ -125,23 +125,23 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _buildSectionHeader(
+                      charRushSettingHeader(
                         'Difficulty Settings',
                         Icons.speed,
                         themeProvider,
                       ),
 
-                      _buildSliderSetting(
+                      charRushSliderSetting(
                         title: 'Initial Speed',
                         description: 'Starting speed of falling characters',
-                        value: _currentSettings.initialSpeed,
+                        value: currentSettings.initialSpeed,
                         min: 0.5,
                         max: 3.0,
                         divisions: 25,
                         unit: 'x',
                         onChanged: (value) {
                           setState(() {
-                            _currentSettings = _currentSettings.copyWith(
+                            currentSettings = currentSettings.copyWith(
                               initialSpeed: value,
                             );
                           });
@@ -149,18 +149,18 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         themeProvider: themeProvider,
                       ),
 
-                      _buildSliderSetting(
+                      charRushSliderSetting(
                         title: 'Speed Increment',
                         description:
                             'How much speed increases every 10 seconds',
-                        value: _currentSettings.speedIncrement,
+                        value: currentSettings.speedIncrement,
                         min: 0.05,
                         max: 0.9,
                         divisions: 9,
                         unit: 'x',
                         onChanged: (value) {
                           setState(() {
-                            _currentSettings = _currentSettings.copyWith(
+                            currentSettings = currentSettings.copyWith(
                               speedIncrement: value,
                             );
                           });
@@ -168,10 +168,10 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         themeProvider: themeProvider,
                       ),
 
-                      _buildSliderSetting(
+                      charRushSliderSetting(
                         title: 'Max Characters',
                         description: 'Maximum characters on screen at once',
-                        value: _currentSettings.maxCharacters.toDouble(),
+                        value: currentSettings.maxCharacters.toDouble(),
                         min: 3,
                         max: 10,
                         divisions: 7,
@@ -179,7 +179,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         isInt: true,
                         onChanged: (value) {
                           setState(() {
-                            _currentSettings = _currentSettings.copyWith(
+                            currentSettings = currentSettings.copyWith(
                               maxCharacters: value.toInt(),
                             );
                           });
@@ -196,7 +196,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: _resetToDefaults,
+                      onPressed: charRushresetToDefaults,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.orange,
                         side: const BorderSide(color: Colors.orange),
@@ -209,7 +209,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: _saveSettings,
+                      onPressed: charRushSaveSettings,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: themeProvider.primaryColor,
                         foregroundColor: Colors.white,
@@ -228,7 +228,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
     );
   }
 
-  Widget _buildSectionHeader(
+  Widget charRushSettingHeader(
     String title,
     IconData icon,
     ThemeProvider themeProvider,
@@ -259,7 +259,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
     );
   }
 
-  Widget _buildSliderSetting({
+  Widget charRushSliderSetting({
     required String title,
     required String description,
     required double value,

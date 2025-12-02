@@ -114,7 +114,7 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
     );
   }
 
-  void _handleGameTap(GameDashboardCard gameCard) {
+  void handleGameTap(GameDashboardCard gameCard) {
     debugPrint('Game tapped: ${gameCard.title}');
 
     final mainEntryPointState =
@@ -183,9 +183,9 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
                 ];
 
                 if (screenWidth > 980) {
-                  return _buildDesktopLayout(context, gameCards);
+                  return gameDashboardDesktopLayout(context, gameCards);
                 } else {
-                  return _buildMobileLayout(gameCards);
+                  return gameDashboardMobileLayout(gameCards);
                 }
               },
             ),
@@ -195,7 +195,7 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
     );
   }
 
-  Widget _buildDesktopLayout(
+  Widget gameDashboardDesktopLayout(
     BuildContext context,
     List<GameDashboardCard> gameCards,
   ) {
@@ -215,14 +215,14 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
               width: cardWidth,
               child: GameCardWidget(
                 gameCard: gameCard,
-                onTap: () => _handleGameTap(gameCard),
+                onTap: () => handleGameTap(gameCard),
               ),
             );
           }).toList(),
     );
   }
 
-  Widget _buildMobileLayout(List<GameDashboardCard> gameCards) {
+  Widget gameDashboardMobileLayout(List<GameDashboardCard> gameCards) {
     return Column(
       children:
           gameCards.map((gameCard) {
@@ -230,7 +230,7 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
               margin: const EdgeInsets.only(bottom: 20),
               child: GameCardWidget(
                 gameCard: gameCard,
-                onTap: () => _handleGameTap(gameCard),
+                onTap: () => handleGameTap(gameCard),
               ),
             );
           }).toList(),

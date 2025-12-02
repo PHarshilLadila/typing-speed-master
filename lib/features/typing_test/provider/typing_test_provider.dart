@@ -422,19 +422,19 @@ class TypingProvider with ChangeNotifier {
 
         final user = _supabase.auth.currentUser;
         if (user != null) {
-          dev.log('🔥 Recording activity for heatmap...');
+          dev.log('Recording activity for heatmap...');
           final activityProvider = _getActivityProvider();
           if (activityProvider != null) {
             await activityProvider.recordActivity(user.id);
-            dev.log('✅ Activity recorded in heatmap');
+            dev.log('Activity recorded in heatmap');
           } else {
-            dev.log('❌ ActivityProvider not found - creating temporary one');
+            dev.log('ActivityProvider not found - creating temporary one');
             final tempActivityProvider = UserActivityProvider();
             await tempActivityProvider.recordActivity(user.id);
           }
         }
 
-        dev.log('🔄 Attempting to update user stats...');
+        dev.log('Attempting to update user stats...');
         await _updateUserStatsDirectly(result);
 
         final authProvider = _getAuthProvider();
@@ -479,57 +479,6 @@ class TypingProvider with ChangeNotifier {
     }
     return null;
   }
-
-  // Future<void> deleteHistoryEntry(TypingResult result) async {
-  //   try {
-  //     _results.remove(result);
-  //     await _saveAllResultsToLocal();
-
-  //     notifyListeners();
-
-  //     if (_isUserLoggedIn) {
-  //       final user = _supabase.auth.currentUser;
-
-  //       if (user != null && result.id != null) {
-  //         dev.log(
-  //           'Attempting to delete from Supabase - User: ${user.id}, Result ID: ${result.id}',
-  //         );
-
-  //         final response =
-  //             await _supabase
-  //                 .from('typing_results')
-  //                 .delete()
-  //                 .eq('id', result.id!)
-  //                 .eq('user_id', user.id)
-  //                 .select();
-
-  //         dev.log('Supabase delete response: $response');
-
-  //         if (response.isNotEmpty) {
-  //           dev.log(
-  //             'Successfully deleted history entry from Supabase. Deleted record: ${response[0]['id']}',
-  //           );
-  //         } else if (response.isEmpty) {
-  //           dev.log('No record found to delete');
-  //         } else {
-  //           dev.log('Unexpected null response from Supabase delete');
-  //         }
-  //       } else {
-  //         dev.log(
-  //           'Cannot delete from Supabase: ${result.id == null ? 'Result ID is null' : 'User not logged in'}',
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     dev.log("Error deleting history entry: $e");
-
-  //     _results.add(result);
-  //     await _saveAllResultsToLocal();
-  //     notifyListeners();
-
-  //     dev.log('Failed to delete: ${e.toString()}');
-  //   }
-  // }
 
   Future<void> deleteHistoryEntry(TypingTestResultModel result) async {
     try {
@@ -601,13 +550,13 @@ class TypingProvider with ChangeNotifier {
         return;
       }
 
-      dev.log('🔄 Updating user stats after deletion for user: ${user.id}');
+      dev.log('Updating user stats after deletion for user: ${user.id}');
 
       final response =
           await _supabase.from('profiles').select().eq('id', user.id).single();
 
       final currentProfile = response;
-      dev.log('✅ Current profile fetched for stats update');
+      dev.log('Current profile fetched for stats update');
 
       final previousTotalTests = currentProfile['total_tests'] ?? 1;
       final previousTotalWords = currentProfile['total_words'] ?? 0;
@@ -639,7 +588,7 @@ class TypingProvider with ChangeNotifier {
       newAverageWpm = max(0.0, newAverageWpm);
       newAverageAccuracy = max(0.0, newAverageAccuracy);
 
-      dev.log('🧮 Stats after deletion:');
+      dev.log('Stats after deletion:');
       dev.log('   - Tests: $previousTotalTests → $newTotalTests');
       dev.log('   - Total Words: $previousTotalWords → $newTotalWords');
       dev.log(
@@ -657,7 +606,7 @@ class TypingProvider with ChangeNotifier {
         'updated_at': DateTime.now().toIso8601String(),
       };
 
-      dev.log('💾 Updating profile after deletion: $updates');
+      dev.log('Updating profile after deletion: $updates');
 
       final updateResponse =
           await _supabase
@@ -667,7 +616,7 @@ class TypingProvider with ChangeNotifier {
               .select();
 
       dev.log(
-        '✅ Profile update after deletion response: ${updateResponse.isNotEmpty ? "SUCCESS" : "EMPTY"}',
+        'Profile update after deletion response: ${updateResponse.isNotEmpty ? "SUCCESS" : "EMPTY"}',
       );
 
       if (updateResponse.isNotEmpty) {
@@ -676,9 +625,9 @@ class TypingProvider with ChangeNotifier {
         await _forceImmediateProfileRefresh(user.id);
       }
     } catch (e) {
-      dev.log('💥 Error updating user stats after deletion: $e');
+      dev.log('Error updating user stats after deletion: $e');
       if (e is PostgrestException) {
-        dev.log('💥 Postgrest error: ${e.message}');
+        dev.log('Postgrest error: ${e.message}');
       }
     }
   }
@@ -688,9 +637,9 @@ class TypingProvider with ChangeNotifier {
       final authProvider = _getAuthProvider();
       if (authProvider != null) {
         await authProvider.fetchUserProfile(userId);
-        dev.log('🔄 Forced immediate profile refresh in AuthProvider');
+        dev.log('Forced immediate profile refresh in AuthProvider');
       } else {
-        dev.log('❌ AuthProvider not available for immediate refresh');
+        dev.log('AuthProvider not available for immediate refresh');
       }
     } catch (e) {
       dev.log('💥 Error forcing profile refresh: $e');
@@ -702,7 +651,7 @@ class TypingProvider with ChangeNotifier {
     DateTime testTimestamp,
   ) async {
     try {
-      dev.log('🔄 Updating activity logs after deletion for user: $userId');
+      dev.log('Updating activity logs after deletion for user: $userId');
 
       final testDate = DateTime(
         testTimestamp.year,
@@ -711,7 +660,7 @@ class TypingProvider with ChangeNotifier {
       );
       final dateString = testDate.toIso8601String().split('T')[0];
 
-      dev.log('📅 Checking activity log for date: $dateString');
+      dev.log('Checking activity log for date: $dateString');
 
       final existingActivity =
           await _supabase
@@ -723,7 +672,7 @@ class TypingProvider with ChangeNotifier {
 
       if (existingActivity != null) {
         final currentTestCount = existingActivity['test_count'] as int;
-        dev.log('📊 Current test count for $dateString: $currentTestCount');
+        dev.log('Current test count for $dateString: $currentTestCount');
 
         if (currentTestCount > 1) {
           final newTestCount = currentTestCount - 1;
@@ -738,7 +687,7 @@ class TypingProvider with ChangeNotifier {
               .eq('activity_date', dateString);
 
           dev.log(
-            '✅ Updated activity log: $currentTestCount → $newTestCount tests on $dateString',
+            'Updated activity log: $currentTestCount → $newTestCount tests on $dateString',
           );
         } else {
           await _supabase
@@ -747,21 +696,19 @@ class TypingProvider with ChangeNotifier {
               .eq('user_id', userId)
               .eq('activity_date', dateString);
 
-          dev.log(
-            '🗑️ Deleted activity log entry for $dateString (no more tests)',
-          );
+          dev.log('Deleted activity log entry for $dateString (no more tests)');
         }
 
         await _forceRefreshActivityProvider(userId, testDate.year);
       } else {
-        dev.log('ℹ️ No activity log found for date: $dateString');
+        dev.log('ℹNo activity log found for date: $dateString');
 
         await _recalculateActivityForDate(userId, testDate);
       }
     } catch (e) {
-      dev.log('💥 Error updating activity logs after deletion: $e');
+      dev.log('Error updating activity logs after deletion: $e');
       if (e is PostgrestException) {
-        dev.log('💥 Postgrest error: ${e.message}');
+        dev.log('Postgrest error: ${e.message}');
       }
     }
   }
@@ -774,15 +721,15 @@ class TypingProvider with ChangeNotifier {
 
         await activityProvider.fetchActivityData(userId, year);
 
-        dev.log('🔄 Activity provider forcefully refreshed for year: $year');
+        dev.log('Activity provider forcefully refreshed for year: $year');
       } else {
-        dev.log('❌ ActivityProvider not available for force refresh');
+        dev.log('ActivityProvider not available for force refresh');
 
         final tempActivityProvider = UserActivityProvider();
         await tempActivityProvider.fetchActivityData(userId, year);
       }
     } catch (e) {
-      dev.log('💥 Error forcing activity provider refresh: $e');
+      dev.log('Error forcing activity provider refresh: $e');
     }
   }
 
@@ -801,7 +748,7 @@ class TypingProvider with ChangeNotifier {
 
       final remainingTests = response.count;
 
-      dev.log('🔍 Recalculated tests for $dateString: $remainingTests');
+      dev.log('Recalculated tests for $dateString: $remainingTests');
 
       if (remainingTests > 0) {
         await _supabase.from('activity_logs').upsert({
@@ -812,7 +759,7 @@ class TypingProvider with ChangeNotifier {
         }).select();
 
         dev.log(
-          '✅ Recreated activity log for $dateString with $remainingTests tests',
+          'Recreated activity log for $dateString with $remainingTests tests',
         );
       } else {
         await _supabase
@@ -824,7 +771,7 @@ class TypingProvider with ChangeNotifier {
         dev.log('🗑️ Deleted activity log for $dateString (no tests remain)');
       }
     } catch (e) {
-      dev.log('💥 Error recalculating activity for date: $e');
+      dev.log('Error recalculating activity for date: $e');
     }
   }
 
@@ -1057,7 +1004,7 @@ class TypingProvider with ChangeNotifier {
         return;
       }
 
-      dev.log('🔄 Starting direct stats update for user: ${user.id}');
+      dev.log('Starting direct stats update for user: ${user.id}');
 
       Map<String, dynamic> currentProfile;
       try {
@@ -1069,7 +1016,7 @@ class TypingProvider with ChangeNotifier {
                 .single();
 
         currentProfile = response;
-        dev.log('✅ Current profile fetched: ${currentProfile['email']}');
+        dev.log('Current profile fetched: ${currentProfile['email']}');
       } catch (e) {
         dev.log('Error fetching current profile: $e');
         return;
@@ -1091,17 +1038,17 @@ class TypingProvider with ChangeNotifier {
 
       if (lastActivityDate != null) {
         if (_isSameDay(lastActivityDate, today)) {
-          dev.log('🔄 Already updated today, keeping streak: $currentStreak');
+          dev.log('Already updated today, keeping streak: $currentStreak');
         } else if (_isSameDay(lastActivityDate, yesterday)) {
           currentStreak++;
-          dev.log('🔥 Consecutive day! New streak: $currentStreak');
+          dev.log('Consecutive day! New streak: $currentStreak');
         } else {
           currentStreak = 1;
-          dev.log('💥 Streak broken! Reset to: $currentStreak');
+          dev.log('Streak broken! Reset to: $currentStreak');
         }
       } else {
         currentStreak = 1;
-        dev.log('🎯 First activity! Starting streak: $currentStreak');
+        dev.log('First activity! Starting streak: $currentStreak');
       }
 
       longestStreak =
@@ -1122,7 +1069,7 @@ class TypingProvider with ChangeNotifier {
           ((previousAverageAccuracy * previousTotalTests) + result.accuracy) /
           totalTests;
 
-      dev.log('🧮 Stats calculation:');
+      dev.log('--> Stats calculation:');
       dev.log('   - Tests: $previousTotalTests → $totalTests');
       dev.log(
         '   - WPM: ${previousAverageWpm.toStringAsFixed(1)} → ${averageWpm.toStringAsFixed(1)}',
@@ -1142,7 +1089,7 @@ class TypingProvider with ChangeNotifier {
         'updated_at': today.toIso8601String(),
       };
 
-      dev.log('💾 Direct update to Supabase: $updates');
+      dev.log('Direct update to Supabase: $updates');
 
       final response =
           await _supabase
@@ -1152,7 +1099,7 @@ class TypingProvider with ChangeNotifier {
               .select();
 
       dev.log(
-        '✅ Direct update response: ${response.isNotEmpty ? "SUCCESS" : "EMPTY"}',
+        'Direct update response: ${response.isNotEmpty ? "SUCCESS" : "EMPTY"}',
       );
 
       if (response.isNotEmpty) {
@@ -1161,13 +1108,13 @@ class TypingProvider with ChangeNotifier {
         final authProvider = _getAuthProvider();
         if (authProvider != null) {
           await authProvider.fetchUserProfile(user.id);
-          dev.log('🔄 Forced profile refresh in AuthProvider');
+          dev.log('Forced profile refresh in AuthProvider');
         }
       }
     } catch (e) {
-      dev.log('💥 Error in direct stats update: $e');
+      dev.log('Error in direct stats update: $e');
       if (e is PostgrestException) {
-        dev.log('💥 Postgrest error: ${e.message}');
+        dev.log('Postgrest error: ${e.message}');
       }
     }
   }

@@ -7,7 +7,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'dart:async';
-import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/utils/constants.dart';
 import 'package:typing_speed_master/widgets/backgrounds/icons_background.dart';
 import 'package:typing_speed_master/widgets/custom_dropdown.dart';
@@ -144,23 +143,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     });
   }
 
-  // void startTypingSampleTimer() {
-  //   typingSampleTimer = Timer.periodic(Duration(seconds: 2), (timer) {
-  //     if (!testStarted || testCompleted || !mounted) {
-  //       timer.cancel();
-  //       return;
-  //     }
-
-  //     final provider = Provider.of<TypingProvider>(context, listen: false);
-  //     final currentCharCount = userInput.length;
-
-  //     if (currentCharCount > lastSampleCharCount) {
-  //       provider.recordTypingSpeedSample(currentCharCount, DateTime.now());
-  //       lastSampleCharCount = currentCharCount;
-  //     }
-  //   });
-  // }
-
   void startTimer() {
     Future.delayed(const Duration(seconds: 1), () {
       if (testStarted && !testCompleted && mounted) {
@@ -176,66 +158,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
       }
     });
   }
-
-  // void completeTest() {
-  //   if (startTime == null || !mounted) return;
-
-  //   typingSampleTimer?.cancel();
-
-  //   final endTime = DateTime.now();
-  //   final duration = endTime.difference(startTime!);
-  //   final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
-
-  //   final wpm = (words / (duration.inSeconds / 60)).round();
-
-  //   final provider = Provider.of<TypingProvider>(context, listen: false);
-  //   final originalText = provider.currentOriginalText;
-
-  //   final incorrectCharPositions = provider.calculateIncorrectCharPositions(
-  //     userInput,
-  //     originalText,
-  //   );
-
-  //   int correctChars = userInput.length - incorrectCharPositions.length;
-  //   int incorrectChars = incorrectCharPositions.length;
-  //   int totalChars = userInput.length;
-
-  //   final accuracy = totalChars > 0 ? (correctChars / totalChars) * 100 : 0.0;
-  //   final consistency = provider.calculateConsistency();
-
-  //   final result = TypingResult(
-  //     wpm: wpm,
-  //     accuracy: accuracy,
-  //     consistency: consistency,
-  //     correctChars: correctChars,
-  //     incorrectChars: incorrectChars,
-  //     totalChars: totalChars,
-  //     duration: duration,
-  //     timestamp: DateTime.now(),
-  //     difficulty: provider.selectedDifficulty,
-  //     isWordBasedTest: isWordBasedTest,
-  //     targetWords: isWordBasedTest ? AppConstants.wordBasedTestWordCount : null,
-  //     incorrectCharPositions: incorrectCharPositions,
-  //     originalText: originalText,
-  //     userInput: userInput,
-  //   );
-
-  //   setState(() {
-  //     testCompleted = true;
-  //     testStarted = false;
-  //   });
-
-  //   dev.log(
-  //     'Saving typing result - WPM: $wpm, Accuracy: $accuracy, Errors: $incorrectChars',
-  //   );
-
-  //   provider.saveResult(result);
-
-  //   final resultsProvider = TypingTestResultsProvider.of(context);
-  //   if (resultsProvider != null) {
-  //     resultsProvider.showResults(result);
-  //   }
-  // }
 
   void completeTest() {
     if (startTime == null || !mounted) return;
@@ -294,10 +216,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     provider.saveResult(result);
 
-    // final resultsProvider = TypingTestResultsProvider.of(context);
-    // if (resultsProvider != null) {
-    //   resultsProvider.showResults(result);
-    // }
     context.push('/results?from=test', extra: result);
   }
 
@@ -305,48 +223,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final provider = Provider.of<TypingProvider>(context, listen: false);
     return provider.getCurrentText();
   }
-  // void onTextChanged(String value) {
-  //   if (isProcessingInput) return;
-
-  //   isProcessingInput = true;
-
-  //   try {
-  //     if (!testStarted && value.trim().isNotEmpty) {
-  //       userInput = value;
-  //       startTest();
-  //       isProcessingInput = false;
-  //       return;
-  //     }
-
-  //     if (value != userInput) {
-  //       final words = value.split(' ').where((word) => word.isNotEmpty).length;
-
-  //       if (words != wordsTyped || value.length != lastProcessedLength) {
-  //         setState(() {
-  //           userInput = value;
-  //           wordsTyped = words;
-  //           lastProcessedLength = value.length;
-  //         });
-  //       } else {
-  //         userInput = value;
-  //       }
-
-  //       final sampleText = getTargetText();
-
-  //       if (isWordBasedTest) {
-  //         if (words >= AppConstants.wordBasedTestWordCount) {
-  //           completeTest();
-  //         }
-  //       } else {
-  //         if (value.length >= sampleText.length) {
-  //           completeTest();
-  //         }
-  //       }
-  //     }
-  //   } finally {
-  //     isProcessingInput = false;
-  //   }
-  // }
 
   void onTextChanged(String value) {
     if (isProcessingInput) return;

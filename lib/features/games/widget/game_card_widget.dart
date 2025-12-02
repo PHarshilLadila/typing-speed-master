@@ -4,6 +4,7 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/game_dashboard_card.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
@@ -314,7 +315,7 @@ class GameCardWidget extends StatelessWidget {
                       ..rotateX(-0.4),
                 child: Text(
                   gameCard.title,
-                  style: TextStyle(
+                  style: GoogleFonts.blackOpsOne(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,
                     color: gameCard.backgroundColor.withOpacity(0.8),
@@ -331,7 +332,6 @@ class GameCardWidget extends StatelessWidget {
   }
 }
 
-// Trapezoid Clipper
 class TrapezoidClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {

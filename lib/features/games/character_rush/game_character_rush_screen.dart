@@ -17,8 +17,8 @@ class GameCharacterRushScreen extends StatefulWidget {
 }
 
 class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
-  final FocusNode _focusNode = FocusNode();
-  final TextEditingController _textController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+  final TextEditingController textController = TextEditingController();
 
   EdgeInsets getResponsivePadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -135,7 +135,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildGameStats(
+  Widget charRushGameStats(
     CharacterRushProvider gameProvider,
     ThemeProvider themeProvider,
     BuildContext context,
@@ -155,25 +155,25 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _buildStatItem(
+          charRushStatItem(
             'Score',
             '${gameProvider.score}',
             Icons.emoji_events,
             Colors.amber,
           ),
-          _buildStatItem(
+          charRushStatItem(
             'Collected',
             '${gameProvider.charactersCollected}',
             Icons.check_circle,
             Colors.green,
           ),
-          _buildStatItem(
+          charRushStatItem(
             'Speed',
             '${gameProvider.currentSpeed.toStringAsFixed(1)}x',
             Icons.speed,
             Colors.blue,
           ),
-          _buildTimerDropdown(gameProvider, themeProvider, context),
+          charRushTimerDropdown(gameProvider, themeProvider, context),
           // InkWell(
           //   onTap: () {
           //     debugPrint("Ontap of Timer.");
@@ -197,7 +197,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildTimerDropdown(
+  Widget charRushTimerDropdown(
     CharacterRushProvider gameProvider,
     ThemeProvider themeProvider,
     BuildContext context,
@@ -277,7 +277,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildStatItem(
+  Widget charRushStatItem(
     String label,
     String value,
     IconData icon,
@@ -309,7 +309,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildGameArea(
+  Widget charRushGameArea(
     CharacterRushProvider gameProvider,
     ThemeProvider themeProvider,
     Size screenSize,
@@ -319,7 +319,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
 
     return GestureDetector(
       onTap: () {
-        _focusNode.requestFocus();
+        focusNode.requestFocus();
       },
       child: Container(
         height: gameAreaHeight,
@@ -336,7 +336,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
         ),
         child: Stack(
           children: [
-            _buildGameBackground(themeProvider.isDarkMode),
+            charRushGameBackground(themeProvider.isDarkMode),
 
             for (int i = 0; i < gameProvider.activeCharacters.length; i++)
               Positioned(
@@ -448,7 +448,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                         ElevatedButton.icon(
                           onPressed: () {
                             gameProvider.startGame();
-                            _focusNode.requestFocus();
+                            focusNode.requestFocus();
                           },
                           icon: const Icon(Icons.play_arrow),
                           label: Text(
@@ -484,15 +484,15 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
 
             Offstage(
               child: TextField(
-                controller: _textController,
-                focusNode: _focusNode,
+                controller: textController,
+                focusNode: focusNode,
                 autofocus: true,
                 style: const TextStyle(color: Colors.transparent),
                 decoration: const InputDecoration(border: InputBorder.none),
                 onChanged: (value) {
                   if (value.isNotEmpty && !gameProvider.isGamePaused) {
                     gameProvider.checkCharacter(value);
-                    Future.microtask(() => _textController.clear());
+                    Future.microtask(() => textController.clear());
                   }
                 },
               ),
@@ -503,7 +503,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildGameBackground(bool isDarkMode) {
+  Widget charRushGameBackground(bool isDarkMode) {
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -529,14 +529,14 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _focusNode.requestFocus();
+      focusNode.requestFocus();
     });
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
-    _textController.dispose();
+    focusNode.dispose();
+    textController.dispose();
     super.dispose();
   }
 
@@ -563,11 +563,11 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
               children: [
                 gameDashboardHeader(context),
                 const SizedBox(height: 40),
-                _buildGameStats(gameProvider, themeProvider, context),
+                charRushGameStats(gameProvider, themeProvider, context),
                 const SizedBox(height: 20),
-                _buildGameArea(gameProvider, themeProvider, screenSize),
+                charRushGameArea(gameProvider, themeProvider, screenSize),
                 const SizedBox(height: 20),
-                _buildInstructions(themeProvider.isDarkMode),
+                charRushInstructions(themeProvider.isDarkMode),
               ],
             ),
           ),
@@ -576,7 +576,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
     );
   }
 
-  Widget _buildInstructions(bool isDarkMode) {
+  Widget charRushInstructions(bool isDarkMode) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(

@@ -19,57 +19,57 @@ class CharRushCharacterWidget extends StatefulWidget {
 
 class _CharRushCharacterWidgetState extends State<CharRushCharacterWidget>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
-  late Animation<double> _opacityAnimation;
-  bool _isDisposed = false;
+  late AnimationController controller;
+  late Animation<double> scaleAnimation;
+  late Animation<double> opacityAnimation;
+  bool isDisposed = false;
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
+    controller = AnimationController(
       duration: const Duration(milliseconds: 500),
       vsync: this,
     );
 
-    _scaleAnimation = Tween<double>(
+    scaleAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutBack));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeOutBack));
 
-    _opacityAnimation = Tween<double>(
+    opacityAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
+    ).animate(CurvedAnimation(parent: controller, curve: Curves.easeIn));
 
-    _startAnimation();
+    startAnimation();
   }
 
-  Future<void> _startAnimation() async {
+  Future<void> startAnimation() async {
     try {
-      if (!_isDisposed) {
-        await _controller.forward().orCancel;
+      if (!isDisposed) {
+        await controller.forward().orCancel;
       }
     } catch (e) {
-      if (!_isDisposed) rethrow;
+      if (!isDisposed) rethrow;
     }
   }
 
   @override
   void dispose() {
-    _isDisposed = true;
-    _controller.dispose();
+    isDisposed = true;
+    controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedBuilder(
-      animation: _controller,
+      animation: controller,
       builder: (context, child) {
-        final scale = _scaleAnimation.value.clamp(0.0, 1.0);
-        final opacity = _opacityAnimation.value.clamp(0.0, 1.0);
+        final scale = scaleAnimation.value.clamp(0.0, 1.0);
+        final opacity = opacityAnimation.value.clamp(0.0, 1.0);
 
         return Opacity(
           opacity: opacity,

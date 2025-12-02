@@ -75,7 +75,6 @@ class AppRouter {
                 (context, state) =>
                     NoTransitionPage(child: const GameWordMaster()),
           ),
-          // Results route inside ShellRoute
           GoRoute(
             path: '/results',
             name: 'results',
