@@ -11,6 +11,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restart_app/restart_app.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:typing_speed_master/models/user_activity_month_lable_model.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
@@ -44,7 +45,11 @@ class ProfileScreenState extends State<ProfileScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     loadProfileData();
-    generateHeatmapData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        generateHeatmapData();
+      }
+    });
   }
 
   @override
@@ -247,7 +252,33 @@ class ProfileScreenState extends State<ProfileScreen>
     final double dayLabelWidth = 30;
 
     final bool shouldScroll = isMobile || isTablet;
+    // final activityProvider = context.watch<UserActivityProvider>();
 
+    // if (activityProvider.isLoading) {
+    //   return heatmapShimmer(isDark, isMobile, isTablet);
+    // }
+    // if (activityData.isEmpty && heatmapWeeks.isEmpty) {
+    //   return Center(
+    //     child: Column(
+    //       mainAxisSize: MainAxisSize.min,
+    //       children: [
+    //         Icon(
+    //           Icons.calendar_today,
+    //           size: 40,
+    //           color: isDark ? Colors.grey[600] : Colors.grey[400],
+    //         ),
+    //         SizedBox(height: 8),
+    //         Text(
+    //           'No activity data',
+    //           style: TextStyle(
+    //             fontSize: 14,
+    //             color: isDark ? Colors.grey[400] : Colors.grey[600],
+    //           ),
+    //         ),
+    //       ],
+    //     ),
+    //   );
+    // }
     Widget heatmapContent = customHeatmapContent(
       isDark,
       isMobile,
@@ -2039,6 +2070,90 @@ class ProfileScreenState extends State<ProfileScreen>
       decoration: BoxDecoration(
         color: getActivityColor(intensity, isDark),
         borderRadius: BorderRadius.circular(2),
+      ),
+    );
+  }
+
+  Widget heatmapShimmer(bool isDark, bool isMobile, bool isTablet) {
+    final double squareSize = isMobile ? 10 : 12;
+    final double spacing = isMobile ? 1.5 : 2;
+    final double containerHeight = isMobile ? 110 : 130;
+    final double weekWidth = squareSize + spacing * 2;
+    final double dayLabelWidth = 30;
+
+    return Shimmer.fromColors(
+      baseColor: isDark ? Colors.grey[800]! : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[700]! : Colors.grey[100]!,
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: IntrinsicWidth(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                height: 20,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(width: dayLabelWidth),
+                    Container(
+                      width: heatmapWeeks.length * weekWidth,
+                      height: 15,
+                      color: Colors.white,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 4),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: dayLabelWidth,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: squareSize * 0.3 + spacing),
+                        Container(width: 25, height: 12, color: Colors.white),
+                        SizedBox(height: squareSize * 1.4 + spacing),
+                        Container(width: 25, height: 12, color: Colors.white),
+                        SizedBox(height: squareSize * 1.4 + spacing),
+                        Container(width: 25, height: 12, color: Colors.white),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  SizedBox(
+                    height: containerHeight,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(heatmapWeeks.length, (weekIndex) {
+                        return Container(
+                          margin: EdgeInsets.symmetric(horizontal: spacing),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: List.generate(7, (dayIndex) {
+                              return Container(
+                                margin: EdgeInsets.symmetric(vertical: spacing),
+                                width: squareSize,
+                                height: squareSize,
+                                color: Colors.white,
+                              );
+                            }),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

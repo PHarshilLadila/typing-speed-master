@@ -10,7 +10,6 @@ class UserActivityProvider with ChangeNotifier {
 
   Map<DateTime, int> get activityData => _activityData;
   bool get isLoading => _isLoading;
-
   Future<void> fetchActivityData(String userId, int year) async {
     try {
       _isLoading = true;
@@ -32,17 +31,23 @@ class UserActivityProvider with ChangeNotifier {
       final newActivityData = <DateTime, int>{};
 
       for (var log in response) {
-        final date = DateTime.parse(log['activity_date']);
-        final normalizedDate = DateTime(date.year, date.month, date.day);
-        newActivityData[normalizedDate] = log['test_count'] as int;
+        try {
+          final date = DateTime.parse(log['activity_date']);
+          final normalizedDate = DateTime(date.year, date.month, date.day);
+          newActivityData[normalizedDate] = log['test_count'] as int;
+        } catch (e) {
+          dev.log('Error parsing activity log: $e');
+        }
       }
 
       _activityData = newActivityData;
 
       dev.log('Loaded ${_activityData.length} activity days for $year');
-      dev.log(
-        '📅 Activity data sample: ${_activityData.entries.take(5).toList()}',
-      );
+      if (_activityData.isNotEmpty) {
+        dev.log(
+          '📅 Activity data sample: ${_activityData.entries.take(5).toList()}',
+        );
+      }
     } catch (e) {
       dev.log('Error fetching activity data: $e');
       if (e is PostgrestException) {
@@ -139,7 +144,7 @@ class UserActivityProvider with ChangeNotifier {
       notifyListeners();
 
       _activityData.clear();
-
+      notifyListeners();
       await fetchActivityData(userId, year);
 
       dev.log('Activity data forcefully refreshed for $year');
