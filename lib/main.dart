@@ -8,6 +8,7 @@ import 'package:meta_seo/meta_seo.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
+import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/features/games/provider/game_dashboard_provider.dart';
@@ -73,6 +74,7 @@ class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
         ChangeNotifierProvider(create: (_) => UserActivityProvider()),
         ChangeNotifierProvider(create: (_) => GameDashboardProvider()),
         ChangeNotifierProvider(create: (_) => CharacterRushProvider()),
+        ChangeNotifierProvider(create: (_) => WordMasterProvider()),
       ],
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {

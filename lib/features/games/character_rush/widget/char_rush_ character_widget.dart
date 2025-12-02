@@ -3,13 +3,15 @@
 import 'package:flutter/material.dart';
 
 class CharRushCharacterWidget extends StatefulWidget {
-  final String character;
+  final bool iswordMasterGame;
+  final String characterOrWords;
   final VoidCallback onCollected;
 
   const CharRushCharacterWidget({
     super.key,
-    required this.character,
+    required this.characterOrWords,
     required this.onCollected,
+    this.iswordMasterGame = false,
   });
 
   @override
@@ -75,37 +77,70 @@ class _CharRushCharacterWidgetState extends State<CharRushCharacterWidget>
           opacity: opacity,
           child: Transform.scale(
             scale: scale,
-            child: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [Colors.blueAccent, Colors.purpleAccent],
-                ),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.blueAccent.withOpacity(0.2),
-                    blurRadius: 10,
-                    spreadRadius: 2,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
-                border: Border.all(color: Colors.white, width: 2),
-              ),
-              child: Center(
-                child: Text(
-                  widget.character,
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-            ),
+            child:
+                widget.iswordMasterGame == true
+                    ? Container(
+                      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.blueAccent, Colors.purpleAccent],
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                        shape: BoxShape.rectangle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.2),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.white, width: 0.5),
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.characterOrWords,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    )
+                    : Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [Colors.blueAccent, Colors.purpleAccent],
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blueAccent.withOpacity(0.2),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                        border: Border.all(color: Colors.white, width: 2),
+                      ),
+                      child: Center(
+                        child: Text(
+                          widget.characterOrWords,
+                          style: const TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
           ),
         );
       },

@@ -472,7 +472,7 @@ class AppConstants {
     "far",
   ];
 
-  List<String> mediumWords = [
+  static List<String> mediumWords = [
     "creative",
     "journey",
     "freedom",

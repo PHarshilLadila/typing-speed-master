@@ -345,7 +345,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                     (screenSize.width - 80),
                 top: gameProvider.characterPositions[i].dy * gameAreaHeight,
                 child: CharRushCharacterWidget(
-                  character: gameProvider.activeCharacters[i],
+                  characterOrWords: gameProvider.activeCharacters[i],
                   onCollected: () {},
                 ),
               ),
