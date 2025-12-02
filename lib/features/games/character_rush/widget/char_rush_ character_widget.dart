@@ -2,12 +2,12 @@
 
 import 'package:flutter/material.dart';
 
-class CharRushCharacterWidget extends StatefulWidget {
+class GameCharacterAndWordWidget extends StatefulWidget {
   final bool iswordMasterGame;
   final String characterOrWords;
   final VoidCallback onCollected;
 
-  const CharRushCharacterWidget({
+  const GameCharacterAndWordWidget({
     super.key,
     required this.characterOrWords,
     required this.onCollected,
@@ -15,11 +15,11 @@ class CharRushCharacterWidget extends StatefulWidget {
   });
 
   @override
-  State<CharRushCharacterWidget> createState() =>
-      _CharRushCharacterWidgetState();
+  State<GameCharacterAndWordWidget> createState() =>
+      _GameCharacterAndWordWidgetState();
 }
 
-class _CharRushCharacterWidgetState extends State<CharRushCharacterWidget>
+class _GameCharacterAndWordWidgetState extends State<GameCharacterAndWordWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController controller;
   late Animation<double> scaleAnimation;

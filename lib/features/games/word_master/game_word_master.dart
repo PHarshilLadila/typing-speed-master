@@ -145,7 +145,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
                 left:
                     gameProvider.wordPositions[i].dx * (screenSize.width - 80),
                 top: gameProvider.wordPositions[i].dy * gameAreaHeight,
-                child: CharRushCharacterWidget(
+                child: GameCharacterAndWordWidget(
                   iswordMasterGame: true,
                   characterOrWords: gameProvider.activeWords[i],
                   onCollected: () {},

@@ -15,6 +15,7 @@ import 'provider/typing_test_provider.dart';
 import '../../theme/provider/theme_provider.dart';
 import 'widget/text_display_widget.dart';
 import '../../models/typing_test_result_model.dart';
+import 'package:universal_html/html.dart' as html;
 
 class TypingTestScreen extends StatefulWidget {
   const TypingTestScreen({super.key});
@@ -44,6 +45,14 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
   Timer? typingSampleTimer;
   int lastSampleCharCount = 0;
 
+  void handleKeyDown(html.Event event) {
+    final keyboardEvent = event as html.KeyboardEvent;
+    if (keyboardEvent.keyCode == 116) {
+      keyboardEvent.preventDefault();
+      resetTest();
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -56,6 +65,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         textFocusNode.requestFocus();
       }
     });
+    html.window.addEventListener('keydown', handleKeyDown);
   }
 
   @override
@@ -74,6 +84,8 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     textFocusNode.dispose();
     countdownTimer?.cancel();
     typingSampleTimer?.cancel();
+    html.window.removeEventListener('keydown', handleKeyDown);
+
     super.dispose();
   }
 
@@ -510,29 +522,33 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                             tooltip: 'Full Screen',
                           ),
                           SizedBox(width: isMobile ? 4 : 8),
-                          TextButton(
-                            onPressed: () {
-                              resetTest();
-                            },
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStatePropertyAll(
-                                themeProvider.primaryColor,
+                          Tooltip(
+                            message: "Reset Test OR Press F5",
+                            child: TextButton(
+                              onPressed: () {
+                                resetTest();
+                              },
+                              style: ButtonStyle(
+                                backgroundColor: WidgetStatePropertyAll(
+                                  themeProvider.primaryColor,
+                                ),
                               ),
-                            ),
-                            child: Text(
-                              'Reset',
-                              style: TextStyle(
-                                fontSize: isMobile ? 14 : 16,
-                                fontWeight: FontWeight.bold,
-                                color:
-                                    themeProvider.primaryColor ==
-                                                Colors.amber ||
-                                            themeProvider.primaryColor ==
-                                                Colors.yellow ||
-                                            themeProvider.primaryColor ==
-                                                Colors.lime
-                                        ? Colors.black
-                                        : Colors.white,
+                              child: Text(
+                                'Reset',
+
+                                style: TextStyle(
+                                  fontSize: isMobile ? 14 : 16,
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      themeProvider.primaryColor ==
+                                                  Colors.amber ||
+                                              themeProvider.primaryColor ==
+                                                  Colors.yellow ||
+                                              themeProvider.primaryColor ==
+                                                  Colors.lime
+                                          ? Colors.black
+                                          : Colors.white,
+                                ),
                               ),
                             ),
                           ),
