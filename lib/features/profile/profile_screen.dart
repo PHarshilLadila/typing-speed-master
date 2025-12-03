@@ -250,29 +250,6 @@ class ProfileScreenState extends State<ProfileScreen>
 
     final bool shouldScroll = isMobile || isTablet;
 
-    if (activityData.isEmpty && heatmapWeeks.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.calendar_today,
-              size: 40,
-              color: isDark ? Colors.grey[600] : Colors.grey[400],
-            ),
-            SizedBox(height: 8),
-            Text(
-              'No activity data',
-              style: TextStyle(
-                fontSize: 14,
-                color: isDark ? Colors.grey[400] : Colors.grey[600],
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-
     Widget heatmapContent = customHeatmapContent(
       isDark,
       isMobile,
