@@ -103,7 +103,7 @@ class AuthProvider with ChangeNotifier {
             '${uri.origin}${uri.path}'; // for local (Also update the URL configuration in the Authentication section of the Supabase Studio.)
         // redirectUrl = 'https://typingspeedmaster.vercel.app'; // for production
       } else {
-        redirectUrl = 'http://localhost:62621'; // for local
+        redirectUrl = 'http://localhost:3000'; // for local
         // redirectUrl = 'https://typingspeedmaster.vercel.app'; // for production
       }
 

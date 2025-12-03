@@ -1,6 +1,5 @@
 // ignore_for_file: deprecated_member_use, avoid_web_libraries_in_flutter
 
-import 'dart:developer' as dev;
 import 'dart:html' as html;
 
 import 'package:flutter/foundation.dart';
@@ -33,6 +32,7 @@ class ProfileScreen extends StatefulWidget {
 class ProfileScreenState extends State<ProfileScreen>
     with WidgetsBindingObserver {
   bool isFirstLoad = true;
+  bool isRefreshing = false;
   List<List<DateTime?>> heatmapWeeks = [];
   int currentHeatmapYear = DateTime.now().year;
   Map<DateTime, int> activityData = {};
@@ -87,9 +87,22 @@ class ProfileScreenState extends State<ProfileScreen>
   }
 
   Future<void> refreshProfileData() async {
+    if (!mounted) return;
+
+    setState(() {
+      isRefreshing = true;
+    });
+
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     if (authProvider.isLoggedIn && authProvider.user != null) {
       await authProvider.fetchUserProfile(authProvider.user!.id);
+      generateHeatmapData();
+    }
+
+    if (mounted) {
+      setState(() {
+        isRefreshing = false;
+      });
     }
   }
 
@@ -103,14 +116,6 @@ class ProfileScreenState extends State<ProfileScreen>
     );
 
     if (authProvider.user != null) {
-      dev.log('Generating heatmap data for user: ${authProvider.user!.id}');
-
-      if (mounted) {
-        setState(() {
-          activityData = {};
-        });
-      }
-
       try {
         await activityProvider.fetchActivityData(
           authProvider.user!.id,
@@ -136,16 +141,8 @@ class ProfileScreenState extends State<ProfileScreen>
             generateHeatmapWeeks();
             calculateMonthLabels();
           });
-
-          dev.log('Heatmap data generated: ${activityData.length} days');
-          if (activityData.isNotEmpty) {
-            dev.log(
-              '📊 Sample activity: ${activityData.entries.take(3).map((e) => '${e.key}: ${e.value}').join(', ')}',
-            );
-          }
         }
       } catch (e) {
-        dev.log('Error generating heatmap data: $e');
         if (mounted) {
           setState(() {
             activityData = {};
@@ -252,33 +249,30 @@ class ProfileScreenState extends State<ProfileScreen>
     final double dayLabelWidth = 30;
 
     final bool shouldScroll = isMobile || isTablet;
-    // final activityProvider = context.watch<UserActivityProvider>();
 
-    // if (activityProvider.isLoading) {
-    //   return heatmapShimmer(isDark, isMobile, isTablet);
-    // }
-    // if (activityData.isEmpty && heatmapWeeks.isEmpty) {
-    //   return Center(
-    //     child: Column(
-    //       mainAxisSize: MainAxisSize.min,
-    //       children: [
-    //         Icon(
-    //           Icons.calendar_today,
-    //           size: 40,
-    //           color: isDark ? Colors.grey[600] : Colors.grey[400],
-    //         ),
-    //         SizedBox(height: 8),
-    //         Text(
-    //           'No activity data',
-    //           style: TextStyle(
-    //             fontSize: 14,
-    //             color: isDark ? Colors.grey[400] : Colors.grey[600],
-    //           ),
-    //         ),
-    //       ],
-    //     ),
-    //   );
-    // }
+    if (activityData.isEmpty && heatmapWeeks.isEmpty) {
+      return Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.calendar_today,
+              size: 40,
+              color: isDark ? Colors.grey[600] : Colors.grey[400],
+            ),
+            SizedBox(height: 8),
+            Text(
+              'No activity data',
+              style: TextStyle(
+                fontSize: 14,
+                color: isDark ? Colors.grey[400] : Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
     Widget heatmapContent = customHeatmapContent(
       isDark,
       isMobile,
@@ -757,8 +751,6 @@ class ProfileScreenState extends State<ProfileScreen>
   }
 
   Widget profileErrorState(bool isDark, double size, String error) {
-    dev.log('Profile image loading error: $error');
-
     return CachedNetworkImage(
       imageUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
       fit: BoxFit.cover,
@@ -798,38 +790,53 @@ class ProfileScreenState extends State<ProfileScreen>
 
     return Consumer<AuthProvider>(
       builder: (context, authProvider, child) {
-        if (authProvider.isLoggedIn &&
-            authProvider.user != null &&
-            !isFirstLoad) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            refreshProfileData();
-          });
-        }
-
         if (authProvider.isLoading && !authProvider.isInitialized) {
           return const Center(child: CircularProgressIndicator());
         }
 
-        return profileUI(
-          context,
-          authProvider,
-          isDark,
-          authProvider.user ??
-              UserModel(
-                id: 'UserID',
-                email: 'example@gmail.com',
-                fullName: "Guest User",
-                avatarUrl:
-                    "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
-                createdAt: DateTime.now().toUtc(),
-                updatedAt: DateTime.now().toUtc(),
-                totalTests: 0,
-                totalWords: 0,
-                averageWpm: 0.0,
-                averageAccuracy: 0.0,
-              ),
-        );
+        return
+        // _isRefreshing
+        //     ? _buildRefreshingUI(isDark)
+        //     :
+        _buildProfileUI(context, authProvider, isDark);
       },
+    );
+  }
+
+  Widget _buildProfileUI(
+    BuildContext context,
+    AuthProvider authProvider,
+    bool isDark,
+  ) {
+    final user = authProvider.user;
+
+    if (authProvider.isLoading && isFirstLoad) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
+    if (authProvider.isLoggedIn && user != null && !isFirstLoad) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        refreshProfileData();
+      });
+    }
+
+    return profileUI(
+      context,
+      authProvider,
+      isDark,
+      user ??
+          UserModel(
+            id: 'UserID',
+            email: 'example@gmail.com',
+            fullName: "Guest User",
+            avatarUrl: "https://api.dicebear.com/7.x/avataaars/svg?seed=male",
+            createdAt: DateTime.now().toUtc(),
+            updatedAt: DateTime.now().toUtc(),
+            totalTests: 0,
+            totalWords: 0,
+            averageWpm: 0.0,
+            averageAccuracy: 0.0,
+          ),
     );
   }
 
@@ -855,12 +862,7 @@ class ProfileScreenState extends State<ProfileScreen>
 
         return RefreshIndicator(
           onRefresh: () async {
-            if (authProvider.isLoggedIn) {
-              final user = authProvider.user;
-              if (user != null) {
-                await authProvider.fetchUserProfile(user.id);
-              }
-            }
+            await refreshProfileData();
           },
           child: SingleChildScrollView(
             padding:
@@ -1319,9 +1321,7 @@ class ProfileScreenState extends State<ProfileScreen>
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        profileAvatar(user, isDark, isTablet ? 100.0 : 120.0, () {
-          dev.log("onTap = This is the profile Image");
-        }),
+        profileAvatar(user, isDark, isTablet ? 100.0 : 120.0, () {}),
         const SizedBox(width: 24),
 
         Expanded(
@@ -1620,8 +1620,6 @@ class ProfileScreenState extends State<ProfileScreen>
                     CustomDialog.showSignOutDialog(
                       context: context,
                       onConfirm: () async {
-                        // Navigator.of(context, rootNavigator: true).pop();
-                        // context.pop();
                         await authProvider.signOut();
                         await Future.delayed(Duration(milliseconds: 500));
                         if (kIsWeb) {
@@ -1631,9 +1629,6 @@ class ProfileScreenState extends State<ProfileScreen>
                         } else {
                           Restart.restartApp();
                         }
-                        debugPrint(
-                          "User Sign Out Successful and App Restarted",
-                        );
                       },
                     );
                   },
@@ -1896,14 +1891,10 @@ class ProfileScreenState extends State<ProfileScreen>
                             size: isMobile ? 18 : 20,
                           ),
                           onPressed:
-                              () =>
-                                  availableYears.contains(
-                                        currentHeatmapYear - 1,
-                                      )
-                                      ? () => changeHeatmapYear(
-                                        currentHeatmapYear - 1,
-                                      )
-                                      : null,
+                              availableYears.contains(currentHeatmapYear - 1)
+                                  ? () =>
+                                      changeHeatmapYear(currentHeatmapYear - 1)
+                                  : null,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(minWidth: 36),
                         ),
@@ -1931,14 +1922,10 @@ class ProfileScreenState extends State<ProfileScreen>
                             size: isMobile ? 18 : 20,
                           ),
                           onPressed:
-                              () =>
-                                  availableYears.contains(
-                                        currentHeatmapYear + 1,
-                                      )
-                                      ? () => changeHeatmapYear(
-                                        currentHeatmapYear + 1,
-                                      )
-                                      : null,
+                              availableYears.contains(currentHeatmapYear + 1)
+                                  ? () =>
+                                      changeHeatmapYear(currentHeatmapYear + 1)
+                                  : null,
                           padding: EdgeInsets.zero,
                           constraints: BoxConstraints(minWidth: 36),
                         ),
