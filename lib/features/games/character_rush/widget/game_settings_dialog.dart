@@ -1,33 +1,43 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/model/character_rush_settings_model.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
+import 'package:typing_speed_master/features/games/word_master/model/word_master_settings_model.dart';
+import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 
 class GameSettingsDialog extends StatefulWidget {
-  const GameSettingsDialog({super.key});
+  final bool isWordMaster;
+  const GameSettingsDialog({super.key, this.isWordMaster = false});
 
   @override
   State<GameSettingsDialog> createState() => _GameSettingsDialogState();
 }
 
 class _GameSettingsDialogState extends State<GameSettingsDialog> {
-  late CharacterRushSettingsModel currentSettings;
+  late CharacterRushSettingsModel characterRushSettings;
+  late WordMasterSettingsModel wordMasterSettings;
 
   @override
   void initState() {
     super.initState();
-    final gameProvider = Provider.of<CharacterRushProvider>(
+    final charRushProvider = Provider.of<CharacterRushProvider>(
       context,
       listen: false,
     );
-    currentSettings = gameProvider.settings;
+    final wordMasterProvider = Provider.of<WordMasterProvider>(
+      context,
+      listen: false,
+    );
+    characterRushSettings = charRushProvider.settings;
+    wordMasterSettings = wordMasterProvider.settings;
   }
 
-  void charRushresetToDefaults() {
+  void gameResetToDefaults() {
     CustomDialog.showConfirmationDialog(
       context: context,
       title: 'Reset Settings',
@@ -35,31 +45,47 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
       confirmText: 'Reset',
       confirmButtonColor: Colors.orange,
       onConfirm: () {
-        setState(() {
-          currentSettings = CharacterRushSettingsModel(
-            initialSpeed: 1.0,
-            speedIncrement: 0.1,
-            maxCharacters: 5,
-            soundEnabled: true,
-          );
-        });
+        widget.isWordMaster == true
+            ? setState(() {
+              wordMasterSettings = WordMasterSettingsModel(
+                initialSpeed: 1.0,
+                speedIncrement: 0.1,
+                maxWords: 5,
+                soundEnabled: true,
+              );
+            })
+            : setState(() {
+              characterRushSettings = CharacterRushSettingsModel(
+                initialSpeed: 1.0,
+                speedIncrement: 0.1,
+                maxCharacters: 5,
+                soundEnabled: true,
+              );
+            });
       },
     );
   }
 
-  void charRushSaveSettings() {
-    final gameProvider = Provider.of<CharacterRushProvider>(
+  void gameSaveSettings() {
+    final charRushProvider = Provider.of<CharacterRushProvider>(
       context,
       listen: false,
     );
-    gameProvider.updateSettings(currentSettings);
+    final wordMasterProvider = Provider.of<WordMasterProvider>(
+      context,
+      listen: false,
+    );
+
+    widget.isWordMaster == true
+        ? wordMasterProvider.updateSettings(wordMasterSettings)
+        : charRushProvider.updateSettings(characterRushSettings);
 
     CustomDialog.showSuccessDialog(
       context: context,
       title: 'Settings Saved',
       content: 'Your game settings have been updated successfully.',
       onPressed: () {
-        Navigator.pop(context);
+        context.pop();
       },
     );
   }
@@ -134,17 +160,24 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                       charRushSliderSetting(
                         title: 'Initial Speed',
                         description: 'Starting speed of falling characters',
-                        value: currentSettings.initialSpeed,
+                        value:
+                            widget.isWordMaster == true
+                                ? wordMasterSettings.initialSpeed
+                                : characterRushSettings.initialSpeed,
                         min: 0.5,
                         max: 3.0,
                         divisions: 25,
                         unit: 'x',
                         onChanged: (value) {
-                          setState(() {
-                            currentSettings = currentSettings.copyWith(
-                              initialSpeed: value,
-                            );
-                          });
+                          widget.isWordMaster == true
+                              ? setState(() {
+                                wordMasterSettings = wordMasterSettings
+                                    .copyWith(initialSpeed: value);
+                              })
+                              : setState(() {
+                                characterRushSettings = characterRushSettings
+                                    .copyWith(initialSpeed: value);
+                              });
                         },
                         themeProvider: themeProvider,
                       ),
@@ -153,36 +186,57 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         title: 'Speed Increment',
                         description:
                             'How much speed increases every 10 seconds',
-                        value: currentSettings.speedIncrement,
+                        value:
+                            widget.isWordMaster == true
+                                ? wordMasterSettings.speedIncrement
+                                : characterRushSettings.speedIncrement,
                         min: 0.05,
                         max: 0.9,
                         divisions: 9,
                         unit: 'x',
                         onChanged: (value) {
-                          setState(() {
-                            currentSettings = currentSettings.copyWith(
-                              speedIncrement: value,
-                            );
-                          });
+                          widget.isWordMaster == true
+                              ? setState(() {
+                                wordMasterSettings = wordMasterSettings
+                                    .copyWith(speedIncrement: value);
+                              })
+                              : setState(() {
+                                characterRushSettings = characterRushSettings
+                                    .copyWith(speedIncrement: value);
+                              });
                         },
                         themeProvider: themeProvider,
                       ),
 
                       charRushSliderSetting(
-                        title: 'Max Characters',
-                        description: 'Maximum characters on screen at once',
-                        value: currentSettings.maxCharacters.toDouble(),
+                        title:
+                            widget.isWordMaster == true
+                                ? "Max Words"
+                                : 'Max Characters',
+                        description:
+                            widget.isWordMaster == true
+                                ? " Maximum Words on screen at once"
+                                : 'Maximum characters on screen at once',
+                        value:
+                            widget.isWordMaster == true
+                                ? wordMasterSettings.maxWords.toDouble()
+                                : characterRushSettings.maxCharacters
+                                    .toDouble(),
                         min: 3,
                         max: 10,
                         divisions: 7,
                         unit: '',
                         isInt: true,
                         onChanged: (value) {
-                          setState(() {
-                            currentSettings = currentSettings.copyWith(
-                              maxCharacters: value.toInt(),
-                            );
-                          });
+                          widget.isWordMaster == true
+                              ? setState(() {
+                                wordMasterSettings = wordMasterSettings
+                                    .copyWith(maxWords: value.toInt());
+                              })
+                              : setState(() {
+                                characterRushSettings = characterRushSettings
+                                    .copyWith(maxCharacters: value.toInt());
+                              });
                         },
                         themeProvider: themeProvider,
                       ),
@@ -196,7 +250,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                 children: [
                   Expanded(
                     child: OutlinedButton.icon(
-                      onPressed: charRushresetToDefaults,
+                      onPressed: gameResetToDefaults,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.orange,
                         side: const BorderSide(color: Colors.orange),
@@ -209,7 +263,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton.icon(
-                      onPressed: charRushSaveSettings,
+                      onPressed: gameSaveSettings,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: themeProvider.primaryColor,
                         foregroundColor: Colors.white,

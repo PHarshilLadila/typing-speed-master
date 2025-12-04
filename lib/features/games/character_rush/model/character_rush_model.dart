@@ -15,7 +15,7 @@ class CharacterRushModel {
     return {
       "score": score,
       "charactersCollected": charactersCollected,
-      "timestamps": timestamps,
+      "timestamps": timestamps.toIso8601String(),
       "gameDuration": gameDuration,
     };
   }
@@ -25,7 +25,7 @@ class CharacterRushModel {
       score: json['score'],
       charactersCollected: json['charactersCollected'],
       gameDuration: json['gameDuration'],
-      timestamps: json['timestamps'],
+      timestamps: DateTime.parse(json['timestamps']),
     );
   }
 }

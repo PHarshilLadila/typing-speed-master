@@ -32,6 +32,8 @@ class WordMasterProvider with ChangeNotifier {
   String _currentTypedWord = '';
   bool _isWrongWord = false;
   Timer? _wrongWordTimer;
+  VoidCallback? _onWordCollectedCallback;
+
   final List<int> _gameTimeOptions = [30, 60, 120, 180, 240, 300];
 
   WordMasterSettingsModel _settings = WordMasterSettingsModel(
@@ -118,6 +120,39 @@ class WordMasterProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // void _checkForExactMatch() {
+  //   if (_currentTypedWord.isEmpty) return;
+
+  //   for (int i = 0; i < _activeWords.length; i++) {
+  //     if (_activeWords[i] == _currentTypedWord) {
+  //       // Word matched successfully
+  //       _activeWords.removeAt(i);
+  //       _wordPositions.removeAt(i);
+
+  //       final basePoints = 10;
+  //       final speedBonus = (_currentSpeed * 2).round();
+  //       _score += basePoints + speedBonus;
+  //       _wordsCollected++;
+
+  //       // Reset typed word
+  //       _currentTypedWord = '';
+  //       _isWrongWord = false;
+
+  //       if (_settings.soundEnabled) {
+  //         // Play success sound
+  //       }
+
+  //       notifyListeners();
+  //       return;
+  //     }
+  //   }
+  // }
+
+  void setWordCollectedCallback(VoidCallback callback) {
+    _onWordCollectedCallback = callback;
+  }
+
+  // In WordMasterProvider, update _checkForExactMatch method:
   void _checkForExactMatch() {
     if (_currentTypedWord.isEmpty) return;
 
@@ -131,6 +166,11 @@ class WordMasterProvider with ChangeNotifier {
         final speedBonus = (_currentSpeed * 2).round();
         _score += basePoints + speedBonus;
         _wordsCollected++;
+
+        // Call the callback to clear text field
+        if (_onWordCollectedCallback != null) {
+          _onWordCollectedCallback!();
+        }
 
         // Reset typed word
         _currentTypedWord = '';

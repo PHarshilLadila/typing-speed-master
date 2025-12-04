@@ -25,6 +25,14 @@ class _GameWordMasterState extends State<GameWordMaster> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
+      final gameProvider = Provider.of<WordMasterProvider>(
+        context,
+        listen: false,
+      );
+      gameProvider.setWordCollectedCallback(() {
+        // Clear the text field when word is collected
+        textController.clear();
+      });
     });
   }
 
@@ -120,7 +128,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
     Size screenSize,
   ) {
     final isMobile = screenSize.width <= 768;
-    final gameAreaHeight = isMobile ? 340.0 : 480.0;
+    final gameAreaHeight = isMobile ? 340.0 : 580.0;
 
     return GestureDetector(
       onTap: () {
@@ -279,6 +287,9 @@ class _GameWordMasterState extends State<GameWordMaster> {
                               onPressed: () {
                                 gameProvider.clearTypedWord();
                                 gameProvider.startGame();
+                                gameProvider.setWordCollectedCallback(() {
+                                  textController.clear();
+                                });
                                 focusNode.requestFocus();
                               },
                               icon: const Icon(Icons.play_arrow),
@@ -749,7 +760,8 @@ class _GameWordMasterState extends State<GameWordMaster> {
                 }
                 showDialog(
                   context: context,
-                  builder: (context) => const ScoreHistoryDialog(),
+                  builder:
+                      (context) => const ScoreHistoryDialog(isWordMaster: true),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();
@@ -777,7 +789,8 @@ class _GameWordMasterState extends State<GameWordMaster> {
 
                 showDialog(
                   context: context,
-                  builder: (context) => const GameSettingsDialog(),
+                  builder:
+                      (context) => const GameSettingsDialog(isWordMaster: true),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();

@@ -7,15 +7,15 @@ class WordMasterModel {
   WordMasterModel({
     required this.score,
     required this.wordCollected,
-    required this.gameDuration,
     required this.timestamps,
+    required this.gameDuration,
   });
 
   Map<String, dynamic> toJson() {
     return {
       "score": score,
       "wordCollected": wordCollected,
-      "timestamps": timestamps,
+      "timestamps": timestamps.toIso8601String(),
       "gameDuration": gameDuration,
     };
   }
@@ -24,8 +24,8 @@ class WordMasterModel {
     return WordMasterModel(
       score: json['score'],
       wordCollected: json['wordCollected'],
+      timestamps: DateTime.parse(json['timestamps']),
       gameDuration: json['gameDuration'],
-      timestamps: json['timestamps'],
     );
   }
 }

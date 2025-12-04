@@ -1,18 +1,23 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/model/character_rush_model.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
+import 'package:typing_speed_master/features/games/word_master/model/word_master_model.dart';
+import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 
 class ScoreHistoryDialog extends StatelessWidget {
-  const ScoreHistoryDialog({super.key});
+  final bool isWordMaster;
+  const ScoreHistoryDialog({super.key, this.isWordMaster = false});
 
   @override
   Widget build(BuildContext context) {
-    final gameProvider = Provider.of<CharacterRushProvider>(context);
+    final charRushProvider = Provider.of<CharacterRushProvider>(context);
+    final wordMasterProvider = Provider.of<WordMasterProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Dialog(
@@ -42,7 +47,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    onPressed: () => Navigator.pop(context),
+                    onPressed: () => context.pop(),
                     icon: Icon(
                       Icons.close,
                       color:
@@ -55,7 +60,8 @@ class ScoreHistoryDialog extends StatelessWidget {
               ),
               const SizedBox(height: 16),
 
-              if (gameProvider.scores.isNotEmpty)
+              if (charRushProvider.scores.isNotEmpty ||
+                  wordMasterProvider.scores.isNotEmpty)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Row(
@@ -72,7 +78,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                             confirmButtonColor: Colors.red,
                             isDestructive: true,
                             onConfirm: () {
-                              Navigator.pop(context);
+                              context.pop();
                             },
                           );
                         },
@@ -89,10 +95,20 @@ class ScoreHistoryDialog extends StatelessWidget {
 
               Expanded(
                 child:
-                    gameProvider.scores.isEmpty
-                        ? charRushEmptyState(themeProvider.isDarkMode)
-                        : charRUshScoresList(
-                          gameProvider,
+                    isWordMaster == true
+                        ? wordMasterProvider.scores.isEmpty
+                            ? gameEmptyState(themeProvider.isDarkMode)
+                            : gameScoresList(
+                              charRushProvider,
+                              wordMasterProvider,
+                              themeProvider.isDarkMode,
+                              themeProvider,
+                            )
+                        : charRushProvider.scores.isEmpty
+                        ? gameEmptyState(themeProvider.isDarkMode)
+                        : gameScoresList(
+                          charRushProvider,
+                          wordMasterProvider,
                           themeProvider.isDarkMode,
                           themeProvider,
                         ),
@@ -102,7 +118,7 @@ class ScoreHistoryDialog extends StatelessWidget {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                  onPressed: () => context.pop(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: themeProvider.primaryColor,
                     foregroundColor: Colors.white,
@@ -118,7 +134,7 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget charRushEmptyState(bool isDarkMode) {
+  Widget gameEmptyState(bool isDarkMode) {
     return Center(
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -149,28 +165,70 @@ class ScoreHistoryDialog extends StatelessWidget {
     );
   }
 
-  Widget charRUshScoresList(
-    CharacterRushProvider gameProvider,
+  Widget gameScoresList(
+    CharacterRushProvider? charRushProvider,
+    WordMasterProvider? wordMasterProvider,
     bool isDarkMode,
     ThemeProvider themeProvider,
   ) {
+    final scores =
+        isWordMaster == true
+            ? wordMasterProvider!.scores
+            : charRushProvider!.scores;
+
     return ListView.builder(
       shrinkWrap: true,
       physics: const BouncingScrollPhysics(),
-      itemCount: gameProvider.scores.length,
+      itemCount: scores.length,
       itemBuilder: (context, index) {
-        final score = gameProvider.scores[index];
-        return charRushScoreItem(score, index + 1, isDarkMode, themeProvider);
+        if (isWordMaster == true) {
+          final wordMasterScore = scores[index] as WordMasterModel;
+          return gameScoreItem(
+            null, // charRushScore is null for word master
+            wordMasterScore,
+            index + 1,
+            isDarkMode,
+            themeProvider,
+          );
+        } else {
+          final charRushScore = scores[index] as CharacterRushModel;
+          return gameScoreItem(
+            charRushScore,
+            null, // wordMasterScore is null for character rush
+            index + 1,
+            isDarkMode,
+            themeProvider,
+          );
+        }
       },
     );
   }
 
-  Widget charRushScoreItem(
-    CharacterRushModel score,
+  Widget gameScoreItem(
+    CharacterRushModel? charRushScore,
+    WordMasterModel? wordMasterScore,
     int rank,
     bool isDarkMode,
     ThemeProvider themeProvider,
   ) {
+    // Determine which score we're working with
+    final isWordMasterScore = wordMasterScore != null;
+    final score =
+        isWordMasterScore ? wordMasterScore!.score : charRushScore!.score;
+    final collected =
+        isWordMasterScore
+            ? wordMasterScore!.wordCollected
+            : charRushScore!.charactersCollected;
+    final gameDuration =
+        isWordMasterScore
+            ? wordMasterScore!.gameDuration
+            : charRushScore!.gameDuration;
+    final timestamps =
+        isWordMasterScore
+            ? wordMasterScore!.timestamps
+            : charRushScore!.timestamps;
+    final collectedLabel = isWordMasterScore ? 'words' : 'characters';
+
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -217,7 +275,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      'Score: ${score.score}',
+                      'Score: $score',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -225,7 +283,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    charRushScoreBadge(score.score, isDarkMode),
+                    charRushScoreBadge(score, isDarkMode),
                   ],
                 ),
                 const SizedBox(height: 4),
@@ -234,7 +292,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                     Icon(Icons.check_circle, size: 14, color: Colors.green),
                     const SizedBox(width: 4),
                     Text(
-                      '${score.charactersCollected} characters collected',
+                      '$collected $collectedLabel collected',
                       style: TextStyle(
                         color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         fontSize: 12,
@@ -244,7 +302,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                     Icon(Icons.timer, size: 14, color: Colors.blue),
                     const SizedBox(width: 4),
                     Text(
-                      '${score.gameDuration}s',
+                      '${gameDuration}s',
                       style: TextStyle(
                         color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
                         fontSize: 12,
@@ -260,7 +318,7 @@ class ScoreHistoryDialog extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                charRushDateFormate(score.timestamps),
+                charRushDateFormate(timestamps),
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -268,7 +326,7 @@ class ScoreHistoryDialog extends StatelessWidget {
                 ),
               ),
               Text(
-                charRushTimeFormate(score.timestamps),
+                charRushTimeFormate(timestamps),
                 style: TextStyle(
                   fontSize: 11,
                   color: isDarkMode ? Colors.grey[500] : Colors.grey[500],

@@ -88,7 +88,9 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                 }
                 showDialog(
                   context: context,
-                  builder: (context) => const ScoreHistoryDialog(),
+                  builder:
+                      (context) =>
+                          const ScoreHistoryDialog(isWordMaster: false),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();
@@ -116,7 +118,9 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
 
                 showDialog(
                   context: context,
-                  builder: (context) => const GameSettingsDialog(),
+                  builder:
+                      (context) =>
+                          const GameSettingsDialog(isWordMaster: false),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();
@@ -176,7 +180,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
           charRushTimerDropdown(gameProvider, themeProvider, context),
           // InkWell(
           //   onTap: () {
-          //     debugPrint("Ontap of Timer.");
+          //     debugPrint("onTap of Timer.");
           //   },
           //   child: Container(
           //     padding: EdgeInsets.all(16),
