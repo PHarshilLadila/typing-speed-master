@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/char_rush_%20character_widget.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/game_settings_dialog.dart';
@@ -111,6 +112,8 @@ class _GameWordMasterState extends State<GameWordMaster> {
     );
   }
 
+  // Replace the wordMasterGameArea method with this updated version:
+
   Widget wordMasterGameArea(
     WordMasterProvider gameProvider,
     ThemeProvider themeProvider,
@@ -123,180 +126,360 @@ class _GameWordMasterState extends State<GameWordMaster> {
       onTap: () {
         focusNode.requestFocus();
       },
-      child: Container(
-        height: gameAreaHeight,
-        decoration: BoxDecoration(
-          color: themeProvider.isDarkMode ? Colors.black12 : Colors.white12,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color:
-                themeProvider.isDarkMode
-                    ? Colors.white.withOpacity(0.1)
-                    : Colors.black.withOpacity(0.05),
-            width: 2,
-          ),
-        ),
-        child: Stack(
-          children: [
-            wordMasterGameBackground(themeProvider.isDarkMode),
-
-            for (int i = 0; i < gameProvider.activeWords.length; i++)
-              Positioned(
-                left:
-                    gameProvider.wordPositions[i].dx * (screenSize.width - 80),
-                top: gameProvider.wordPositions[i].dy * gameAreaHeight,
-                child: GameCharacterAndWordWidget(
-                  iswordMasterGame: true,
-                  characterOrWords: gameProvider.activeWords[i],
-                  onCollected: () {},
-                ),
+      child: Stack(
+        children: [
+          Container(
+            height: gameAreaHeight,
+            decoration: BoxDecoration(
+              color: themeProvider.isDarkMode ? Colors.black12 : Colors.white12,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.white.withOpacity(0.1)
+                        : Colors.black.withOpacity(0.05),
+                width: 2,
               ),
+            ),
+            child: Stack(
+              children: [
+                wordMasterGameBackground(themeProvider.isDarkMode),
 
-            if (gameProvider.isGamePaused)
-              Center(
-                child: Container(
-                  height: 180,
-                  width: 300,
-                  decoration: BoxDecoration(
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[800]!.withOpacity(0.9)
-                            : Colors.grey[100]!.withOpacity(0.9),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.pause_circle_filled,
-                          size: 48,
-                          color:
-                              themeProvider.isDarkMode
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'Game Paused',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.grey[800],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Click anywhere to resume',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 14,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                for (int i = 0; i < gameProvider.activeWords.length; i++)
+                  Positioned(
+                    left:
+                        gameProvider.wordPositions[i].dx *
+                        (screenSize.width - 80),
+                    top: gameProvider.wordPositions[i].dy * gameAreaHeight,
+                    child: GameCharacterAndWordWidget(
+                      iswordMasterGame: true,
+                      characterOrWords: gameProvider.activeWords[i],
+                      onCollected: () {},
                     ),
                   ),
-                ),
-              ),
 
-            if (!gameProvider.isGameRunning && !gameProvider.isGamePaused)
-              Center(
-                child: Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[800]
-                            : Colors.grey[100],
-                    borderRadius: BorderRadius.circular(12),
+                // Show typed word at the bottom
+                Positioned(
+                  bottom: 20,
+                  left: 0,
+                  right: 0,
+                  child: Center(
+                    child: _buildTypedWordDisplay(gameProvider, themeProvider),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(
-                          Icons.keyboard,
-                          size: 48,
-                          color:
-                              themeProvider.isDarkMode
-                                  ? Colors.grey[400]
-                                  : Colors.grey[600],
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          gameProvider.wordsCollected > 0
-                              ? 'Game Over! Final Score: ${gameProvider.score}'
-                              : 'Tap to focus and start typing!',
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 18,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.grey[400]
-                                    : Colors.grey[600],
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        ElevatedButton.icon(
-                          onPressed: () {
-                            gameProvider.startGame();
-                            focusNode.requestFocus();
-                          },
-                          icon: const Icon(Icons.play_arrow),
-                          label: Text(
-                            gameProvider.wordsCollected > 0
-                                ? 'Play Again'
-                                : 'Start Game',
-                          ),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: themeProvider.primaryColor,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
+                ),
+
+                // Show wrong word animation
+                if (gameProvider.isWrongWord &&
+                    gameProvider.currentTypedWord.isNotEmpty)
+                  Positioned(
+                    bottom: 80,
+                    left: 0,
+                    right: 0,
+                    child: Center(
+                      child: _buildWrongWordIndicator(themeProvider),
+                    ),
+                  ),
+
+                if (gameProvider.isGamePaused)
+                  Center(
+                    child: Container(
+                      height: 180,
+                      width: 300,
+                      decoration: BoxDecoration(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[800]!.withOpacity(0.9)
+                                : Colors.grey[100]!.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.pause_circle_filled,
+                              size: 48,
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
                             ),
-                          ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Game Paused',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.grey[800],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Click anywhere to resume',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 14,
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Game Duration: ${gameProvider.selectedGameTime} seconds',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.grey[500]
-                                    : Colors.grey[700],
-                          ),
+                      ),
+                    ),
+                  ),
+
+                if (!gameProvider.isGameRunning && !gameProvider.isGamePaused)
+                  Center(
+                    child: Container(
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[800]
+                                : Colors.grey[100],
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(20.0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.keyboard,
+                              size: 48,
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              gameProvider.wordsCollected > 0
+                                  ? 'Game Over! Final Score: ${gameProvider.score}'
+                                  : 'Tap to focus and start typing!',
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                fontSize: 18,
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.grey[400]
+                                        : Colors.grey[600],
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                gameProvider.clearTypedWord();
+                                gameProvider.startGame();
+                                focusNode.requestFocus();
+                              },
+                              icon: const Icon(Icons.play_arrow),
+                              label: Text(
+                                gameProvider.wordsCollected > 0
+                                    ? 'Play Again'
+                                    : 'Start Game',
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: themeProvider.primaryColor,
+                                foregroundColor: Colors.white,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 24,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              'Game Duration: ${gameProvider.selectedGameTime} seconds',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.grey[500]
+                                        : Colors.grey[700],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
+                    ),
+                  ),
+
+                // Add this to your GameWordMaster widget's build method after the text field:
+
+                // Add this as a widget above the text field or use RawKeyboardListener
+                Focus(
+                  autofocus: true,
+                  child: RawKeyboardListener(
+                    focusNode: FocusNode(),
+                    onKey: (RawKeyEvent event) {
+                      if (event is RawKeyDownEvent) {
+                        // Clear typed word on Escape key
+                        if (event.logicalKey == LogicalKeyboardKey.escape) {
+                          textController.clear();
+                          gameProvider.clearTypedWord();
+                        }
+                        // Submit word on Enter key
+                        else if (event.logicalKey == LogicalKeyboardKey.enter) {
+                          // Force check the word
+                          gameProvider.checkWords(
+                            gameProvider.currentTypedWord,
+                          );
+                          textController.clear();
+                          gameProvider.clearTypedWord();
+                        }
+                      }
+                    },
+                    child:
+                        Container(), // Empty container, we just need the keyboard listener
+                  ),
+                ),
+
+                // Hidden text field for keyboard input
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Offstage(
+                    child: TextField(
+                      controller: textController,
+                      focusNode: focusNode,
+                      autofocus: true,
+                      style: const TextStyle(color: Colors.transparent),
+                      decoration: const InputDecoration(
+                        border: InputBorder.none,
+                      ),
+                      onChanged: (value) {
+                        if (gameProvider.isGameRunning &&
+                            !gameProvider.isGamePaused) {
+                          gameProvider.updateTypedWord(value);
+                        }
+                      },
+                      onSubmitted: (value) {
+                        // Clear word on enter/return
+                        textController.clear();
+                        gameProvider.clearTypedWord();
+                      },
                     ),
                   ),
                 ),
-              ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-            Offstage(
-              child: TextField(
-                controller: textController,
-                focusNode: focusNode,
-                autofocus: true,
-                style: const TextStyle(color: Colors.transparent),
-                decoration: const InputDecoration(border: InputBorder.none),
-                onChanged: (value) {
-                  if (value.isNotEmpty && !gameProvider.isGamePaused) {
-                    gameProvider.checkWords(value);
-                    Future.microtask(() => textController.clear());
-                  }
-                },
+  Widget _buildTypedWordDisplay(
+    WordMasterProvider gameProvider,
+    ThemeProvider themeProvider,
+  ) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+      decoration: BoxDecoration(
+        color:
+            gameProvider.isWrongWord && gameProvider.currentTypedWord.isNotEmpty
+                ? Colors.red.withOpacity(0.2)
+                : themeProvider.isDarkMode
+                ? Colors.black.withOpacity(0.7)
+                : Colors.white.withOpacity(0.9),
+        borderRadius: BorderRadius.circular(25),
+        border: Border.all(
+          color:
+              gameProvider.isWrongWord &&
+                      gameProvider.currentTypedWord.isNotEmpty
+                  ? Colors.red
+                  : themeProvider.primaryColor,
+          width: 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.keyboard,
+            color:
+                gameProvider.isWrongWord &&
+                        gameProvider.currentTypedWord.isNotEmpty
+                    ? Colors.red
+                    : themeProvider.primaryColor,
+          ),
+          const SizedBox(width: 12),
+          Text(
+            gameProvider.currentTypedWord.isNotEmpty
+                ? gameProvider.currentTypedWord
+                : 'Type the words...',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color:
+                  gameProvider.isWrongWord &&
+                          gameProvider.currentTypedWord.isNotEmpty
+                      ? Colors.red
+                      : themeProvider.isDarkMode
+                      ? Colors.white
+                      : Colors.grey[800],
+            ),
+          ),
+          if (gameProvider.currentTypedWord.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.clear),
+              onPressed: () {
+                textController.clear();
+                gameProvider.clearTypedWord();
+              },
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+              iconSize: 20,
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildWrongWordIndicator(ThemeProvider themeProvider) {
+    return AnimatedOpacity(
+      duration: const Duration(milliseconds: 300),
+      opacity: 1,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.red.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.red, width: 1),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.warning, color: Colors.red, size: 16),
+            const SizedBox(width: 8),
+            Text(
+              'Word not found! Press ESC to clear',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.red,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -493,10 +676,13 @@ class _GameWordMasterState extends State<GameWordMaster> {
           ),
           const SizedBox(height: 8),
           Text(
-            '• Type the falling words on your keyboard\n'
+            '• Type the complete falling words\n'
+            '• Press Enter to submit or let autocomplete work\n'
             '• Words can be typed in uppercase or lowercase\n'
+            '• Red border shows wrong word - press ESC to clear\n'
             '• Game speed increases every 15 seconds\n'
-            '• Score more points for faster Words\n'
+            '• Score more points for faster words\n'
+            '• Click X to clear current typed word\n'
             '• Game automatically pauses when opening settings/score history\n'
             '• Click the timer to change game duration (before starting)',
             style: TextStyle(

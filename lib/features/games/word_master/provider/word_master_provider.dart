@@ -29,6 +29,9 @@ class WordMasterProvider with ChangeNotifier {
   List<Offset> _wordPositions = [];
   DateTime? _gameStartTime;
   DateTime? _lastUpdateTime;
+  String _currentTypedWord = '';
+  bool _isWrongWord = false;
+  Timer? _wrongWordTimer;
   final List<int> _gameTimeOptions = [30, 60, 120, 180, 240, 300];
 
   WordMasterSettingsModel _settings = WordMasterSettingsModel(
@@ -52,6 +55,8 @@ class WordMasterProvider with ChangeNotifier {
   List<Offset> get wordPositions => _wordPositions;
   WordMasterSettingsModel get settings => _settings;
   List<WordMasterModel> get scores => _scores;
+  String get currentTypedWord => _currentTypedWord;
+  bool get isWrongWord => _isWrongWord;
 
   WordMasterProvider() {
     _loadSettings();
@@ -100,6 +105,84 @@ class WordMasterProvider with ChangeNotifier {
         _scores.map((score) => json.encode(score.toJson())).toList();
     await prefs.setStringList(_scoresKey, scoresJson);
     notifyListeners();
+  }
+
+  void updateTypedWord(String value) {
+    if (!_isGameRunning || _isGamePaused) return;
+
+    _currentTypedWord = value;
+
+    _checkForExactMatch();
+    _checkForWrongWord();
+
+    notifyListeners();
+  }
+
+  void _checkForExactMatch() {
+    if (_currentTypedWord.isEmpty) return;
+
+    for (int i = 0; i < _activeWords.length; i++) {
+      if (_activeWords[i] == _currentTypedWord) {
+        // Word matched successfully
+        _activeWords.removeAt(i);
+        _wordPositions.removeAt(i);
+
+        final basePoints = 10;
+        final speedBonus = (_currentSpeed * 2).round();
+        _score += basePoints + speedBonus;
+        _wordsCollected++;
+
+        // Reset typed word
+        _currentTypedWord = '';
+        _isWrongWord = false;
+
+        if (_settings.soundEnabled) {
+          // Play success sound
+        }
+
+        notifyListeners();
+        return;
+      }
+    }
+  }
+
+  void _checkForWrongWord() {
+    if (_currentTypedWord.isEmpty) {
+      _isWrongWord = false;
+      return;
+    }
+
+    bool hasMatchingPrefix = false;
+
+    for (final word in _activeWords) {
+      if (word.startsWith(_currentTypedWord)) {
+        hasMatchingPrefix = true;
+        break;
+      }
+    }
+
+    _isWrongWord = !hasMatchingPrefix && _currentTypedWord.isNotEmpty;
+
+    if (_isWrongWord) {
+      _wrongWordTimer?.cancel();
+      _wrongWordTimer = Timer(const Duration(milliseconds: 500), () {
+        _isWrongWord = false;
+        notifyListeners();
+      });
+    }
+
+    notifyListeners();
+  }
+
+  void clearTypedWord() {
+    _currentTypedWord = '';
+    _isWrongWord = false;
+    notifyListeners();
+  }
+
+  // Also update the checkWords method to use the new approach:
+  void checkWords(String value) {
+    updateTypedWord(value);
   }
 
   void updateSettings(WordMasterSettingsModel newSettings) {
@@ -290,28 +373,28 @@ class WordMasterProvider with ChangeNotifier {
     }
   }
 
-  void checkWords(String typedWord) {
-    if (!_isGameRunning || _isGamePaused || typedWord.isEmpty) return;
+  // void checkWords(String typedWord) {
+  //   if (!_isGameRunning || _isGamePaused || typedWord.isEmpty) return;
 
-    final upperWord = typedWord.toUpperCase();
+  //   final upperWord = typedWord.toUpperCase();
 
-    for (int i = 0; i < _activeWords.length; i++) {
-      if (_activeWords[i] == upperWord) {
-        _activeWords.removeAt(i);
-        _wordPositions.removeAt(i);
+  //   for (int i = 0; i < _activeWords.length; i++) {
+  //     if (_activeWords[i] == upperWord) {
+  //       _activeWords.removeAt(i);
+  //       _wordPositions.removeAt(i);
 
-        final basePoints = 10;
-        final speedBonus = (_currentSpeed * 2).round();
-        _score += basePoints + speedBonus;
-        _wordsCollected++;
+  //       final basePoints = 10;
+  //       final speedBonus = (_currentSpeed * 2).round();
+  //       _score += basePoints + speedBonus;
+  //       _wordsCollected++;
 
-        if (_settings.soundEnabled) {}
+  //       if (_settings.soundEnabled) {}
 
-        notifyListeners();
-        return;
-      }
-    }
-  }
+  //       notifyListeners();
+  //       return;
+  //     }
+  //   }
+  // }
 
   void endGame() {
     if (!_isGameRunning) return;
@@ -343,6 +426,7 @@ class WordMasterProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _wrongWordTimer?.cancel();
     _gameTimer?.cancel();
     _wordSpawnerTimer?.cancel();
     _positionUpdateTimer?.cancel();

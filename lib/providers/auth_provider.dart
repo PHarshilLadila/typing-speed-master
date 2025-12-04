@@ -224,7 +224,7 @@ class AuthProvider with ChangeNotifier {
     try {
       if (_isSignOut || _user == null) {
         dev.log(
-          '❌ Cannot update stats: _isSignOut=$_isSignOut, _user=${_user?.id}',
+          'Cannot update stats: _isSignOut=$_isSignOut, _user=${_user?.id}',
         );
         return;
       }
@@ -232,8 +232,8 @@ class AuthProvider with ChangeNotifier {
       final today = DateTime.now();
       final yesterday = today.subtract(const Duration(days: 1));
 
-      dev.log('📊 Starting stats update for user: ${_user!.id}');
-      dev.log('📅 Today: $today, Last activity: ${_user!.lastActivityDate}');
+      dev.log('Starting stats update for user: ${_user!.id}');
+      dev.log('Today: $today, Last activity: ${_user!.lastActivityDate}');
 
       int newCurrentStreak = _user!.currentStreak;
       final lastActivity = _user!.lastActivityDate;
@@ -241,18 +241,18 @@ class AuthProvider with ChangeNotifier {
       if (lastActivity != null) {
         if (_isSameDay(lastActivity, today)) {
           dev.log(
-            '🔄 Already updated today, keeping current streak: $newCurrentStreak',
+            'Already updated today, keeping current streak: $newCurrentStreak',
           );
         } else if (_isSameDay(lastActivity, yesterday)) {
           newCurrentStreak++;
-          dev.log('🔥 Consecutive day! New streak: $newCurrentStreak');
+          dev.log('Consecutive day! New streak: $newCurrentStreak');
         } else {
           newCurrentStreak = 1;
-          dev.log('💥 Streak broken! Reset to: $newCurrentStreak');
+          dev.log('Streak broken! Reset to: $newCurrentStreak');
         }
       } else {
         newCurrentStreak = 1;
-        dev.log('🎯 First activity! Starting streak: $newCurrentStreak');
+        dev.log('First activity! Starting streak: $newCurrentStreak');
       }
 
       final newLongestStreak =
@@ -261,7 +261,7 @@ class AuthProvider with ChangeNotifier {
               : _user!.longestStreak;
 
       dev.log(
-        '📈 Current streak: $newCurrentStreak, Longest streak: $newLongestStreak',
+        'Current streak: $newCurrentStreak, Longest streak: $newLongestStreak',
       );
 
       final newTotalTests = _user!.totalTests + 1;
@@ -273,7 +273,7 @@ class AuthProvider with ChangeNotifier {
           ((_user!.averageAccuracy * _user!.totalTests) + result.accuracy) /
           newTotalTests;
 
-      dev.log('🧮 Stats calculation:');
+      dev.log('Stats calculation:');
       dev.log('   - Total tests: ${_user!.totalTests} → $newTotalTests');
       dev.log(
         '   - Average WPM: ${_user!.averageWpm.toStringAsFixed(2)} → ${newAverageWpm.toStringAsFixed(2)}',
@@ -293,7 +293,7 @@ class AuthProvider with ChangeNotifier {
         'updated_at': today.toIso8601String(),
       };
 
-      dev.log('💾 Updating Supabase with: $updates');
+      dev.log('Updating Supabase with: $updates');
 
       final response =
           await _supabase
@@ -302,7 +302,7 @@ class AuthProvider with ChangeNotifier {
               .eq('id', _user!.id)
               .select();
 
-      dev.log('✅ Supabase update response: $response');
+      dev.log('Supabase update response: $response');
 
       if (response.isNotEmpty) {
         _user = _user!.copyWith(
@@ -323,14 +323,14 @@ class AuthProvider with ChangeNotifier {
 
         notifyListeners();
       } else {
-        dev.log('❌ Supabase update returned empty response');
+        dev.log('Supabase update returned empty response');
       }
     } catch (e) {
-      dev.log('💥 Error updating user stats: $e');
+      dev.log('Error updating user stats: $e');
       if (e is PostgrestException) {
-        dev.log('💥 Postgrest error: ${e.message}');
-        dev.log('💥 Details: ${e.details}');
-        dev.log('💥 Hint: ${e.hint}');
+        dev.log('Postgrest error: ${e.message}');
+        dev.log('Details: ${e.details}');
+        dev.log('Hint: ${e.hint}');
       }
     }
   }
