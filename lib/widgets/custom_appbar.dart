@@ -39,7 +39,6 @@ class CustomAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     Provider.of<AuthProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
-    // final routerProvider = Provider.of<RouterProvider>(context, listen: false);
 
     return AppBar(
       backgroundColor: isDarkMode ? Colors.black38 : Colors.white,

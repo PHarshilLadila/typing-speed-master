@@ -236,7 +236,7 @@ class GameCardWidget extends StatelessWidget {
   Widget _buildWordElement(Random random, Color color, double size) {
     final words = [
       'TYPING',
-      'IMPROVMENT',
+      'IMPROVEMENT',
       'HARD',
       'VELOCITY',
       'SPEED',

@@ -226,8 +226,7 @@ class CharacterRushProvider with ChangeNotifier {
 
   void _spawnCharacter() {
     final random = Random();
-    final characters =
-        'KZUPLHBRAMXCEOVGQNWTSFDIYJ'; // ABCDEFGHIJKLMNOPQRSTUVWXYZ
+    final characters = 'KZUPLHBRAMXCEOVGQNWTSFDIYJ';
     final character = characters[random.nextInt(characters.length)];
 
     double newX;

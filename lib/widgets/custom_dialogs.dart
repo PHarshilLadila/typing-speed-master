@@ -516,7 +516,6 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
   }
 
   Future<void> _takePhotoWithCamera() async {
-    // For web, we'll use the device camera through file input
     final html.FileUploadInputElement input = html.FileUploadInputElement();
     input.accept = 'image/*';
     input.setAttribute('capture', 'camera');
@@ -576,7 +575,6 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Title
               Text(
                 widget.title,
                 style: TextStyle(
@@ -587,7 +585,6 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
               ),
               const SizedBox(height: 20),
 
-              // Current/Selected Profile Picture
               Container(
                 width: 150,
                 height: 150,
@@ -638,7 +635,6 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
               ),
               const SizedBox(height: 24),
 
-              // Option Buttons
               Column(
                 children: [
                   _buildOptionButton(
@@ -661,7 +657,6 @@ class _ProfilePictureDialogState extends State<_ProfilePictureDialog> {
               ),
               const SizedBox(height: 20),
 
-              // Action Buttons
               if (_selectedImageDataUrl != null) ...[
                 Row(
                   children: [

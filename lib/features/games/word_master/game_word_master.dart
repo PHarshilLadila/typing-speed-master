@@ -30,7 +30,6 @@ class _GameWordMasterState extends State<GameWordMaster> {
         listen: false,
       );
       gameProvider.setWordCollectedCallback(() {
-        // Clear the text field when word is collected
         textController.clear();
       });
     });
@@ -97,30 +96,10 @@ class _GameWordMasterState extends State<GameWordMaster> {
             Colors.blue,
           ),
           wordMasterTimerDropdown(gameProvider, themeProvider, context),
-          // InkWell(
-          //   onTap: () {
-          //     debugPrint("onTap of Timer.");
-          //   },
-          //   child: Container(
-          //     padding: EdgeInsets.all(16),
-          //     decoration: BoxDecoration(
-          //       color: Colors.purple.withOpacity(0.2),
-          //       borderRadius: BorderRadius.circular(8),
-          //     ),
-          //     child: _buildStatItem(
-          //       'Time',
-          //       '${gameProvider.gameDuration}s',
-          //       Icons.timer,
-          //       Colors.purple,
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );
   }
-
-  // Replace the wordMasterGameArea method with this updated version:
 
   Widget wordMasterGameArea(
     WordMasterProvider gameProvider,
@@ -166,7 +145,6 @@ class _GameWordMasterState extends State<GameWordMaster> {
                     ),
                   ),
 
-                // Show typed word at the bottom
                 Positioned(
                   bottom: 20,
                   left: 0,
@@ -176,7 +154,6 @@ class _GameWordMasterState extends State<GameWordMaster> {
                   ),
                 ),
 
-                // Show wrong word animation
                 if (gameProvider.isWrongWord &&
                     gameProvider.currentTypedWord.isNotEmpty)
                   Positioned(
@@ -324,23 +301,17 @@ class _GameWordMasterState extends State<GameWordMaster> {
                     ),
                   ),
 
-                // Add this to your GameWordMaster widget's build method after the text field:
-
-                // Add this as a widget above the text field or use RawKeyboardListener
                 Focus(
                   autofocus: true,
                   child: RawKeyboardListener(
                     focusNode: FocusNode(),
                     onKey: (RawKeyEvent event) {
                       if (event is RawKeyDownEvent) {
-                        // Clear typed word on Escape key
                         if (event.logicalKey == LogicalKeyboardKey.escape) {
                           textController.clear();
                           gameProvider.clearTypedWord();
-                        }
-                        // Submit word on Enter key
-                        else if (event.logicalKey == LogicalKeyboardKey.enter) {
-                          // Force check the word
+                        } else if (event.logicalKey ==
+                            LogicalKeyboardKey.enter) {
                           gameProvider.checkWords(
                             gameProvider.currentTypedWord,
                           );
@@ -349,12 +320,10 @@ class _GameWordMasterState extends State<GameWordMaster> {
                         }
                       }
                     },
-                    child:
-                        Container(), // Empty container, we just need the keyboard listener
+                    child: Container(),
                   ),
                 ),
 
-                // Hidden text field for keyboard input
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -375,7 +344,6 @@ class _GameWordMasterState extends State<GameWordMaster> {
                         }
                       },
                       onSubmitted: (value) {
-                        // Clear word on enter/return
                         textController.clear();
                         gameProvider.clearTypedWord();
                       },
@@ -502,9 +470,6 @@ class _GameWordMasterState extends State<GameWordMaster> {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    // final isDarkTheme = themeProvider.isDarkMode;
-    // final screenWidth = MediaQuery.of(context).size.width;
-    // final isMobile = screenWidth <= 768;
     final gameProvider = Provider.of<WordMasterProvider>(context);
     final screenSize = MediaQuery.of(context).size;
 

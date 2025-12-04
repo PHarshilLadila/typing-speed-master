@@ -179,24 +179,6 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             Colors.blue,
           ),
           charRushTimerDropdown(gameProvider, themeProvider, context),
-          // InkWell(
-          //   onTap: () {
-          //     debugPrint("onTap of Timer.");
-          //   },
-          //   child: Container(
-          //     padding: EdgeInsets.all(16),
-          //     decoration: BoxDecoration(
-          //       color: Colors.purple.withOpacity(0.2),
-          //       borderRadius: BorderRadius.circular(8),
-          //     ),
-          //     child: _buildStatItem(
-          //       'Time',
-          //       '${gameProvider.gameDuration}s',
-          //       Icons.timer,
-          //       Colors.purple,
-          //     ),
-          //   ),
-          // ),
         ],
       ),
     );

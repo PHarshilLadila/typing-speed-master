@@ -120,45 +120,15 @@ class WordMasterProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // void _checkForExactMatch() {
-  //   if (_currentTypedWord.isEmpty) return;
-
-  //   for (int i = 0; i < _activeWords.length; i++) {
-  //     if (_activeWords[i] == _currentTypedWord) {
-  //       // Word matched successfully
-  //       _activeWords.removeAt(i);
-  //       _wordPositions.removeAt(i);
-
-  //       final basePoints = 10;
-  //       final speedBonus = (_currentSpeed * 2).round();
-  //       _score += basePoints + speedBonus;
-  //       _wordsCollected++;
-
-  //       // Reset typed word
-  //       _currentTypedWord = '';
-  //       _isWrongWord = false;
-
-  //       if (_settings.soundEnabled) {
-  //         // Play success sound
-  //       }
-
-  //       notifyListeners();
-  //       return;
-  //     }
-  //   }
-  // }
-
   void setWordCollectedCallback(VoidCallback callback) {
     _onWordCollectedCallback = callback;
   }
 
-  // In WordMasterProvider, update _checkForExactMatch method:
   void _checkForExactMatch() {
     if (_currentTypedWord.isEmpty) return;
 
     for (int i = 0; i < _activeWords.length; i++) {
       if (_activeWords[i] == _currentTypedWord) {
-        // Word matched successfully
         _activeWords.removeAt(i);
         _wordPositions.removeAt(i);
 
@@ -167,18 +137,14 @@ class WordMasterProvider with ChangeNotifier {
         _score += basePoints + speedBonus;
         _wordsCollected++;
 
-        // Call the callback to clear text field
         if (_onWordCollectedCallback != null) {
           _onWordCollectedCallback!();
         }
 
-        // Reset typed word
         _currentTypedWord = '';
         _isWrongWord = false;
 
-        if (_settings.soundEnabled) {
-          // Play success sound
-        }
+        if (_settings.soundEnabled) {}
 
         notifyListeners();
         return;
@@ -220,7 +186,6 @@ class WordMasterProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Also update the checkWords method to use the new approach:
   void checkWords(String value) {
     updateTypedWord(value);
   }
@@ -412,29 +377,6 @@ class WordMasterProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-
-  // void checkWords(String typedWord) {
-  //   if (!_isGameRunning || _isGamePaused || typedWord.isEmpty) return;
-
-  //   final upperWord = typedWord.toUpperCase();
-
-  //   for (int i = 0; i < _activeWords.length; i++) {
-  //     if (_activeWords[i] == upperWord) {
-  //       _activeWords.removeAt(i);
-  //       _wordPositions.removeAt(i);
-
-  //       final basePoints = 10;
-  //       final speedBonus = (_currentSpeed * 2).round();
-  //       _score += basePoints + speedBonus;
-  //       _wordsCollected++;
-
-  //       if (_settings.soundEnabled) {}
-
-  //       notifyListeners();
-  //       return;
-  //     }
-  //   }
-  // }
 
   void endGame() {
     if (!_isGameRunning) return;
