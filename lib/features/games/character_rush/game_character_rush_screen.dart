@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/char_rush_%20character_widget.dart';
-import 'package:typing_speed_master/features/games/character_rush/widget/game_settings_dialog.dart';
-import 'package:typing_speed_master/features/games/character_rush/widget/score_history_dialog.dart';
+import 'package:typing_speed_master/features/games/character_rush/widget/char_rush_instruction_widget.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_settings_dialog.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_score_history_dialog.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
 class GameCharacterRushScreen extends StatefulWidget {
@@ -90,7 +91,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                   context: context,
                   builder:
                       (context) =>
-                          const ScoreHistoryDialog(isWordMaster: false),
+                          const GameScoreHistoryDialog(isWordMaster: false),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();
@@ -566,53 +567,17 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             child: Column(
               children: [
                 gameDashboardHeader(context),
+
                 const SizedBox(height: 40),
                 charRushGameStats(gameProvider, themeProvider, context),
                 const SizedBox(height: 20),
                 charRushGameArea(gameProvider, themeProvider, screenSize),
                 const SizedBox(height: 20),
-                charRushInstructions(themeProvider.isDarkMode),
+                CharRushInstructionWidget(isDarkMode: themeProvider.isDarkMode),
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Widget charRushInstructions(bool isDarkMode) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isDarkMode ? Colors.black12 : Colors.white12,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'How to Play:',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isDarkMode ? Colors.white : Colors.grey[800],
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            '• Type the falling characters on your keyboard\n'
-            '• Characters can be typed in uppercase or lowercase\n'
-            '• Game speed increases every 15 seconds\n'
-            '• Score more points for faster characters\n'
-            '• Game automatically pauses when opening settings/score history\n'
-            '• Click the timer to change game duration (before starting)',
-            style: TextStyle(
-              fontSize: 14,
-              color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
-              height: 1.5,
-            ),
-          ),
-        ],
       ),
     );
   }

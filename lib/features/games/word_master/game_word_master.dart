@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/games/character_rush/widget/char_rush_%20character_widget.dart';
-import 'package:typing_speed_master/features/games/character_rush/widget/game_settings_dialog.dart';
-import 'package:typing_speed_master/features/games/character_rush/widget/score_history_dialog.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_settings_dialog.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_score_history_dialog.dart';
 import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
@@ -761,7 +761,8 @@ class _GameWordMasterState extends State<GameWordMaster> {
                 showDialog(
                   context: context,
                   builder:
-                      (context) => const ScoreHistoryDialog(isWordMaster: true),
+                      (context) =>
+                          const GameScoreHistoryDialog(isWordMaster: true),
                 );
                 if (wasGameRunning && !wasGamePaused) {
                   gameProvider.resumeGame();

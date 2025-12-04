@@ -9,6 +9,7 @@ import 'package:typing_speed_master/features/games/word_master/model/word_master
 import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_setting/game_setting_slider_widget.dart';
 
 class GameSettingsDialog extends StatefulWidget {
   final bool isWordMaster;
@@ -151,13 +152,41 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      charRushSettingHeader(
-                        'Difficulty Settings',
-                        Icons.speed,
-                        themeProvider,
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: themeProvider.primaryColor.withOpacity(
+                                  0.2,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Icon(
+                                Icons.speed,
+                                size: 20,
+                                color: themeProvider.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              "Difficulty Settings",
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.white
+                                        : Colors.black,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
 
-                      charRushSliderSetting(
+                      GameSettingsSliderWidget(
                         title: 'Initial Speed',
                         description: 'Starting speed of falling characters',
                         value:
@@ -168,6 +197,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         max: 3.0,
                         divisions: 25,
                         unit: 'x',
+                        themeProvider: themeProvider,
                         onChanged: (value) {
                           widget.isWordMaster == true
                               ? setState(() {
@@ -179,10 +209,9 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                                     .copyWith(initialSpeed: value);
                               });
                         },
-                        themeProvider: themeProvider,
                       ),
 
-                      charRushSliderSetting(
+                      GameSettingsSliderWidget(
                         title: 'Speed Increment',
                         description:
                             'How much speed increases every 10 seconds',
@@ -194,6 +223,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         max: 0.9,
                         divisions: 9,
                         unit: 'x',
+                        themeProvider: themeProvider,
                         onChanged: (value) {
                           widget.isWordMaster == true
                               ? setState(() {
@@ -205,10 +235,9 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                                     .copyWith(speedIncrement: value);
                               });
                         },
-                        themeProvider: themeProvider,
                       ),
 
-                      charRushSliderSetting(
+                      GameSettingsSliderWidget(
                         title:
                             widget.isWordMaster == true
                                 ? "Max Words"
@@ -227,6 +256,7 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                         divisions: 7,
                         unit: '',
                         isInt: true,
+                        themeProvider: themeProvider,
                         onChanged: (value) {
                           widget.isWordMaster == true
                               ? setState(() {
@@ -238,7 +268,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
                                     .copyWith(maxCharacters: value.toInt());
                               });
                         },
-                        themeProvider: themeProvider,
                       ),
                     ],
                   ),
@@ -278,146 +307,6 @@ class _GameSettingsDialogState extends State<GameSettingsDialog> {
             ],
           ),
         ),
-      ),
-    );
-  }
-
-  Widget charRushSettingHeader(
-    String title,
-    IconData icon,
-    ThemeProvider themeProvider,
-  ) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: themeProvider.primaryColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, size: 20, color: themeProvider.primaryColor),
-          ),
-          const SizedBox(width: 12),
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkMode ? Colors.white : Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget charRushSliderSetting({
-    required String title,
-    required String description,
-    required double value,
-    required double min,
-    required double max,
-    required int divisions,
-    required String unit,
-    required Function(double) onChanged,
-    required ThemeProvider themeProvider,
-    bool isInt = false,
-  }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 20),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[50],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color:
-              themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: themeProvider.primaryColor.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text(
-                  '${isInt ? value.toInt() : value.toStringAsFixed(2)}$unit',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: themeProvider.primaryColor,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            description,
-            style: TextStyle(
-              fontSize: 12,
-              color:
-                  themeProvider.isDarkMode
-                      ? Colors.grey[400]
-                      : Colors.grey[600],
-            ),
-          ),
-          const SizedBox(height: 12),
-          Slider(
-            value: value,
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: onChanged,
-            activeColor: themeProvider.primaryColor,
-            inactiveColor:
-                themeProvider.isDarkMode ? Colors.grey[600] : Colors.grey[300],
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${isInt ? min.toInt() : min.toStringAsFixed(1)}$unit',
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[400]
-                          : Colors.grey[600],
-                ),
-              ),
-              Text(
-                '${isInt ? max.toInt() : max.toStringAsFixed(1)}$unit',
-                style: TextStyle(
-                  fontSize: 12,
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[400]
-                          : Colors.grey[600],
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
