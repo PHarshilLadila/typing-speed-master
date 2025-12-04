@@ -91,7 +91,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
           wordMasterTimerDropdown(gameProvider, themeProvider, context),
           // InkWell(
           //   onTap: () {
-          //     debugPrint("Ontap of Timer.");
+          //     debugPrint("onTap of Timer.");
           //   },
           //   child: Container(
           //     padding: EdgeInsets.all(16),
@@ -152,7 +152,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
                         (screenSize.width - 80),
                     top: gameProvider.wordPositions[i].dy * gameAreaHeight,
                     child: GameCharacterAndWordWidget(
-                      iswordMasterGame: true,
+                      isWordMasterGame: true,
                       characterOrWords: gameProvider.activeWords[i],
                       onCollected: () {},
                     ),

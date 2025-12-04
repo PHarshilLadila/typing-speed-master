@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:restart_app/restart_app.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:typing_speed_master/models/user_activity_month_lable_model.dart';
+import 'package:typing_speed_master/models/user_activity_month_label_model.dart';
 import 'package:typing_speed_master/models/user_model.dart';
 import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';

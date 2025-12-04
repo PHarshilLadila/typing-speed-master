@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 
 class GameCharacterAndWordWidget extends StatefulWidget {
-  final bool iswordMasterGame;
+  final bool isWordMasterGame;
   final String characterOrWords;
   final VoidCallback onCollected;
 
@@ -11,7 +11,7 @@ class GameCharacterAndWordWidget extends StatefulWidget {
     super.key,
     required this.characterOrWords,
     required this.onCollected,
-    this.iswordMasterGame = false,
+    this.isWordMasterGame = false,
   });
 
   @override
@@ -78,7 +78,7 @@ class _GameCharacterAndWordWidgetState extends State<GameCharacterAndWordWidget>
           child: Transform.scale(
             scale: scale,
             child:
-                widget.iswordMasterGame == true
+                widget.isWordMasterGame == true
                     ? Container(
                       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
