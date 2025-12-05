@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:typing_speed_master/features/history/widget/typing_result_card_shimmer_widget.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';
 import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
@@ -528,6 +530,19 @@ class HistoryScreenState extends State<HistoryScreen> {
                     ),
                   ],
                 ),
+              ),
+
+            if (provider.isLoading)
+              ListView.builder(
+                shrinkWrap: true,
+                itemCount: 5,
+                itemBuilder: (BuildContext context, int index) {
+                  return TypingHistoryShimmerCard(
+                    cardHeight: 140,
+                    progressSize: 70,
+                    subtitleFontSize: 14,
+                  );
+                },
               ),
 
             if (filteredResults.isEmpty)

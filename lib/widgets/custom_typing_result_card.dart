@@ -1,9 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
+import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_difficulty_container.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_progress_indicator.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';
@@ -163,11 +165,14 @@ class CustomTypingResultCard extends StatelessWidget {
                     top: 1,
                     left: 1,
                     child: Container(
-                      padding: EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: isDarkMode ? Colors.white24 : Colors.black12,
                         shape: BoxShape.rectangle,
-                        borderRadius: BorderRadius.only(
+                        borderRadius: const BorderRadius.only(
                           topLeft: Radius.circular(17),
                           bottomLeft: Radius.circular(2),
                           bottomRight: Radius.circular(2),
@@ -184,7 +189,7 @@ class CustomTypingResultCard extends StatelessWidget {
                       ),
                     ),
                   )
-                  : SizedBox.shrink(),
+                  : const SizedBox.shrink(),
               Container(
                 height: cardHeight,
                 width: double.infinity,
@@ -204,9 +209,9 @@ class CustomTypingResultCard extends StatelessWidget {
                         value: result.wpm / 100,
                         subtitleFontSize: subtitleFontSize,
                         textColor: textColor,
-                        subtitleTextColor: subtitleTextColor ?? Colors.pink,
+                        subtitleTextColor: subtitleTextColor ?? Colors.white,
                         progressBackgroundColor:
-                            progressBackgroundColor ?? Colors.pink,
+                            progressBackgroundColor ?? Colors.white,
                         size: progressSize,
                       ),
                     ),
@@ -362,7 +367,9 @@ class CustomTypingResultCard extends StatelessWidget {
                           difficulty: result.difficulty,
                           subtitleFontSize: subtitleFontSize,
                         ),
-                        isHistory ? SizedBox(height: 12) : SizedBox.shrink(),
+                        isHistory
+                            ? const SizedBox(height: 12)
+                            : const SizedBox.shrink(),
                         isHistory
                             ? InkWell(
                               onTap: onTap,
@@ -373,14 +380,14 @@ class CustomTypingResultCard extends StatelessWidget {
                                   color: Colors.red,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
-                                child: Icon(
+                                child: const Icon(
                                   FontAwesomeIcons.trashCan,
                                   size: 18,
                                   color: Colors.white,
                                 ),
                               ),
                             )
-                            : SizedBox.shrink(),
+                            : const SizedBox.shrink(),
                       ],
                     ),
                   ],
