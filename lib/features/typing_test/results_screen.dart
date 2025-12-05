@@ -94,13 +94,10 @@ class _ResultsScreenState extends State<ResultsScreen> {
     final routerProvider = Provider.of<RouterProvider>(context, listen: false);
     routerProvider.setSelectedIndex(1);
 
-    // Force refresh the typing provider BEFORE navigating
     final typingProvider = Provider.of<TypingProvider>(context, listen: false);
 
-    // Clear and reload results
     typingProvider.getAllRecentResults();
 
-    // Navigate to dashboard
     context.go('/dashboard');
   }
 

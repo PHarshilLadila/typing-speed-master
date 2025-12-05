@@ -114,9 +114,6 @@ class AppEntryPointState extends State<AppEntryPoint> {
         final themeProvider = Provider.of<ThemeProvider>(context);
         final authProvider = Provider.of<AuthProvider>(context);
 
-        // final isInGameScreen =
-        //     GoRouterState.of(context).fullPath?.contains('/games/') ?? false;
-
         return Scaffold(
           appBar: PreferredSize(
             preferredSize: const Size.fromHeight(70),

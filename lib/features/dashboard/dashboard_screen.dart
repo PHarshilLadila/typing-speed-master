@@ -34,13 +34,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _typingProvider = Provider.of<TypingProvider>(context);
-
-    // provider.getAllRecentResults();
   }
 
   Future<void> _refreshData() async {
-    // final provider = Provider.of<TypingProvider>(context, listen: false);
-    // await provider.getAllRecentResults();
     if (_typingProvider != null) {
       await _typingProvider!.getAllRecentResults();
     }
@@ -548,17 +544,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
               icon: Icon(Icons.refresh),
               tooltip: 'Refresh',
             ),
-            // if (provider.results.isNotEmpty)
-            //   TextButton(
-            //     onPressed: provider.clearHistory,
-            //     child: Text(
-            //       'Clear History',
-            //       style: TextStyle(
-            //         color:
-            //             themeProvider.isDarkMode ? Colors.red[300] : Colors.red,
-            //       ),
-            //     ),
-            //   ),
           ],
         ),
         const SizedBox(height: 16),

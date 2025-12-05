@@ -627,7 +627,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     bool isTablet,
     bool isDesktop,
   ) {
-    // final width = MediaQuery.of(context).size.width;
     final provider = Provider.of<TypingProvider>(context);
     final themeProvider = Provider.of<ThemeProvider>(context);
     final sampleText = provider.getCurrentText();
@@ -643,12 +642,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
         themeProvider.isDarkMode ? Colors.grey[600]! : Colors.grey[300]!;
 
     final padding = EdgeInsets.all(40);
-    // width > 1200
-    //     ? EdgeInsets.symmetric(
-    //       vertical: 50,
-    //       horizontal: MediaQuery.of(context).size.width / 5,
-    //     )
-    //     : EdgeInsets.all(40);
     final spacing = getResponsiveSpacing(context);
 
     return Padding(
@@ -771,8 +764,6 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
                         ),
                         hintText:
                             'Ready? Start typing from the very first letter to begin your test.',
-
-                        // isFullScreen ? 'Ready? Start typing from the very first letter to begin your test.' :"",
                         hintStyle: TextStyle(
                           color:
                               themeProvider.isDarkMode
