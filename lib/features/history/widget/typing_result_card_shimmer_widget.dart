@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
@@ -20,7 +22,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDarkMode = themeProvider.isDarkMode;
 
-    // Define shimmer colors based on theme
     final Color shimmerBaseColor =
         isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300;
 
@@ -44,7 +45,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
         child: Stack(
           clipBehavior: Clip.none,
           children: [
-            // Background container with gradient
             Container(
               height: cardHeight,
               width: double.infinity,
@@ -67,7 +67,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
               ),
             ),
 
-            // Main content container
             Container(
               height: cardHeight,
               padding: const EdgeInsets.all(12),
@@ -78,7 +77,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  // Progress Circle Placeholder
                   Container(
                     width: progressSize,
                     height: progressSize,
@@ -89,7 +87,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
                   ),
                   const SizedBox(width: 12),
 
-                  // Middle Column
                   Expanded(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -106,7 +103,6 @@ class TypingHistoryShimmerCard extends StatelessWidget {
 
                   const SizedBox(width: 12),
 
-                  // Right Side
                   Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -175,7 +171,6 @@ class ShimmerWrapper extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final isDarkMode = themeProvider.isDarkMode;
 
-    // Default colors if not provided
     final Color defaultBaseColor =
         baseColor ?? (isDarkMode ? Colors.grey.shade800 : Colors.grey.shade300);
 

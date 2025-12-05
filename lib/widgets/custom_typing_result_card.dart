@@ -1,11 +1,9 @@
 // ignore_for_file: deprecated_member_use
 
-import 'dart:convert';
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_difficulty_container.dart';
 import 'package:typing_speed_master/helper/animation_helper/animated_progress_indicator.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';

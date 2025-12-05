@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:shimmer/shimmer.dart';
 import 'package:typing_speed_master/features/history/widget/typing_result_card_shimmer_widget.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';
 import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
