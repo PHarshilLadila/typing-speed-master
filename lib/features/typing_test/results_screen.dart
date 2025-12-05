@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
-import 'package:typing_speed_master/features/typing_test/widget/charecter_analysis_widget.dart';
+import 'package:typing_speed_master/features/typing_test/widget/character_analysis_widget.dart';
 import '../../models/typing_test_result_model.dart';
 import '../../widgets/custom_stats_card.dart';
 import 'package:typing_speed_master/providers/router_provider.dart';
@@ -1070,7 +1070,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           ),
           SizedBox(height: isDesktop ? 24.0 : 16.0),
 
-          CharecterAnalysisWidget(
+          CharacterAnalysisWidget(
             originalText: widget.result.originalText,
             userInput: widget.result.userInput,
             incorrectCharPositions: widget.result.incorrectCharPositions,
