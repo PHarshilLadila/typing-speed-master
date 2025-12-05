@@ -450,6 +450,7 @@ class TypingProvider with ChangeNotifier {
 
     await _saveAllResultsToLocal();
     notifyListeners();
+    dev.log('Result saved and listeners notified');
   }
 
   AuthProvider? _getAuthProvider() {
@@ -935,8 +936,29 @@ class TypingProvider with ChangeNotifier {
     return _results.take(count).toList();
   }
 
-  List<TypingTestResultModel> getAllRecentResults() {
-    return _results.toList();
+  Future<void> getAllRecentResults() async {
+    try {
+      _isLoading = true;
+      notifyListeners();
+
+      final session = _supabase.auth.currentSession;
+      _isUserLoggedIn = session != null;
+
+      if (_isUserLoggedIn) {
+        await _loadResultsFromSupabase();
+      } else {
+        await _loadResultsFromLocal();
+      }
+
+      _isLoading = false;
+      notifyListeners();
+
+      dev.log('Results refreshed: ${_results.length} tests');
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      dev.log('Error refreshing results: $e');
+    }
   }
 
   TypingTestResultModel _typingResultFromSupabaseJson(

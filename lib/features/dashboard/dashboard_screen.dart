@@ -20,45 +20,72 @@ class DashboardScreen extends StatefulWidget {
 }
 
 class _DashboardScreenState extends State<DashboardScreen> {
+  TypingProvider? _typingProvider;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _refreshData();
+    });
+  }
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final provider = Provider.of<TypingProvider>(context, listen: false);
-    provider.getAllRecentResults();
+    _typingProvider = Provider.of<TypingProvider>(context);
+
+    // provider.getAllRecentResults();
+  }
+
+  Future<void> _refreshData() async {
+    // final provider = Provider.of<TypingProvider>(context, listen: false);
+    // await provider.getAllRecentResults();
+    if (_typingProvider != null) {
+      await _typingProvider!.getAllRecentResults();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final provider = Provider.of<TypingProvider>(context);
+
     return ResponsiveLayout(
       smallMobile: dashboardWidget(
         context: context,
         titleFontSize: 22,
         subtitleFontSize: 14,
+        typingProvider: provider,
       ),
       bigMobile: dashboardWidget(
         context: context,
         titleFontSize: 24,
         subtitleFontSize: 14,
+        typingProvider: provider,
       ),
       smallTablet: dashboardWidget(
         context: context,
         titleFontSize: 26,
         subtitleFontSize: 16,
+        typingProvider: provider,
       ),
       bigTablet: dashboardWidget(
         context: context,
         titleFontSize: 28,
         subtitleFontSize: 16,
+        typingProvider: provider,
       ),
       smallDesktop: dashboardWidget(
         context: context,
         titleFontSize: 30,
         subtitleFontSize: 18,
+        typingProvider: provider,
       ),
       bigDesktop: dashboardWidget(
         context: context,
         titleFontSize: 32,
         subtitleFontSize: 18,
+        typingProvider: provider,
       ),
     );
   }
@@ -67,6 +94,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
     required BuildContext context,
     required double titleFontSize,
     required double subtitleFontSize,
+    TypingProvider? typingProvider,
     EdgeInsetsGeometry edgeInsetsGeometry = const EdgeInsets.all(40),
   }) {
     final width = MediaQuery.of(context).size.width;
@@ -512,7 +540,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 color: titleColor,
               ),
             ),
-            // const Spacer(),
+            const Spacer(),
+            IconButton(
+              onPressed: () {
+                provider.getAllRecentResults();
+              },
+              icon: Icon(Icons.refresh),
+              tooltip: 'Refresh',
+            ),
             // if (provider.results.isNotEmpty)
             //   TextButton(
             //     onPressed: provider.clearHistory,

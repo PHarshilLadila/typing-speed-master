@@ -65,7 +65,7 @@ class HistoryScreenState extends State<HistoryScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final provider = Provider.of<TypingProvider>(context, listen: false);
-      provider.getAllRecentResults;
+      provider.getAllRecentResults();
     });
   }
 

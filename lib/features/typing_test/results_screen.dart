@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_adsense/experimental/ad_unit_widget.dart';
 import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/features/typing_test/widget/character_analysis_widget.dart';
@@ -89,10 +90,17 @@ class _ResultsScreenState extends State<ResultsScreen> {
     context.go('/');
   }
 
-  void _onBackToDashboard() {
+  void _onBackToDashboard() async {
     final routerProvider = Provider.of<RouterProvider>(context, listen: false);
     routerProvider.setSelectedIndex(1);
 
+    // Force refresh the typing provider BEFORE navigating
+    final typingProvider = Provider.of<TypingProvider>(context, listen: false);
+
+    // Clear and reload results
+    typingProvider.getAllRecentResults();
+
+    // Navigate to dashboard
     context.go('/dashboard');
   }
 

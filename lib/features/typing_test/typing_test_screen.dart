@@ -227,6 +227,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     );
 
     provider.saveResult(result);
+    provider.getAllRecentResults();
 
     context.push('/results?from=test', extra: result);
   }
