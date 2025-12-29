@@ -1,8 +1,8 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:typing_speed_master/features/games/character_rush/model/character_rush_model.dart';
-import 'package:typing_speed_master/features/games/word_master/model/word_master_model.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_model.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_model.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 
 class GameScoreItem extends StatelessWidget {

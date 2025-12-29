@@ -7,14 +7,9 @@ import 'package:google_adsense/google_adsense.dart';
 import 'package:meta_seo/meta_seo.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
-import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
-import 'package:typing_speed_master/features/profile/provider/user_activity_provider.dart';
-import 'package:typing_speed_master/providers/auth_provider.dart';
-import 'package:typing_speed_master/features/games/provider/game_dashboard_provider.dart';
+import 'package:typing_speed_master/providers/app_providers.dart';
 import 'package:typing_speed_master/theme/dark_theme.dart';
 import 'package:typing_speed_master/theme/light_theme.dart';
-import 'features/typing_test/provider/typing_test_provider.dart';
 import 'theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/routes/app_router.dart';
 import 'package:typing_speed_master/providers/router_provider.dart';
@@ -37,7 +32,7 @@ Future<void> main() async {
     );
     meta.keywords(
       keywords:
-          'typing speed test, WPM test, typing speed, typing, speed, typing speed master, typing practice, google auth, typing accuracy, online typing app, Flutter web app, Supabase login, typing analytics, typing tracker, real-time typing test, accuracy',
+          'typing speed test, WPM test, typing speed, typing, speed, typing speed master, typing practice, google auth, typing accuracy, online typing app, Flutter web app, Supabase login, typing analytics, typing tracker, real-time typing test, accuracy, vercel, responsive design, typing performance, typing consistency, typing history, typing dashboard, vercel hosting, vercel web app, vercel flutter',
     );
   }
 
@@ -52,30 +47,21 @@ Future<void> main() async {
 
   await Supabase.initialize(url: supabaseURL, anonKey: supabaseAnonKey);
 
-  runApp(const TypingSpeedTesterApp());
+  runApp(const TypingSpeedMasterApp());
 }
 
-class TypingSpeedTesterApp extends StatefulWidget {
-  const TypingSpeedTesterApp({super.key});
+class TypingSpeedMasterApp extends StatefulWidget {
+  const TypingSpeedMasterApp({super.key});
 
   @override
-  State<TypingSpeedTesterApp> createState() => _TypingSpeedTesterAppState();
+  State<TypingSpeedMasterApp> createState() => _TypingSpeedMasterAppState();
 }
 
-class _TypingSpeedTesterAppState extends State<TypingSpeedTesterApp> {
+class _TypingSpeedMasterAppState extends State<TypingSpeedMasterApp> {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => RouterProvider()),
-        ChangeNotifierProvider(create: (_) => ThemeProvider()),
-        ChangeNotifierProvider(create: (_) => TypingProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
-        ChangeNotifierProvider(create: (_) => UserActivityProvider()),
-        ChangeNotifierProvider(create: (_) => GameDashboardProvider()),
-        ChangeNotifierProvider(create: (_) => CharacterRushProvider()),
-        ChangeNotifierProvider(create: (_) => WordMasterProvider()),
-      ],
+      providers: AppProviders.providers,
       child: Consumer<ThemeProvider>(
         builder: (context, themeProvider, child) {
           return Consumer<RouterProvider>(

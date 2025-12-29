@@ -6,8 +6,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:typing_speed_master/features/games/word_master/model/word_master_model.dart';
-import 'package:typing_speed_master/features/games/word_master/model/word_master_settings_model.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_model.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_settings_model.dart';
 import 'package:typing_speed_master/utils/constants.dart';
 
 class WordMasterProvider with ChangeNotifier {

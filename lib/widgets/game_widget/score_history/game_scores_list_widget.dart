@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:typing_speed_master/features/games/character_rush/model/character_rush_model.dart';
-import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
-import 'package:typing_speed_master/features/games/word_master/model/word_master_model.dart';
-import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_model.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/provider/character_rush_provider.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_model.dart';
+import 'package:typing_speed_master/features/games/game_word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/game_widget/score_history/game_score_items_widget.dart';
 

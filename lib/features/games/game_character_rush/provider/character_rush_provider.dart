@@ -6,8 +6,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:typing_speed_master/features/games/character_rush/model/character_rush_model.dart';
-import 'package:typing_speed_master/features/games/character_rush/model/character_rush_settings_model.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_model.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_settings_model.dart';
 
 class CharacterRushProvider with ChangeNotifier {
   static const String _scoresKey = 'character_rush_game_scores';

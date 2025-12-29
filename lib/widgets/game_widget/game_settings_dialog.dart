@@ -3,10 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
-import 'package:typing_speed_master/features/games/character_rush/model/character_rush_settings_model.dart';
-import 'package:typing_speed_master/features/games/character_rush/provider/character_rush_provider.dart';
-import 'package:typing_speed_master/features/games/word_master/model/word_master_settings_model.dart';
-import 'package:typing_speed_master/features/games/word_master/provider/word_master_provider.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_settings_model.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/provider/character_rush_provider.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_settings_model.dart';
+import 'package:typing_speed_master/features/games/game_word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
 import 'package:typing_speed_master/widgets/game_widget/game_setting/game_setting_slider_widget.dart';
