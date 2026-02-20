@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   provider: ^6.1.5+1
   fl_chart: ^0.69.2
-  vector_math: 2.1.4
+  vector_math:
   shared_preferences: ^2.5.3
 #  syncfusion_flutter_charts: 20.4.52  # ^31.1.19
   confetti: ^0.8.0
