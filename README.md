@@ -121,7 +121,7 @@ Your personal dashboard provides:
 
 For questions, issues, or feedback:
 - Open an issue on GitHub
-- Contact: harshilgajipaea.ladila@gmail.com
+- Contact: harshilgajipara.ladila@gmail.com
 
 ## 📄 License
 
