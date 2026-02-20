@@ -2,22 +2,26 @@ import 'package:flutter/material.dart';
 
 enum GameType { character, word }
 
+enum GameAvailability { available, comingSoon }
+
 class GameDashboardCard {
+  final String gameId;
   final String title;
   final String subtitle;
   final GameType type;
   final Color backgroundColor;
-  final String gameId;
-  final bool isFavorite;
-  final void Function()? onTapStarIcon;
+  final GameAvailability availability;
+  bool isFavorite;
 
-  const GameDashboardCard({
+  GameDashboardCard({
+    required this.gameId,
     required this.title,
     required this.subtitle,
     required this.type,
     required this.backgroundColor,
-    required this.gameId,
-    required this.isFavorite,
-    required this.onTapStarIcon,
+    this.availability = GameAvailability.available,
+    this.isFavorite = false,
   });
+
+  bool get isComingSoon => availability == GameAvailability.comingSoon;
 }

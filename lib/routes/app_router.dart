@@ -5,14 +5,17 @@ import 'package:typing_speed_master/features/dashboard/dashboard_screen.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/game_character_rush_screen.dart';
 import 'package:typing_speed_master/features/games/game_dashboard_screen.dart';
 import 'package:typing_speed_master/features/games/game_word_master/game_word_master.dart';
+import 'package:typing_speed_master/features/games/game_word_reflex/game_word_reflex_screen.dart';
 import 'package:typing_speed_master/features/history/history_screen.dart';
 import 'package:typing_speed_master/features/profile/profile_screen.dart';
 import 'package:typing_speed_master/features/typing_test/results_screen.dart';
 import 'package:typing_speed_master/features/typing_test/typing_test_screen.dart';
+import 'package:typing_speed_master/helper/app_extra_codec.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
+    extraCodec: AppExtraCodec(),
     routes: [
       ShellRoute(
         builder: (context, state, child) {
@@ -74,6 +77,13 @@ class AppRouter {
             pageBuilder:
                 (context, state) =>
                     NoTransitionPage(child: const GameWordMaster()),
+          ),
+          GoRoute(
+            path: '/games/word-reflex',
+            name: 'wordReflex',
+            pageBuilder:
+                (context, state) =>
+                    NoTransitionPage(child: const GameWordReflexScreen()),
           ),
           GoRoute(
             path: '/results',

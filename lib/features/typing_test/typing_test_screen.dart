@@ -184,6 +184,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     final words = userInput.split(' ').where((word) => word.isNotEmpty).length;
     final wpm = (words / (duration.inSeconds / 60)).round();
+    final cpm = (userInput.length / (duration.inSeconds / 60)).round();
 
     final provider = Provider.of<TypingProvider>(context, listen: false);
     final originalText = provider.currentOriginalText;
@@ -202,6 +203,7 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
     final result = TypingTestResultModel(
       wpm: wpm,
+      cpm: cpm,
       accuracy: accuracy,
       consistency: consistency,
       correctChars: correctChars,
@@ -390,33 +392,49 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final themeProvider = Provider.of<ThemeProvider>(context);
     return GridBackgroundPage(
       child: IconsBackground(
         child: KeyedSubtree(
           key: ValueKey('typing_test_screen'),
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              final screenWidth = constraints.maxWidth;
-              final isSmallMobile = screenWidth < 599;
-              final isMobile = screenWidth < 600;
-              final isTablet = screenWidth >= 600 && screenWidth < 1200;
-              final isDesktop = screenWidth >= 1200;
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final screenWidth = constraints.maxWidth;
+                    final isSmallMobile = screenWidth < 599;
+                    final isMobile = screenWidth < 600;
+                    final isTablet = screenWidth >= 600 && screenWidth < 1200;
+                    final isDesktop = screenWidth >= 1200;
 
-              return isFullScreen
-                  ? typingTestFullScreenContent(
-                    context,
-                    isMobile,
-                    isTablet,
-                    isDesktop,
-                  )
-                  : typingTestNormalContent(
-                    context,
-                    isMobile,
-                    isTablet,
-                    isDesktop,
-                    isSmallMobile,
-                  );
-            },
+                    return isFullScreen
+                        ? isMobile
+                            ? typingTestNormalContent(
+                              context,
+                              isMobile,
+                              isTablet,
+                              isDesktop,
+                              isSmallMobile,
+                            )
+                            : typingTestFullScreenContent(
+                              context,
+                              isMobile,
+                              isTablet,
+                              isDesktop,
+                            )
+                        : typingTestNormalContent(
+                          context,
+                          isMobile,
+                          isTablet,
+                          isDesktop,
+                          isSmallMobile,
+                        );
+                  },
+                ),
+                // FooterWidget(themeProvider: themeProvider),
+              ],
+            ),
           ),
         ),
       ),
@@ -475,7 +493,29 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
               subtitleColor ?? Colors.grey,
               isMobile,
             ),
+            // SizedBox(height: spacing * 1.25),
+
+            // Container(
+            //   width: double.maxFinite,
+            //   padding: EdgeInsets.all(isMobile ? 20 : 26),
+            //   decoration: BoxDecoration(
+            //     color: backgroundColor,
+            //     borderRadius: BorderRadius.circular(12),
+            //     border: Border.all(color: borderColor, width: 0.3),
+            //   ),
+            //   child: Column(
+            //     mainAxisAlignment: MainAxisAlignment.center,
+            //     crossAxisAlignment: CrossAxisAlignment.start,
+            //     children: [
+            //       TimeSelector(themeProvider: themeProvider),
+            //       SizedBox(height: spacing * 1.25),
+
+            //       DifficultySelector(themeProvider: themeProvider),
+            //     ],
+            //   ),
+            // ),
             SizedBox(height: spacing * 1.25),
+
             Container(
               padding: EdgeInsets.all(isMobile ? 20 : 26),
               decoration: BoxDecoration(
@@ -644,161 +684,169 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     final padding = EdgeInsets.all(40);
     final spacing = getResponsiveSpacing(context);
 
+    // Calculate height to fill screen minus padding
+    final screenHeight = MediaQuery.of(context).size.height;
+    // Subtract explicit padding (40 top + 40 bottom) + some safety margin for header/footer if needed
+    final contentHeight = screenHeight - 120;
+
     return Padding(
       padding: padding,
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Expanded(
-                child: Text(
-                  isWordBasedTest
-                      ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words)'
-                      : 'Type the text below',
-                  style: TextStyle(
-                    fontSize: isMobile ? 16 : 18,
-                    fontWeight: FontWeight.w500,
-                    color: titleColor,
+      child: SizedBox(
+        height: contentHeight,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    isWordBasedTest
+                        ? 'Type the text below (${AppConstants.wordBasedTestWordCount} words)'
+                        : 'Type the text below',
+                    style: TextStyle(
+                      fontSize: isMobile ? 16 : 18,
+                      fontWeight: FontWeight.w500,
+                      color: titleColor,
+                    ),
                   ),
                 ),
-              ),
-              SizedBox(width: isMobile ? 8 : 16),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton.filled(
-                    onPressed: changeText,
-                    icon: Icon(
-                      FontAwesomeIcons.syncAlt,
-                      size: isMobile ? 16 : 20,
-                    ),
-                    tooltip: 'Change Text',
-                  ),
-                  SizedBox(width: isMobile ? 4 : 8),
-                  IconButton.filled(
-                    onPressed: toggleFullScreen,
-                    icon: Icon(
-                      FontAwesomeIcons.minimize,
-                      size: isMobile ? 16 : 20,
-                    ),
-                    tooltip: 'Minimize',
-                  ),
-                  SizedBox(width: isMobile ? 4 : 8),
-                  TextButton(
-                    onPressed: resetTest,
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(
-                        themeProvider.primaryColor,
-                      ),
-                    ),
-                    child: Text(
-                      'Reset',
-                      style: TextStyle(
-                        fontSize: isMobile ? 14 : 16,
-                        fontWeight: FontWeight.bold,
-                        color:
-                            themeProvider.primaryColor == Colors.amber ||
-                                    themeProvider.primaryColor ==
-                                        Colors.yellow ||
-                                    themeProvider.primaryColor == Colors.lime
-                                ? Colors.black
-                                : Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: spacing),
-
-          typingTestTimerAndStatsFullScreen(themeProvider, isMobile),
-          SizedBox(height: spacing),
-
-          Expanded(
-            child: Container(
-              padding: EdgeInsets.all(isMobile ? 16 : 20),
-              decoration: BoxDecoration(
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey[900]
-                        : Colors.grey[50],
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: borderColor, width: 0.5),
-              ),
-              child: SingleChildScrollView(
-                child: Column(
+                SizedBox(width: isMobile ? 8 : 16),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextDisplayWidget(
-                      sampleText: sampleText,
-                      userInput: userInput,
-                      isTestActive: testStarted && !testCompleted,
-                      isDarkMode: themeProvider.isDarkMode,
+                    IconButton.filled(
+                      onPressed: changeText,
+                      icon: Icon(
+                        FontAwesomeIcons.syncAlt,
+                        size: isMobile ? 16 : 20,
+                      ),
+                      tooltip: 'Change Text',
                     ),
-                    SizedBox(height: isMobile ? 16 : 20),
-                    TextField(
-                      controller: textController,
-                      focusNode: textFocusNode,
-                      enabled: !testCompleted,
-                      maxLines: isMobile ? 8 : 10,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: borderColor,
-                            width: 0.2,
-                          ),
+                    SizedBox(width: isMobile ? 4 : 8),
+                    IconButton.filled(
+                      onPressed: toggleFullScreen,
+                      icon: Icon(
+                        FontAwesomeIcons.minimize,
+                        size: isMobile ? 16 : 20,
+                      ),
+                      tooltip: 'Minimize',
+                    ),
+                    SizedBox(width: isMobile ? 4 : 8),
+                    TextButton(
+                      onPressed: resetTest,
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(
+                          themeProvider.primaryColor,
                         ),
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: borderColor,
-                            width: 0.2,
-                          ),
-                        ),
-                        enabled: true,
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: borderColor,
-                            width: 0.2,
-                          ),
-                        ),
-                        hintText:
-                            'Ready? Start typing from the very first letter to begin your test.',
-                        hintStyle: TextStyle(
+                      ),
+                      child: Text(
+                        'Reset',
+                        style: TextStyle(
+                          fontSize: isMobile ? 14 : 16,
+                          fontWeight: FontWeight.bold,
                           color:
-                              themeProvider.isDarkMode
-                                  ? Colors.grey[500]
-                                  : Colors.grey[600],
+                              themeProvider.primaryColor == Colors.amber ||
+                                      themeProvider.primaryColor ==
+                                          Colors.yellow ||
+                                      themeProvider.primaryColor == Colors.lime
+                                  ? Colors.black
+                                  : Colors.white,
                         ),
-                        fillColor: Colors.white,
-                        filled: false,
-                      ),
-                      onChanged: onTextChanged,
-                      autofocus: true,
-                      style: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.white
-                                : Colors.black,
-                      ),
-                    ),
-                    SizedBox(height: spacing),
-
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: typingTestInputField(
-                        themeProvider,
-                        cardColor ?? Colors.grey,
-                        inputBorderColor,
-                        subtitleColor ?? Colors.grey,
                       ),
                     ),
                   ],
                 ),
+              ],
+            ),
+            SizedBox(height: spacing),
+
+            typingTestTimerAndStatsFullScreen(themeProvider, isMobile),
+            SizedBox(height: spacing),
+
+            Expanded(
+              child: Container(
+                padding: EdgeInsets.all(isMobile ? 16 : 20),
+                decoration: BoxDecoration(
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.grey[900]
+                          : Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: borderColor, width: 0.5),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      TextDisplayWidget(
+                        sampleText: sampleText,
+                        userInput: userInput,
+                        isTestActive: testStarted && !testCompleted,
+                        isDarkMode: themeProvider.isDarkMode,
+                      ),
+                      SizedBox(height: isMobile ? 16 : 20),
+                      TextField(
+                        controller: textController,
+                        focusNode: textFocusNode,
+                        enabled: !testCompleted,
+                        maxLines: isMobile ? 8 : 10,
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: borderColor,
+                              width: 0.2,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: borderColor,
+                              width: 0.2,
+                            ),
+                          ),
+                          enabled: true,
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: borderColor,
+                              width: 0.2,
+                            ),
+                          ),
+                          hintText:
+                              'Ready? Start typing from the very first letter to begin your test.',
+                          hintStyle: TextStyle(
+                            color:
+                                themeProvider.isDarkMode
+                                    ? Colors.grey[500]
+                                    : Colors.grey[600],
+                          ),
+                          fillColor: Colors.white,
+                          filled: false,
+                        ),
+                        onChanged: onTextChanged,
+                        autofocus: true,
+                        style: TextStyle(
+                          color:
+                              themeProvider.isDarkMode
+                                  ? Colors.white
+                                  : Colors.black,
+                        ),
+                      ),
+                      SizedBox(height: spacing),
+
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: typingTestInputField(
+                          themeProvider,
+                          cardColor ?? Colors.grey,
+                          inputBorderColor,
+                          subtitleColor ?? Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -816,91 +864,47 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     if (startTime != null && testStarted) {
       final elapsedSeconds = DateTime.now().difference(startTime!).inSeconds;
       if (elapsedSeconds > 0) {
-        wpm = (words / (elapsedSeconds / 60));
+        wpm = words / (elapsedSeconds / 60);
       }
     }
 
     final timerColor = getTimerColor(themeProvider);
 
-    return isMobile
-        ? Column(
-          children: [
-            typingTestStatCardFullScreen(
-              isWordBasedTest ? 'Words Progress' : 'Time Remaining',
-              getTimerDisplay(),
-              timerColor,
+    Widget statCard(String title, String value, Color color) {
+      return LayoutBuilder(
+        builder: (context, constraints) {
+          final width =
+              isMobile ? constraints.maxWidth : constraints.maxWidth / 4 - 16;
+
+          return SizedBox(
+            width: width,
+            child: typingTestStatCardFullScreen(
+              title,
+              value,
+              color,
               themeProvider,
               isMobile,
             ),
-            SizedBox(height: 8),
-            typingTestStatCardFullScreen(
-              'Current WPM',
-              wpm.toStringAsFixed(2),
-              Colors.green,
-              themeProvider,
-              isMobile,
-            ),
-            SizedBox(height: 8),
-            typingTestStatCardFullScreen(
-              'Words Typed',
-              '$words',
-              Colors.orange,
-              themeProvider,
-              isMobile,
-            ),
-            SizedBox(height: 8),
-            typingTestStatCardFullScreen(
-              'Difficulty',
-              currentDifficulty,
-              Colors.purple,
-              themeProvider,
-              isMobile,
-            ),
-          ],
-        )
-        : Row(
-          children: [
-            Expanded(
-              child: typingTestStatCardFullScreen(
-                isWordBasedTest ? 'Words Progress' : 'Time Remaining',
-                getTimerDisplay(),
-                timerColor,
-                themeProvider,
-                isMobile,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: typingTestStatCardFullScreen(
-                'Current WPM',
-                wpm.toStringAsFixed(2),
-                Colors.green,
-                themeProvider,
-                isMobile,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: typingTestStatCardFullScreen(
-                'Words Typed',
-                '$words',
-                Colors.orange,
-                themeProvider,
-                isMobile,
-              ),
-            ),
-            SizedBox(width: 16),
-            Expanded(
-              child: typingTestStatCardFullScreen(
-                'Difficulty',
-                currentDifficulty,
-                Colors.purple,
-                themeProvider,
-                isMobile,
-              ),
-            ),
-          ],
-        );
+          );
+        },
+      );
+    }
+
+    return Wrap(
+      spacing: 16,
+      runSpacing: 16,
+      alignment: WrapAlignment.spaceAround,
+      children: [
+        statCard(
+          isWordBasedTest ? 'Words Progress' : 'Time Remaining',
+          getTimerDisplay(),
+          timerColor,
+        ),
+        statCard('Current WPM', wpm.toStringAsFixed(2), Colors.green),
+        statCard('Words Typed', '$words', Colors.orange),
+        statCard('Difficulty', currentDifficulty, Colors.purple),
+      ],
+    );
   }
 
   Widget typingTestStatCardFullScreen(
@@ -1492,3 +1496,126 @@ class _TypingTestScreenState extends State<TypingTestScreen> {
     );
   }
 }
+
+// class TimeSelector extends StatefulWidget {
+//   final ThemeProvider themeProvider;
+//   const TimeSelector({super.key, required this.themeProvider});
+
+//   @override
+//   _TimeSelectorState createState() => _TimeSelectorState();
+// }
+
+// class _TimeSelectorState extends State<TimeSelector> {
+//   int selectedIndex = 0;
+
+//   final List<String> options = [
+//     '30 seconds',
+//     '60 seconds',
+//     '120 seconds',
+//     '180 seconds',
+//     '300 seconds',
+//     '150 words',
+//   ];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Wrap(
+//       spacing: 8,
+//       runSpacing: 8,
+//       children: List.generate(options.length, (index) {
+//         final bool isSelected = selectedIndex == index;
+
+//         return ChoiceChip(
+//           label: Text(
+//             options[index],
+//             style: TextStyle(
+//               color:
+//                   isSelected
+//                       ? Colors.white
+//                       : widget.themeProvider.isDarkMode
+//                       ? Colors.white
+//                       : Colors.black,
+//             ),
+//           ),
+//           selected: isSelected,
+//           elevation: 0,
+//           backgroundColor: Colors.transparent,
+//           selectedColor: widget.themeProvider.primaryColor,
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(4),
+//             side: BorderSide(
+//               width: 0.1,
+//               color:
+//                   isSelected
+//                       ? widget.themeProvider.primaryColor
+//                       : Colors.grey.withOpacity(0.5),
+//             ),
+//           ),
+//           onSelected: (_) {
+//             setState(() {
+//               selectedIndex = index;
+//             });
+//           },
+//         );
+//       }),
+//     );
+//   }
+// }
+
+// class DifficultySelector extends StatefulWidget {
+//   final ThemeProvider themeProvider;
+//   const DifficultySelector({super.key, required this.themeProvider});
+
+//   @override
+//   _DifficultySelectorState createState() => _DifficultySelectorState();
+// }
+
+// class _DifficultySelectorState extends State<DifficultySelector> {
+//   int selectedIndex = 0;
+
+//   final List<String> options = ['Easy', 'Medium', 'Hard'];
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Wrap(
+//       spacing: 8,
+//       runSpacing: 8,
+//       children: List.generate(options.length, (index) {
+//         final bool isSelected = selectedIndex == index;
+
+//         return ChoiceChip(
+//           label: Text(
+//             options[index],
+//             style: TextStyle(
+//               color:
+//                   isSelected
+//                       ? Colors.white
+//                       : widget.themeProvider.isDarkMode
+//                       ? Colors.white
+//                       : Colors.black,
+//             ),
+//           ),
+//           selected: isSelected,
+//           elevation: 0,
+//           backgroundColor: Colors.transparent,
+//           selectedColor: widget.themeProvider.primaryColor,
+//           shape: RoundedRectangleBorder(
+//             borderRadius: BorderRadius.circular(4),
+//             side: BorderSide(
+//               width: 0.5,
+//               color:
+//                   isSelected
+//                       ? widget.themeProvider.primaryColor
+//                       : Colors.grey.withOpacity(0.5),
+//             ),
+//           ),
+//           onSelected: (_) {
+//             setState(() {
+//               selectedIndex = index;
+//             });
+//           },
+//         );
+//       }),
+//     );
+//   }
+// }

@@ -5,6 +5,7 @@ import 'package:typing_speed_master/features/games/provider/game_dashboard_provi
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/game_character_rush_screen.dart';
 import 'package:typing_speed_master/features/games/game_word_master/game_word_master.dart';
+import 'package:typing_speed_master/features/games/game_word_reflex/game_word_reflex_screen.dart';
 import 'package:typing_speed_master/features/app_entry_point.dart';
 import 'package:typing_speed_master/features/games/widget/game_card_widget.dart';
 
@@ -30,9 +31,6 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
         backgroundColor: Colors.blue,
         gameId: "character_rush",
         isFavorite: gameProvider.isFavoriteCharacterRush,
-        onTapStarIcon: () {
-          gameProvider.toggleFavoriteCharacterRush();
-        },
       ),
       GameDashboardCard(
         title: "Word Master",
@@ -41,9 +39,14 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
         backgroundColor: Colors.green,
         gameId: "word_master",
         isFavorite: gameProvider.isFavoriteWordMaster,
-        onTapStarIcon: () {
-          gameProvider.toggleFavoriteWordMaster();
-        },
+      ),
+      GameDashboardCard(
+        title: "Word Reflex",
+        subtitle: "Type the synonym after words disappear",
+        type: GameType.word,
+        backgroundColor: Colors.orange,
+        gameId: "word_reflex",
+        isFavorite: gameProvider.isFavoriteWordReflex,
       ),
     ];
   }
@@ -117,6 +120,13 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
   void handleGameTap(GameDashboardCard gameCard) {
     debugPrint('Game tapped: ${gameCard.title}');
 
+    if (gameCard.isComingSoon) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${gameCard.title} is coming soon!')),
+      );
+      return;
+    }
+
     final mainEntryPointState =
         context.findAncestorStateOfType<AppEntryPointState>();
 
@@ -138,6 +148,19 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
             MaterialPageRoute(builder: (context) => const GameWordMaster()),
           );
           break;
+        case "word_reflex":
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const GameWordReflexScreen(),
+            ),
+          );
+          break;
+        default:
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Launching ${gameCard.title}')),
+          );
+          break;
       }
     }
   }
@@ -145,50 +168,101 @@ class GameDashboardScreenState extends State<GameDashboardScreen> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    // final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: getResponsivePadding(context),
+    return Scaffold(
+      body: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           children: [
-            gameDashboardHeader(context, 24, 18),
-            const SizedBox(height: 40),
+            Padding(
+              padding: getResponsivePadding(context),
+              child: Column(
+                children: [
+                  gameDashboardHeader(context, 24, 18),
+                  const SizedBox(height: 40),
 
-            Consumer<GameDashboardProvider>(
-              builder: (context, gameProvider, child) {
-                final gameCards = [
-                  GameDashboardCard(
-                    title: "Character Rush",
-                    subtitle: "Type falling characters quickly",
-                    type: GameType.character,
-                    backgroundColor: Colors.blue,
-                    gameId: "character_rush",
-                    isFavorite: gameProvider.isFavoriteCharacterRush,
-                    onTapStarIcon: () {
-                      gameProvider.toggleFavoriteCharacterRush();
+                  Consumer<GameDashboardProvider>(
+                    builder: (context, gameProvider, child) {
+                      final gameCards = [
+                        GameDashboardCard(
+                          title: "Character Rush",
+                          subtitle: "Type falling characters quickly",
+                          type: GameType.character,
+                          backgroundColor: Colors.blue,
+                          gameId: "character_rush",
+                          isFavorite: gameProvider.isFavoriteCharacterRush,
+                        ),
+                        GameDashboardCard(
+                          title: "Word Master",
+                          subtitle: "Type complete words accurately",
+                          type: GameType.word,
+                          backgroundColor: Colors.green,
+                          gameId: "word_master",
+                          isFavorite: gameProvider.isFavoriteWordMaster,
+                        ),
+                        GameDashboardCard(
+                          title: "Word Reflex",
+                          subtitle: "Type the synonym after words disappear",
+                          type: GameType.word,
+                          backgroundColor: Colors.orange,
+                          gameId: "word_reflex",
+                          isFavorite: gameProvider.isFavoriteWordReflex,
+                        ),
+                        GameDashboardCard(
+                          title: "Monster Game",
+                          subtitle: "This is new monster game",
+                          type: GameType.word,
+                          backgroundColor: Color(0xffFFD700),
+                          gameId: "monster_game",
+                          availability: GameAvailability.comingSoon,
+                          isFavorite: gameProvider.isFavoriteMonsterGame,
+                        ),
+                        GameDashboardCard(
+                          title: "Dyno Game",
+                          subtitle: "This is new dyno game",
+                          type: GameType.word,
+                          backgroundColor: Colors.purple,
+                          gameId: "dyno_game",
+                          availability: GameAvailability.comingSoon,
+                          isFavorite: gameProvider.isFavoriteDynoGame,
+                        ),
+                        // GameDashboardCard(
+                        //   title: "Squid Game",
+                        //   subtitle: "This is new squid game",
+                        //   type: GameType.word,
+                        //   backgroundColor: Colors.orange,
+                        //   gameId: "new_game",
+                        //   availability: GameAvailability.comingSoon,
+                        //   isFavorite: gameProvider.isFavoriteWordMaster,
+                        // ),
+                        // GameDashboardCard(
+                        //   title: "Ranger's Game",
+                        //   subtitle: "This is new ranger's game",
+                        //   type: GameType.word,
+                        //   backgroundColor: Color(0xffd8a6ad),
+                        //   gameId: "new_game",
+                        //   availability: GameAvailability.comingSoon,
+                        //   isFavorite: gameProvider.isFavoriteWordMaster,
+                        // ),
+                      ];
+
+                      final gamesToDisplay = gameCards;
+
+                      if (screenWidth > 980) {
+                        return gameDashboardDesktopLayout(
+                          context,
+                          gamesToDisplay,
+                        );
+                      } else {
+                        return gameDashboardMobileLayout(gamesToDisplay);
+                      }
                     },
                   ),
-                  GameDashboardCard(
-                    title: "Word Master",
-                    subtitle: "Type complete words accurately",
-                    type: GameType.word,
-                    backgroundColor: Colors.green,
-                    gameId: "word_master",
-                    isFavorite: gameProvider.isFavoriteWordMaster,
-                    onTapStarIcon: () {
-                      gameProvider.toggleFavoriteWordMaster();
-                    },
-                  ),
-                ];
-
-                if (screenWidth > 980) {
-                  return gameDashboardDesktopLayout(context, gameCards);
-                } else {
-                  return gameDashboardMobileLayout(gameCards);
-                }
-              },
+                ],
+              ),
             ),
+            // FooterWidget(themeProvider: themeProvider),
           ],
         ),
       ),

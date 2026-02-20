@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_adsense/google_adsense.dart';
 import 'package:meta_seo/meta_seo.dart';
+import 'package:printing/printing.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/providers/app_providers.dart';
@@ -17,7 +18,9 @@ import 'package:url_strategy/url_strategy.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  if (kIsWeb) {
+    await Printing.info();
+  }
   setPathUrlStrategy();
 
   await adSense.initialize('3779258307133143');

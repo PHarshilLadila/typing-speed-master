@@ -1,12 +1,11 @@
 // ignore_for_file: library_private_types_in_public_api, deprecated_member_use, invalid_use_of_visible_for_testing_member
-
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_adsense/experimental/ad_unit_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
 import 'package:typing_speed_master/models/typing_stat_data.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
@@ -33,10 +32,15 @@ class ResultsScreen extends StatefulWidget {
   _ResultsScreenState createState() => _ResultsScreenState();
 }
 
-class _ResultsScreenState extends State<ResultsScreen> {
+class _ResultsScreenState extends State<ResultsScreen>
+    with SingleTickerProviderStateMixin {
   late ConfettiController confettiController;
   late List<TypingStatData> chartData;
   late List<TypingStatData> chartDataPerformance;
+  late AnimationController animationController;
+  late Animation<double> animations;
+  bool showCPM = false;
+  bool showMinutes = false;
 
   @override
   void initState() {
@@ -52,7 +56,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
     chartData = [
       TypingStatData('Correct', widget.result.correctChars.toDouble()),
       TypingStatData('Incorrect', widget.result.incorrectChars.toDouble()),
-      TypingStatData('Total', widget.result.totalChars.toDouble()),
+      TypingStatData('Total Chars', widget.result.totalChars.toDouble()),
+      TypingStatData(
+        'Words Typed',
+        widget.result.userInput
+            .split(' ')
+            .where((w) => w.isNotEmpty)
+            .length
+            .toDouble(),
+      ),
+      TypingStatData(
+        'Original Words',
+        widget.result.originalText
+            .split(' ')
+            .where((w) => w.isNotEmpty)
+            .length
+            .toDouble(),
+      ),
     ];
 
     chartDataPerformance = [
@@ -75,22 +95,37 @@ class _ResultsScreenState extends State<ResultsScreen> {
         ),
       ),
     ];
+
+    animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+
+    animations = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeOutCubic,
+    );
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      animationController.forward();
+    });
   }
 
   @override
   void dispose() {
     confettiController.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
-  void _onBackToTest() {
+  void onBackToTest() {
     final routerProvider = Provider.of<RouterProvider>(context, listen: false);
     routerProvider.setSelectedIndex(0);
 
     context.go('/');
   }
 
-  void _onBackToDashboard() async {
+  void onBackToDashboard() async {
     final routerProvider = Provider.of<RouterProvider>(context, listen: false);
     routerProvider.setSelectedIndex(1);
 
@@ -103,158 +138,164 @@ class _ResultsScreenState extends State<ResultsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       body: KeyedSubtree(
         key: ValueKey(
           'results_screen_${widget.result.timestamp.millisecondsSinceEpoch}',
         ),
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isDesktop = constraints.maxWidth > 1200;
-            final isTablet =
-                constraints.maxWidth > 600 && constraints.maxWidth <= 1200;
-            final isMobile = constraints.maxWidth <= 600;
-            final isSmallMobile = constraints.maxWidth <= 400;
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              LayoutBuilder(
+                builder: (context, constraints) {
+                  final isDesktop = constraints.maxWidth > 1200;
+                  final isTablet =
+                      constraints.maxWidth > 600 &&
+                      constraints.maxWidth <= 1200;
+                  final isMobile = constraints.maxWidth <= 600;
+                  final isSmallMobile = constraints.maxWidth <= 400;
 
-            final headerFontSize =
-                isDesktop
-                    ? 36.0
-                    : isTablet
-                    ? 30.0
-                    : isSmallMobile
-                    ? 22.0
-                    : 26.0;
-
-            final titleFontSize =
-                isDesktop
-                    ? 24.0
-                    : isTablet
-                    ? 20.0
-                    : isSmallMobile
-                    ? 16.0
-                    : 18.0;
-
-            final textFontSize =
-                isDesktop
-                    ? 18.0
-                    : isTablet
-                    ? 16.0
-                    : isSmallMobile
-                    ? 14.0
-                    : 16.0;
-
-            final chartHeight =
-                isDesktop
-                    ? 400.0
-                    : isTablet
-                    ? 300.0
-                    : isSmallMobile
-                    ? 220.0
-                    : 250.0;
-
-            final statItemSpacing =
-                isDesktop
-                    ? 32.0
-                    : isTablet
-                    ? 24.0
-                    : isSmallMobile
-                    ? 16.0
-                    : 20.0;
-            final themeProvider = Provider.of<ThemeProvider>(context);
-            return Stack(
-              children: [
-                Padding(
-                  padding:
+                  final headerFontSize =
                       isDesktop
-                          ? EdgeInsets.symmetric(
-                            vertical: 50,
-                            horizontal: MediaQuery.of(context).size.width / 6,
-                          )
-                          : EdgeInsets.all(40),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (!widget.isViewDetails)
-                          resultHeader(
-                            headerFontSize,
-                            textFontSize,
-                            isDesktop,
-                            isTablet,
-                            isMobile,
-                            isSmallMobile,
+                          ? 36.0
+                          : isTablet
+                          ? 30.0
+                          : isSmallMobile
+                          ? 22.0
+                          : 26.0;
+
+                  final titleFontSize =
+                      isDesktop
+                          ? 24.0
+                          : isTablet
+                          ? 20.0
+                          : isSmallMobile
+                          ? 16.0
+                          : 18.0;
+
+                  final textFontSize =
+                      isDesktop
+                          ? 18.0
+                          : isTablet
+                          ? 16.0
+                          : isSmallMobile
+                          ? 14.0
+                          : 16.0;
+
+                  final chartHeight =
+                      isDesktop
+                          ? 400.0
+                          : isTablet
+                          ? 300.0
+                          : isSmallMobile
+                          ? 220.0
+                          : 250.0;
+
+                  final statItemSpacing =
+                      isDesktop
+                          ? 32.0
+                          : isTablet
+                          ? 24.0
+                          : isSmallMobile
+                          ? 16.0
+                          : 20.0;
+                  final themeProvider = Provider.of<ThemeProvider>(context);
+                  return Stack(
+                    children: [
+                      Padding(
+                        padding:
+                            isDesktop
+                                ? EdgeInsets.symmetric(
+                                  vertical: 50,
+                                  horizontal:
+                                      MediaQuery.of(context).size.width / 6,
+                                )
+                                : EdgeInsets.all(40),
+                        child: SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if (!widget.isViewDetails)
+                                resultHeader(
+                                  headerFontSize,
+                                  textFontSize,
+                                  isDesktop,
+                                  isTablet,
+                                  isMobile,
+                                  isSmallMobile,
+                                ),
+                              if (!widget.isViewDetails)
+                                SizedBox(height: isDesktop ? 32.0 : 20.0),
+                              resultStatsSection(
+                                isDesktop,
+                                isTablet,
+                                isMobile,
+                                isSmallMobile,
+                              ),
+                              SizedBox(height: isDesktop ? 40.0 : 20.0),
+                              resultDetailedStats(
+                                titleFontSize,
+                                textFontSize,
+                                chartHeight,
+                                statItemSpacing,
+                                isDesktop,
+                                isTablet,
+                                isMobile,
+                                isSmallMobile,
+                              ),
+                              SizedBox(height: isDesktop ? 32.0 : 20.0),
+                              resultErrorAnalysisSection(
+                                themeProvider,
+                                isDesktop,
+                                isTablet,
+                                isMobile,
+                                isSmallMobile,
+                              ),
+
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: AdUnitWidget(
+                                  adClient: "3779258307133143",
+                                  configuration:
+                                      AdUnitConfiguration.displayAdUnit(
+                                        adSlot: '4355381273',
+                                        isAdTest: true,
+                                        isFullWidthResponsive: true,
+                                        adFormat: AdFormat.AUTO,
+                                      ),
+                                  onInjected: () {
+                                    debugPrint("Ad Injected Successfully");
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
-                        if (!widget.isViewDetails)
-                          SizedBox(height: isDesktop ? 32.0 : 20.0),
-                        resultStatsSection(
-                          isDesktop,
-                          isTablet,
-                          isMobile,
-                          isSmallMobile,
                         ),
-                        SizedBox(height: isDesktop ? 40.0 : 20.0),
-                        resultDetailedStats(
-                          titleFontSize,
-                          textFontSize,
-                          chartHeight,
-                          statItemSpacing,
-                          isDesktop,
-                          isTablet,
-                          isMobile,
-                          isSmallMobile,
-                        ),
-                        SizedBox(height: isDesktop ? 32.0 : 20.0),
-                        resultErrorAnalysisSection(
-                          themeProvider,
-                          isDesktop,
-                          isTablet,
-                          isMobile,
-                          isSmallMobile,
-                        ),
-                        SizedBox(height: isDesktop ? 32.0 : 20.0),
-
-                        const SizedBox(height: 32),
-
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: AdUnitWidget(
-                            adClient: "3779258307133143",
-                            configuration: AdUnitConfiguration.displayAdUnit(
-                              adSlot: '4355381273',
-                              isAdTest: true,
-                              isFullWidthResponsive: true,
-                              adFormat: AdFormat.AUTO,
-                            ),
-                            onInjected: () {
-                              debugPrint("Ad Injected Successfully");
-                            },
+                      ),
+                      if (widget.result.wpm > 40 && widget.result.accuracy > 90)
+                        Align(
+                          alignment: Alignment.topCenter,
+                          child: ConfettiWidget(
+                            confettiController: confettiController,
+                            blastDirectionality: BlastDirectionality.explosive,
+                            shouldLoop: false,
+                            colors: const [
+                              Colors.green,
+                              Colors.blue,
+                              Colors.orange,
+                              Colors.purple,
+                              Colors.red,
+                            ],
                           ),
                         ),
-
-                        SizedBox(height: isDesktop ? 32.0 : 20.0),
-                      ],
-                    ),
-                  ),
-                ),
-                if (widget.result.wpm > 40 && widget.result.accuracy > 90)
-                  Align(
-                    alignment: Alignment.topCenter,
-                    child: ConfettiWidget(
-                      confettiController: confettiController,
-                      blastDirectionality: BlastDirectionality.explosive,
-                      shouldLoop: false,
-                      colors: const [
-                        Colors.green,
-                        Colors.blue,
-                        Colors.orange,
-                        Colors.purple,
-                        Colors.red,
-                      ],
-                    ),
-                  ),
-              ],
-            );
-          },
+                    ],
+                  );
+                },
+              ),
+              // FooterWidget(themeProvider: themeProvider),
+            ],
+          ),
         ),
       ),
     );
@@ -360,12 +401,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
         children: [
           Expanded(
             child: CustomStatsCard(
-              title: 'Words Per Minute',
-              value: widget.result.wpm.toString(),
-              unit: 'WPM',
+              title: showCPM ? 'Characters Per Minute' : 'Words Per Minute',
+              value:
+                  showCPM
+                      ? widget.result.cpm.toString()
+                      : widget.result.wpm.toString(),
+              unit: showCPM ? 'CPM' : 'WPM',
               color: Colors.blue,
               icon: Icons.speed,
               isDarkMode: themeProvider.isDarkMode,
+              isExtraButton: true,
+              extraWidgetToolTip:
+                  !showCPM ? 'Characters Per Minute' : 'Words Per Minute',
+              onTapExtraWidget: () {
+                setState(() {
+                  showCPM = !showCPM;
+                });
+              },
             ),
           ),
           SizedBox(width: 16),
@@ -394,11 +446,23 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Expanded(
             child: CustomStatsCard(
               title: 'Duration',
-              value: widget.result.duration.inSeconds.toString(),
-              unit: 'seconds',
+              value:
+                  showMinutes
+                      ? (widget.result.duration.inSeconds / 60).toStringAsFixed(
+                        1,
+                      )
+                      : widget.result.duration.inSeconds.toString(),
+              unit: showMinutes ? 'minutes' : 'seconds',
+              extraWidgetToolTip: !showMinutes ? 'minutes' : 'seconds',
               color: Colors.orange,
               icon: Icons.timer,
               isDarkMode: themeProvider.isDarkMode,
+              isExtraButton: true,
+              onTapExtraWidget: () {
+                setState(() {
+                  showMinutes = !showMinutes;
+                });
+              },
             ),
           ),
           SizedBox(width: 16),
@@ -421,19 +485,28 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 child: CustomStatsCard(
-                  title: 'Words Per Minute',
-                  value: widget.result.wpm.toString(),
-                  unit: 'WPM',
+                  title: showCPM ? 'Characters Per Minute' : 'Words Per Minute',
+                  value:
+                      showCPM
+                          ? widget.result.cpm.toString()
+                          : widget.result.wpm.toString(),
+                  unit: showCPM ? 'CPM' : 'WPM',
                   color: Colors.blue,
                   icon: Icons.speed,
                   isDarkMode: themeProvider.isDarkMode,
+                  isExtraButton: true,
+                  onTapExtraWidget: () {
+                    setState(() {
+                      showCPM = !showCPM;
+                    });
+                  },
                 ),
               ),
               SizedBox(width: 16),
               Expanded(
                 child: CustomStatsCard(
                   title: 'Consistency',
-                  value: widget.result.duration.inSeconds.toString(),
+                  value: widget.result.consistency.toString(),
                   unit: '%',
                   color: Colors.pink,
                   icon: FontAwesomeIcons.bolt,
@@ -455,16 +528,25 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-
               SizedBox(width: 16),
               Expanded(
                 child: CustomStatsCard(
                   title: 'Duration',
-                  value: widget.result.duration.inSeconds.toString(),
-                  unit: 'seconds',
+                  value:
+                      showMinutes
+                          ? (widget.result.duration.inSeconds / 60)
+                              .toStringAsFixed(1)
+                          : widget.result.duration.inSeconds.toString(),
+                  unit: showMinutes ? 'minutes' : 'seconds',
                   color: Colors.orange,
                   icon: Icons.timer,
                   isDarkMode: themeProvider.isDarkMode,
+                  isExtraButton: true,
+                  onTapExtraWidget: () {
+                    setState(() {
+                      showMinutes = !showMinutes;
+                    });
+                  },
                 ),
               ),
             ],
@@ -495,19 +577,28 @@ class _ResultsScreenState extends State<ResultsScreen> {
             children: [
               Expanded(
                 child: CustomStatsCard(
-                  title: 'Words Per Minute',
-                  value: widget.result.wpm.toString(),
-                  unit: 'WPM',
+                  title: showCPM ? 'Characters Per Minute' : 'Words Per Minute',
+                  value:
+                      showCPM
+                          ? widget.result.cpm.toString()
+                          : widget.result.wpm.toString(),
+                  unit: showCPM ? 'CPM' : 'WPM',
                   color: Colors.blue,
                   icon: Icons.speed,
                   isDarkMode: themeProvider.isDarkMode,
+                  isExtraButton: true,
+                  onTapExtraWidget: () {
+                    setState(() {
+                      showCPM = !showCPM;
+                    });
+                  },
                 ),
               ),
               SizedBox(width: 12),
               Expanded(
                 child: CustomStatsCard(
                   title: 'Consistency',
-                  value: widget.result.duration.inSeconds.toString(),
+                  value: widget.result.consistency.toString(),
                   unit: '%',
                   color: Colors.pink,
                   icon: FontAwesomeIcons.bolt,
@@ -529,16 +620,25 @@ class _ResultsScreenState extends State<ResultsScreen> {
                   isDarkMode: themeProvider.isDarkMode,
                 ),
               ),
-
               SizedBox(width: 12),
               Expanded(
                 child: CustomStatsCard(
                   title: 'Duration',
-                  value: widget.result.duration.inSeconds.toString(),
-                  unit: 'seconds',
+                  value:
+                      showMinutes
+                          ? (widget.result.duration.inSeconds / 60)
+                              .toStringAsFixed(1)
+                          : widget.result.duration.inSeconds.toString(),
+                  unit: showMinutes ? 'minutes' : 'seconds',
                   color: Colors.orange,
                   icon: Icons.timer,
                   isDarkMode: themeProvider.isDarkMode,
+                  isExtraButton: true,
+                  onTapExtraWidget: () {
+                    setState(() {
+                      showMinutes = !showMinutes;
+                    });
+                  },
                 ),
               ),
             ],
@@ -566,12 +666,21 @@ class _ResultsScreenState extends State<ResultsScreen> {
       return Column(
         children: [
           CustomStatsCard(
-            title: 'Words Per Minute',
-            value: widget.result.wpm.toString(),
-            unit: 'WPM',
+            title: showCPM ? 'Characters Per Minute' : 'Words Per Minute',
+            value:
+                showCPM
+                    ? widget.result.cpm.toString()
+                    : widget.result.wpm.toString(),
+            unit: showCPM ? 'CPM' : 'WPM',
             color: Colors.blue,
             icon: Icons.speed,
             isDarkMode: themeProvider.isDarkMode,
+            isExtraButton: true,
+            onTapExtraWidget: () {
+              setState(() {
+                showCPM = !showCPM;
+              });
+            },
           ),
           SizedBox(height: 12),
           CustomStatsCard(
@@ -585,11 +694,20 @@ class _ResultsScreenState extends State<ResultsScreen> {
           SizedBox(height: 12),
           CustomStatsCard(
             title: 'Duration',
-            value: widget.result.duration.inSeconds.toString(),
-            unit: 'seconds',
+            value:
+                showMinutes
+                    ? (widget.result.duration.inSeconds / 60).toStringAsFixed(1)
+                    : widget.result.duration.inSeconds.toString(),
+            unit: showMinutes ? 'minutes' : 'seconds',
             color: Colors.orange,
             icon: Icons.timer,
             isDarkMode: themeProvider.isDarkMode,
+            isExtraButton: true,
+            onTapExtraWidget: () {
+              setState(() {
+                showMinutes = !showMinutes;
+              });
+            },
           ),
           SizedBox(height: 12),
           CustomStatsCard(
@@ -617,304 +735,792 @@ class _ResultsScreenState extends State<ResultsScreen> {
   ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return Container(
-      width: double.infinity,
-      padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
-      decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? Colors.black12 : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color:
-              themeProvider.isDarkMode ? Colors.grey[800]! : Colors.grey[200]!,
-        ),
-        boxShadow: [
-          if (!themeProvider.isDarkMode)
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 2),
+    return Column(
+      children: [
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.black12 : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[800]!
+                      : Colors.grey[200]!,
             ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            'Performance Overview',
-            style: TextStyle(
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
-            ),
+            boxShadow: [
+              if (!themeProvider.isDarkMode)
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+            ],
           ),
-          SizedBox(height: isDesktop ? 20.0 : 16.0),
-
-          SizedBox(
-            height: chartHeight,
-            child: SfCartesianChart(
-              primaryXAxis: CategoryAxis(
-                majorGridLines: const MajorGridLines(width: 0),
-                labelStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[300]
-                          : Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-              ),
-              primaryYAxis: NumericAxis(
-                axisLine: const AxisLine(width: 0),
-                majorTickLines: const MajorTickLines(size: 0),
-                labelStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[300]
-                          : Colors.grey[700],
-                  fontWeight: FontWeight.w500,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-                majorGridLines: MajorGridLines(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[700]
-                          : Colors.grey[300],
-                  dashArray: const [5, 5],
-                ),
-              ),
-              tooltipBehavior: TooltipBehavior(
-                enable: true,
-                header: '',
-                canShowMarker: true,
-                tooltipPosition: TooltipPosition.pointer,
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey[300]
-                        : Colors.grey[800],
-                textStyle: TextStyle(
-                  color:
-                      themeProvider.isDarkMode ? Colors.black87 : Colors.white,
-                  fontSize: isSmallMobile ? 10 : 12,
-                ),
-              ),
-              series: <CartesianSeries>[
-                ColumnSeries<TypingStatData, String>(
-                  dataSource: chartDataPerformance,
-                  xValueMapper: (TypingStatData data, _) => data.label,
-                  yValueMapper: (TypingStatData data, _) => data.value,
-                  gradient: LinearGradient(
-                    colors:
-                        themeProvider.isDarkMode
-                            ? [Colors.blueAccent, Colors.lightBlueAccent]
-                            : [Colors.lightBlueAccent, Colors.blueAccent],
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                  ),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  dataLabelSettings: DataLabelSettings(
-                    isVisible: !isSmallMobile,
-                    textStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color:
-                          themeProvider.isDarkMode
-                              ? Colors.white
-                              : Colors.black87,
-                      fontSize: isSmallMobile ? 10 : 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          SizedBox(height: isDesktop ? 32.0 : 24.0),
-
-          Text(
-            'Character Analysis',
-            style: TextStyle(
-              fontSize: titleFontSize,
-              fontWeight: FontWeight.bold,
-              color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
-            ),
-          ),
-          SizedBox(height: isDesktop ? 20.0 : 16.0),
-
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: SizedBox(
-                  height: chartHeight,
-                  child: SfCartesianChart(
-                    primaryXAxis: CategoryAxis(
-                      majorGridLines: const MajorGridLines(width: 0),
-                      labelStyle: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[300]
-                                : Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                        fontSize: isSmallMobile ? 10 : 12,
-                      ),
-                    ),
-                    primaryYAxis: NumericAxis(
-                      axisLine: const AxisLine(width: 0),
-                      majorTickLines: const MajorTickLines(size: 0),
-                      labelStyle: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[300]
-                                : Colors.grey[700],
-                        fontWeight: FontWeight.w500,
-                        fontSize: isSmallMobile ? 10 : 12,
-                      ),
-                      majorGridLines: MajorGridLines(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[700]
-                                : Colors.grey[300],
-                        dashArray: const [5, 5],
-                      ),
-                    ),
-                    tooltipBehavior: TooltipBehavior(
-                      enable: true,
-                      header: '',
-                      canShowMarker: true,
-                      tooltipPosition: TooltipPosition.pointer,
-                      color:
-                          themeProvider.isDarkMode
-                              ? Colors.grey[300]
-                              : Colors.grey[800],
-                      textStyle: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.black87
-                                : Colors.white,
-                        fontSize: isSmallMobile ? 10 : 12,
-                      ),
-                    ),
-                    series: <CartesianSeries>[
-                      ColumnSeries<TypingStatData, String>(
-                        dataSource: chartData,
-                        xValueMapper: (TypingStatData data, _) => data.label,
-                        yValueMapper: (TypingStatData data, _) => data.value,
-                        gradient: LinearGradient(
-                          colors:
-                              themeProvider.isDarkMode
-                                  ? [Colors.green, Colors.lightGreenAccent]
-                                  : [Colors.lightGreenAccent, Colors.green],
-                          begin: Alignment.bottomCenter,
-                          end: Alignment.topCenter,
-                        ),
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(8),
-                        ),
-                        dataLabelSettings: DataLabelSettings(
-                          isVisible: !isSmallMobile,
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
-                            fontSize: isSmallMobile ? 10 : 12,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              Text(
+                'Performance Overview',
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
                 ),
               ),
-              Expanded(
-                child: SizedBox(
-                  height: chartHeight,
-                  child: SfCircularChart(
-                    tooltipBehavior: TooltipBehavior(
-                      enable: true,
-                      header: '',
-                      format: 'point.x : point.y',
-                      canShowMarker: true,
-                      color:
-                          themeProvider.isDarkMode
-                              ? Colors.grey[300]
-                              : Colors.grey[800],
-                      textStyle: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.black87
-                                : Colors.white,
-                        fontSize: isSmallMobile ? 10 : 12,
-                      ),
-                    ),
-                    series: <CircularSeries>[
-                      PieSeries<TypingStatData, String>(
-                        dataSource: chartData,
-                        xValueMapper: (TypingStatData data, _) => data.label,
-                        yValueMapper: (TypingStatData data, _) => data.value,
-                        dataLabelSettings: DataLabelSettings(
-                          isVisible: true,
-                          textStyle: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.white
-                                    : Colors.black87,
-                            fontSize: isSmallMobile ? 10 : 12,
+              SizedBox(height: isDesktop ? 20.0 : 32.0),
+
+              SizedBox(
+                height: chartHeight,
+                child: AnimatedBuilder(
+                  animation: animations,
+                  builder: (context, child) {
+                    return BarChart(
+                      BarChartData(
+                        alignment: BarChartAlignment.spaceAround,
+                        maxY:
+                            chartDataPerformance
+                                .map((e) => e.value)
+                                .reduce((a, b) => a > b ? a : b) *
+                            1.2,
+                        barTouchData: BarTouchData(
+                          enabled: true,
+                          touchTooltipData: BarTouchTooltipData(
+                            getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                              return BarTooltipItem(
+                                ' ${rod.toY.toStringAsFixed(1)}',
+                                TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isSmallMobile ? 10 : 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            },
                           ),
-                          labelPosition: ChartDataLabelPosition.outside,
-                          connectorLineSettings: ConnectorLineSettings(
-                            length: '20%',
-                            color:
-                                themeProvider.isDarkMode
-                                    ? Colors.grey[300]
-                                    : Colors.grey[700],
+                        ),
+                        titlesData: FlTitlesData(
+                          show: true,
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 8.0),
+                                  child: Text(
+                                    chartDataPerformance[value.toInt()].label,
+                                    style: TextStyle(
+                                      color:
+                                          themeProvider.isDarkMode
+                                              ? Colors.grey[300]
+                                              : Colors.grey[700],
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: isSmallMobile ? 10 : 12,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                );
+                              },
+                              reservedSize: 40,
+                            ),
                           ),
-                          builder: (
-                            dynamic data,
-                            dynamic point,
-                            dynamic series,
-                            int pointIndex,
-                            int seriesIndex,
-                          ) {
-                            return Text('${data.label}: ${data.value}');
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(
+                              showTitles: true,
+                              getTitlesWidget: (value, meta) {
+                                return Text(
+                                  value.toInt().toString(),
+                                  style: TextStyle(
+                                    color:
+                                        themeProvider.isDarkMode
+                                            ? Colors.grey[300]
+                                            : Colors.grey[700],
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: isSmallMobile ? 10 : 12,
+                                  ),
+                                );
+                              },
+                              reservedSize: 40,
+                            ),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false),
+                          ),
+                        ),
+                        gridData: FlGridData(
+                          show: true,
+                          drawVerticalLine: false,
+                          horizontalInterval:
+                              (chartDataPerformance
+                                      .map((e) => e.value)
+                                      .reduce((a, b) => a > b ? a : b) *
+                                  1.2) /
+                              5,
+                          getDrawingHorizontalLine: (value) {
+                            return FlLine(
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey[700]
+                                      : Colors.grey[300],
+                              strokeWidth: 1,
+                              dashArray: [5, 5],
+                            );
                           },
                         ),
-                        pointColorMapper: (TypingStatData data, int index) {
-                          final List<Color> colorPalette = [
-                            Colors.amber,
-                            Color(0xff1b3665),
-                            Colors.purple,
-                          ];
+                        borderData: FlBorderData(show: false),
+                        barGroups:
+                            chartDataPerformance.asMap().entries.map((entry) {
+                              final index = entry.key;
+                              final data = entry.value;
+                              final animatedValue =
+                                  data.value * animations.value;
 
-                          return colorPalette[index % colorPalette.length];
-                        },
-                        dataLabelMapper: (TypingStatData data, _) {
-                          return '${data.label}\n${data.value}';
-                        },
-                        enableTooltip: true,
-                        animationDuration: 1000,
-                        opacity: 5,
-                        strokeWidth: 0.5,
+                              return BarChartGroupData(
+                                x: index,
+                                barRods: [
+                                  BarChartRodData(
+                                    toY: animatedValue,
+                                    width:
+                                        isMobile
+                                            ? 55
+                                            : isTablet
+                                            ? 100
+                                            : 140,
+                                    borderRadius: BorderRadius.circular(8),
+                                    gradient: LinearGradient(
+                                      colors:
+                                          themeProvider.isDarkMode
+                                              ? [
+                                                Colors.blueAccent,
+                                                Colors.lightBlueAccent,
+                                              ]
+                                              : [
+                                                Colors.lightBlueAccent,
+                                                Colors.blueAccent,
+                                              ],
+                                      begin: Alignment.bottomCenter,
+                                      end: Alignment.topCenter,
+                                    ),
+                                  ),
+                                ],
+                                showingTooltipIndicators: [0],
+                              );
+                            }).toList(),
                       ),
-                    ],
-                    legend: Legend(
-                      isVisible: chartData.length <= 8,
-                      position: LegendPosition.bottom,
-                      overflowMode: LegendItemOverflowMode.wrap,
-                      textStyle: TextStyle(
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[300]
-                                : Colors.grey[700],
-                        fontSize: isSmallMobile ? 10 : 12,
-                      ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        SizedBox(height: isDesktop ? 16.0 : 16.0),
+
+        Container(
+          width: double.infinity,
+          padding: EdgeInsets.all(isDesktop ? 24.0 : 16.0),
+          decoration: BoxDecoration(
+            color: themeProvider.isDarkMode ? Colors.black12 : Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[800]!
+                      : Colors.grey[200]!,
+            ),
+            boxShadow: [
+              if (!themeProvider.isDarkMode)
+                BoxShadow(
+                  color: Colors.grey.withOpacity(0.1),
+                  blurRadius: 10,
+                  offset: const Offset(0, 2),
+                ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Character Analysis',
+                style: TextStyle(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
+                ),
+              ),
+              SizedBox(height: isDesktop ? 20.0 : 40.0),
+              isMobile || isTablet
+                  ? Column(
+                    children: [
+                      SizedBox(
+                        height: chartHeight,
+                        child: AnimatedBuilder(
+                          animation: animations,
+                          builder: (context, child) {
+                            return BarChart(
+                              BarChartData(
+                                alignment: BarChartAlignment.spaceAround,
+                                maxY:
+                                    chartData
+                                        .map((e) => e.value)
+                                        .reduce((a, b) => a > b ? a : b) *
+                                    1.2,
+                                barTouchData: BarTouchData(
+                                  enabled: true,
+                                  touchTooltipData: BarTouchTooltipData(
+                                    getTooltipItem: (
+                                      group,
+                                      groupIndex,
+                                      rod,
+                                      rodIndex,
+                                    ) {
+                                      return BarTooltipItem(
+                                        rod.toY.toStringAsFixed(0),
+                                        TextStyle(
+                                          color: Colors.white,
+                                          fontSize: isSmallMobile ? 10 : 12,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                                titlesData: FlTitlesData(
+                                  show: true,
+                                  bottomTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      getTitlesWidget: (value, meta) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8.0,
+                                          ),
+                                          child: Text(
+                                            chartData[value.toInt()].label,
+                                            style: TextStyle(
+                                              color:
+                                                  themeProvider.isDarkMode
+                                                      ? Colors.grey[300]
+                                                      : Colors.grey[700],
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: isSmallMobile ? 10 : 12,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        );
+                                      },
+                                      reservedSize: 40,
+                                    ),
+                                  ),
+                                  leftTitles: AxisTitles(
+                                    sideTitles: SideTitles(
+                                      showTitles: true,
+                                      getTitlesWidget: (value, meta) {
+                                        return Text(
+                                          value.toInt().toString(),
+                                          style: TextStyle(
+                                            color:
+                                                themeProvider.isDarkMode
+                                                    ? Colors.grey[300]
+                                                    : Colors.grey[700],
+                                            fontWeight: FontWeight.w500,
+                                            fontSize: isSmallMobile ? 10 : 12,
+                                          ),
+                                        );
+                                      },
+                                      reservedSize: 40,
+                                    ),
+                                  ),
+                                  topTitles: AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                  rightTitles: AxisTitles(
+                                    sideTitles: SideTitles(showTitles: false),
+                                  ),
+                                ),
+                                gridData: FlGridData(
+                                  show: true,
+                                  drawVerticalLine: false,
+                                  horizontalInterval:
+                                      (chartData
+                                              .map((e) => e.value)
+                                              .reduce((a, b) => a > b ? a : b) *
+                                          1.2) /
+                                      5,
+                                  getDrawingHorizontalLine: (value) {
+                                    return FlLine(
+                                      color:
+                                          themeProvider.isDarkMode
+                                              ? Colors.grey[700]
+                                              : Colors.grey[300],
+                                      strokeWidth: 1,
+                                      dashArray: [5, 5],
+                                    );
+                                  },
+                                ),
+                                borderData: FlBorderData(show: false),
+                                barGroups:
+                                    chartData.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final data = entry.value;
+                                      final animatedValue =
+                                          data.value * animations.value;
+
+                                      return BarChartGroupData(
+                                        x: index,
+                                        barRods: [
+                                          BarChartRodData(
+                                            toY: animatedValue,
+                                            width: isDesktop ? 68 : 18,
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            gradient: LinearGradient(
+                                              colors:
+                                                  themeProvider.isDarkMode
+                                                      ? [
+                                                        Colors.green,
+                                                        Colors.lightGreenAccent,
+                                                      ]
+                                                      : [
+                                                        Colors.lightGreenAccent,
+                                                        Colors.green,
+                                                      ],
+                                              begin: Alignment.bottomCenter,
+                                              end: Alignment.topCenter,
+                                            ),
+                                          ),
+                                        ],
+                                        showingTooltipIndicators: [0],
+                                      );
+                                    }).toList(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      SizedBox(height: 16),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            height: chartHeight,
+                            child: AnimatedBuilder(
+                              animation: animations,
+                              builder: (context, child) {
+                                return PieChart(
+                                  PieChartData(
+                                    pieTouchData: PieTouchData(
+                                      touchCallback:
+                                          (
+                                            FlTouchEvent event,
+                                            pieTouchResponse,
+                                          ) {},
+                                      enabled: true,
+                                    ),
+                                    borderData: FlBorderData(show: false),
+                                    sectionsSpace: 0,
+                                    centerSpaceRadius: isSmallMobile ? 30 : 40,
+                                    sections:
+                                        chartData.asMap().entries.map((entry) {
+                                          final index = entry.key;
+                                          final data = entry.value;
+
+                                          final colorPalette = [
+                                            Colors.green,
+                                            Colors.red,
+                                            Colors.amber,
+                                            Colors.deepPurple,
+                                            Colors.blue,
+                                          ];
+
+                                          return PieChartSectionData(
+                                            color:
+                                                colorPalette[index %
+                                                    colorPalette.length],
+                                            value: double.parse(
+                                              (data.value.toDouble() *
+                                                      animations.value)
+                                                  .toStringAsFixed(2),
+                                            ),
+                                            radius: 60,
+                                            titleStyle: TextStyle(
+                                              fontSize: isSmallMobile ? 10 : 12,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                            ),
+                                            titlePositionPercentageOffset: 0.6,
+                                            showTitle: true,
+                                          );
+                                        }).toList(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+
+                          AnimatedBuilder(
+                            animation: animations,
+                            builder: (context, child) {
+                              return Wrap(
+                                spacing: 12,
+                                runSpacing: 8,
+                                children:
+                                    chartData.asMap().entries.map((entry) {
+                                      final index = entry.key;
+                                      final data = entry.value;
+                                      final animatedValue =
+                                          (data.value * animations.value)
+                                              .toInt();
+
+                                      final colorPalette = [
+                                        Colors.green,
+                                        Colors.red,
+                                        Colors.amber,
+                                        Colors.deepPurple,
+                                        Colors.blue,
+                                      ];
+                                      final color =
+                                          colorPalette[index %
+                                              colorPalette.length];
+
+                                      return Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 6,
+                                          vertical: 4,
+                                        ),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Container(
+                                              width: 10,
+                                              height: 10,
+                                              decoration: BoxDecoration(
+                                                shape: BoxShape.rectangle,
+                                                color: color,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Text(
+                                              '${data.label} - $animatedValue',
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color:
+                                                    themeProvider.isDarkMode
+                                                        ? Colors.white
+                                                        : Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  )
+                  : Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: chartHeight,
+                          child: AnimatedBuilder(
+                            animation: animations,
+                            builder: (context, child) {
+                              return BarChart(
+                                BarChartData(
+                                  alignment: BarChartAlignment.spaceAround,
+                                  maxY:
+                                      chartData
+                                          .map((e) => e.value)
+                                          .reduce((a, b) => a > b ? a : b) *
+                                      1.2,
+                                  barTouchData: BarTouchData(
+                                    enabled: true,
+                                    touchTooltipData: BarTouchTooltipData(
+                                      getTooltipItem: (
+                                        group,
+                                        groupIndex,
+                                        rod,
+                                        rodIndex,
+                                      ) {
+                                        return BarTooltipItem(
+                                          rod.toY.toStringAsFixed(0),
+                                          TextStyle(
+                                            color: Colors.white,
+                                            fontSize: isSmallMobile ? 10 : 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                  titlesData: FlTitlesData(
+                                    show: true,
+                                    bottomTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        getTitlesWidget: (value, meta) {
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 8.0,
+                                            ),
+                                            child: Text(
+                                              chartData[value.toInt()].label,
+                                              style: TextStyle(
+                                                color:
+                                                    themeProvider.isDarkMode
+                                                        ? Colors.grey[300]
+                                                        : Colors.grey[700],
+                                                fontWeight: FontWeight.w500,
+                                                fontSize:
+                                                    isSmallMobile ? 10 : 12,
+                                              ),
+                                              textAlign: TextAlign.center,
+                                            ),
+                                          );
+                                        },
+                                        reservedSize: 40,
+                                      ),
+                                    ),
+                                    leftTitles: AxisTitles(
+                                      sideTitles: SideTitles(
+                                        showTitles: true,
+                                        getTitlesWidget: (value, meta) {
+                                          return Text(
+                                            value.toInt().toString(),
+                                            style: TextStyle(
+                                              color:
+                                                  themeProvider.isDarkMode
+                                                      ? Colors.grey[300]
+                                                      : Colors.grey[700],
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: isSmallMobile ? 10 : 12,
+                                            ),
+                                          );
+                                        },
+                                        reservedSize: 40,
+                                      ),
+                                    ),
+                                    topTitles: AxisTitles(
+                                      sideTitles: SideTitles(showTitles: false),
+                                    ),
+                                    rightTitles: AxisTitles(
+                                      sideTitles: SideTitles(showTitles: false),
+                                    ),
+                                  ),
+                                  gridData: FlGridData(
+                                    show: true,
+                                    drawVerticalLine: false,
+                                    horizontalInterval:
+                                        (chartData
+                                                .map((e) => e.value)
+                                                .reduce(
+                                                  (a, b) => a > b ? a : b,
+                                                ) *
+                                            1.2) /
+                                        5,
+                                    getDrawingHorizontalLine: (value) {
+                                      return FlLine(
+                                        color:
+                                            themeProvider.isDarkMode
+                                                ? Colors.grey[700]
+                                                : Colors.grey[300],
+                                        strokeWidth: 1,
+                                        dashArray: [5, 5],
+                                      );
+                                    },
+                                  ),
+                                  borderData: FlBorderData(show: false),
+                                  barGroups:
+                                      chartData.asMap().entries.map((entry) {
+                                        final index = entry.key;
+                                        final data = entry.value;
+                                        final animatedValue =
+                                            data.value * animations.value;
+
+                                        return BarChartGroupData(
+                                          x: index,
+                                          barRods: [
+                                            BarChartRodData(
+                                              toY: animatedValue,
+                                              width: isDesktop ? 68 : 18,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                              gradient: LinearGradient(
+                                                colors:
+                                                    themeProvider.isDarkMode
+                                                        ? [
+                                                          Colors.green,
+                                                          Colors
+                                                              .lightGreenAccent,
+                                                        ]
+                                                        : [
+                                                          Colors
+                                                              .lightGreenAccent,
+                                                          Colors.green,
+                                                        ],
+                                                begin: Alignment.bottomCenter,
+                                                end: Alignment.topCenter,
+                                              ),
+                                            ),
+                                          ],
+                                          showingTooltipIndicators: [0],
+                                        );
+                                      }).toList(),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              height: chartHeight,
+                              child: AnimatedBuilder(
+                                animation: animations,
+                                builder: (context, child) {
+                                  return PieChart(
+                                    PieChartData(
+                                      pieTouchData: PieTouchData(
+                                        touchCallback:
+                                            (
+                                              FlTouchEvent event,
+                                              pieTouchResponse,
+                                            ) {},
+                                        enabled: true,
+                                      ),
+                                      borderData: FlBorderData(show: false),
+                                      sectionsSpace: 0,
+                                      centerSpaceRadius:
+                                          isSmallMobile ? 30 : 40,
+                                      sections:
+                                          chartData.asMap().entries.map((
+                                            entry,
+                                          ) {
+                                            final index = entry.key;
+                                            final data = entry.value;
+
+                                            final colorPalette = [
+                                              Colors.green,
+                                              Colors.red,
+                                              Colors.amber,
+                                              Colors.deepPurple,
+                                              Colors.blue,
+                                            ];
+
+                                            return PieChartSectionData(
+                                              color:
+                                                  colorPalette[index %
+                                                      colorPalette.length],
+                                              value: double.parse(
+                                                (data.value.toDouble() *
+                                                        animations.value)
+                                                    .toStringAsFixed(2),
+                                              ),
+                                              radius: 60,
+                                              titleStyle: TextStyle(
+                                                fontSize:
+                                                    isSmallMobile ? 10 : 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white,
+                                              ),
+                                              titlePositionPercentageOffset:
+                                                  0.6,
+                                              showTitle: true,
+                                            );
+                                          }).toList(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+
+                            AnimatedBuilder(
+                              animation: animations,
+                              builder: (context, child) {
+                                return Wrap(
+                                  spacing: 12,
+                                  runSpacing: 8,
+                                  children:
+                                      chartData.asMap().entries.map((entry) {
+                                        final index = entry.key;
+                                        final data = entry.value;
+                                        final animatedValue =
+                                            (data.value * animations.value)
+                                                .toInt();
+
+                                        final colorPalette = [
+                                          Colors.green,
+                                          Colors.red,
+                                          Colors.amber,
+                                          Colors.deepPurple,
+                                          Colors.blue,
+                                        ];
+                                        final color =
+                                            colorPalette[index %
+                                                colorPalette.length];
+
+                                        return Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 6,
+                                            vertical: 4,
+                                          ),
+                                          child: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                width: 10,
+                                                height: 10,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.rectangle,
+                                                  color: color,
+                                                ),
+                                              ),
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '${data.label} - $animatedValue',
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color:
+                                                      themeProvider.isDarkMode
+                                                          ? Colors.white
+                                                          : Colors.black,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        );
+                                      }).toList(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -932,7 +1538,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
         children: [
           Expanded(
             child: IconButton.filled(
-              onPressed: _onBackToTest,
+              onPressed: onBackToTest,
               icon: Icon(FontAwesomeIcons.undoAlt, size: 20),
             ),
           ),
@@ -940,7 +1546,7 @@ class _ResultsScreenState extends State<ResultsScreen> {
           Expanded(
             flex: 2,
             child: TextButton(
-              onPressed: _onBackToDashboard,
+              onPressed: onBackToDashboard,
               style: TextButton.styleFrom(
                 backgroundColor: themeProvider.primaryColor,
                 padding: EdgeInsets.symmetric(vertical: 12),
@@ -968,12 +1574,12 @@ class _ResultsScreenState extends State<ResultsScreen> {
       return Column(
         children: [
           IconButton.filled(
-            onPressed: _onBackToTest,
+            onPressed: onBackToTest,
             icon: Icon(FontAwesomeIcons.undoAlt),
           ),
           const SizedBox(height: 8),
           TextButton(
-            onPressed: _onBackToDashboard,
+            onPressed: onBackToDashboard,
             style: TextButton.styleFrom(
               backgroundColor: themeProvider.primaryColor,
               padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
@@ -999,13 +1605,13 @@ class _ResultsScreenState extends State<ResultsScreen> {
     return Row(
       children: [
         IconButton.filled(
-          onPressed: _onBackToTest,
+          onPressed: onBackToTest,
           icon: Icon(FontAwesomeIcons.undoAlt),
           iconSize: isTablet ? 20 : 24,
         ),
         SizedBox(width: isTablet ? 12 : 16),
         TextButton(
-          onPressed: _onBackToDashboard,
+          onPressed: onBackToDashboard,
           style: TextButton.styleFrom(
             backgroundColor: themeProvider.primaryColor,
             padding: EdgeInsets.symmetric(

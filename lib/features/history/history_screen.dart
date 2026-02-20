@@ -5,6 +5,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/features/history/widget/typing_result_card_shimmer_widget.dart';
 import 'package:typing_speed_master/models/typing_test_result_model.dart';
@@ -13,6 +14,7 @@ import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/features/typing_test/provider/typing_test_provider.dart';
 import 'package:typing_speed_master/widgets/custom_dialogs.dart';
+import 'package:typing_speed_master/widgets/custom_history_not_found_widget.dart';
 import 'package:typing_speed_master/widgets/custom_typing_result_card.dart';
 
 class HistoryScreen extends StatefulWidget {
@@ -26,12 +28,9 @@ class HistoryScreenState extends State<HistoryScreen> {
   String selectedSortOption = 'new_to_old';
   String selectedFilterDifficulty = 'all';
   String selectedFilterDuration = 'all';
-  Timer? _filterDebounceTimer;
+  Timer? filterDebounceTimer;
 
-  List<TypingTestResultModel> _cachedFilteredResults = [];
-  String _lastFilterKey = '';
-
-  final Map<String, String> _sortOptions = {
+  final Map<String, String> sortOptions = {
     'new_to_old': 'Newest First',
     'old_to_new': 'Oldest First',
     'high_to_low_wpm': 'High to Low WPM',
@@ -70,11 +69,9 @@ class HistoryScreenState extends State<HistoryScreen> {
     });
   }
 
-  void _onFilterChanged() {
-    _filterDebounceTimer?.cancel();
-    _filterDebounceTimer = Timer(const Duration(milliseconds: 500), () {
-      _cachedFilteredResults = [];
-      _lastFilterKey = '';
+  void onFilterChanged() {
+    filterDebounceTimer?.cancel();
+    filterDebounceTimer = Timer(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() {});
       }
@@ -84,13 +81,6 @@ class HistoryScreenState extends State<HistoryScreen> {
   List<TypingTestResultModel> getFilteredAndSortedResults(
     List<TypingTestResultModel> results,
   ) {
-    final cacheKey =
-        '$selectedSortOption-$selectedFilterDifficulty-$selectedFilterDuration';
-
-    if (_lastFilterKey == cacheKey && _cachedFilteredResults.isNotEmpty) {
-      return _cachedFilteredResults;
-    }
-
     List<TypingTestResultModel> filteredResults =
         results.where((result) {
           if (selectedFilterDifficulty != 'all' &&
@@ -160,9 +150,6 @@ class HistoryScreenState extends State<HistoryScreen> {
         );
         break;
     }
-
-    _cachedFilteredResults = filteredResults;
-    _lastFilterKey = cacheKey;
 
     return filteredResults;
   }
@@ -288,10 +275,10 @@ class HistoryScreenState extends State<HistoryScreen> {
           setState(() {
             selectedSortOption = newValue!;
           });
-          _onFilterChanged();
+          onFilterChanged();
         },
         items:
-            _sortOptions.entries.map((entry) {
+            sortOptions.entries.map((entry) {
               return DropdownMenuItem<String>(
                 value: entry.key,
                 child: Text(
@@ -356,7 +343,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           setState(() {
             selectedFilterDifficulty = newValue!;
           });
-          _onFilterChanged();
+          onFilterChanged();
         },
         items:
             difficultyOptions.entries.map((entry) {
@@ -402,7 +389,7 @@ class HistoryScreenState extends State<HistoryScreen> {
           setState(() {
             selectedFilterDuration = newValue!;
           });
-          _onFilterChanged();
+          onFilterChanged();
         },
         items:
             durationOptions.entries.map((entry) {
@@ -421,7 +408,7 @@ class HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  Future<void> _deleteHistoryEntry(TypingTestResultModel result) async {
+  Future<void> deleteHistoryEntry(TypingTestResultModel result) async {
     try {
       final provider = Provider.of<TypingProvider>(context, listen: false);
       final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
@@ -430,9 +417,6 @@ class HistoryScreenState extends State<HistoryScreen> {
         listen: false,
       );
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-      _cachedFilteredResults = [];
-      _lastFilterKey = '';
 
       await provider.deleteHistoryEntry(result);
 
@@ -474,188 +458,6 @@ class HistoryScreenState extends State<HistoryScreen> {
         gravity: ToastGravity.BOTTOM,
       );
     }
-  }
-
-  Widget historyListResults(BuildContext context, double subtitleFontSize) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
-
-    return Consumer<TypingProvider>(
-      builder: (context, provider, _) {
-        final allResults = provider.results;
-        final filteredResults = getFilteredAndSortedResults(allResults);
-
-        final cardColor =
-            themeProvider.isDarkMode ? Colors.grey[800] : Colors.white;
-        final borderColor =
-            themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200];
-        final textColor =
-            themeProvider.isDarkMode ? Colors.grey[300] : Colors.grey[500];
-        final iconColor =
-            themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[400];
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            historyFilterAndSortOptions(context),
-            const SizedBox(height: 30),
-
-            if (filteredResults.isNotEmpty || provider.results.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Showing ${filteredResults.length} result${filteredResults.length == 1 ? '' : 's'}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color:
-                            themeProvider.isDarkMode
-                                ? Colors.grey[400]
-                                : Colors.grey[600],
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: provider.clearHistory,
-                      child: Text(
-                        'Clear All',
-                        style: TextStyle(
-                          color:
-                              themeProvider.isDarkMode
-                                  ? Colors.red[300]
-                                  : Colors.red,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-            if (provider.isLoading)
-              ListView.builder(
-                shrinkWrap: true,
-                itemCount: 5,
-                itemBuilder: (BuildContext context, int index) {
-                  return TypingHistoryShimmerCard(
-                    cardHeight: 140,
-                    progressSize: 70,
-                    subtitleFontSize: 14,
-                  );
-                },
-              ),
-
-            if (filteredResults.isEmpty)
-              Container(
-                padding: EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  color:
-                      themeProvider.isDarkMode
-                          ? Colors.grey[900]
-                          : Colors.grey[50],
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.grey[500]!
-                            : Colors.grey[500]!,
-                    width: 0.3,
-                  ),
-                ),
-                child: Center(
-                  child: Padding(
-                    padding: EdgeInsets.only(
-                      top: getEmptyStateTopPadding(context),
-                      bottom: getEmptyStateTopPadding(context),
-                    ),
-                    child: Container(
-                      width: getEmptyStateWidth(context),
-                      padding: getCardPadding(context),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: borderColor ?? Colors.grey[200]!,
-                          width: 1.5,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.assignment,
-                            size: getResponsiveIconSize(context),
-                            color: iconColor,
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            allResults.isEmpty
-                                ? 'No tests completed yet'
-                                : 'No results match your filters',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize,
-                              fontWeight: FontWeight.w600,
-                              color: textColor,
-                            ),
-                          ),
-                          const SizedBox(height: 12),
-                          Text(
-                            allResults.isEmpty
-                                ? 'Start your first typing test to see results here'
-                                : 'Try changing your filter or sort options',
-                            style: TextStyle(
-                              fontSize: subtitleFontSize - 2,
-                              color: textColor,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              )
-            else
-              ListView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: filteredResults.length,
-                itemBuilder: (context, index) {
-                  final result = filteredResults[index];
-                  return CustomTypingResultCard(
-                    result: result,
-                    subtitleFontSize: getResponsiveSubtitleFontSize(context),
-                    isDarkMode: themeProvider.isDarkMode,
-                    isHistory: true,
-                    onViewDetails: () {
-                      context.push('/results?from=history', extra: result);
-                    },
-                    indexOfNumbers: '${index + 1}',
-                    onTap: () async {
-                      CustomDialog.showSignOutDialog(
-                        title: "Delete This History?",
-                        content:
-                            "Are you sure you want to delete this history?",
-                        confirmText: "Delete",
-                        context: context,
-                        onConfirm: () async {
-                          await _deleteHistoryEntry(result);
-                        },
-                      );
-                    },
-                  );
-                },
-              ),
-          ],
-        );
-      },
-    );
   }
 
   Widget historyHeader(
@@ -704,24 +506,194 @@ class HistoryScreenState extends State<HistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: getResponsivePadding(context),
-        child: Column(
-          children: [
-            historyHeader(context, 24, 18),
-            const SizedBox(height: 30),
-            historyListResults(context, getResponsiveSubtitleFontSize(context)),
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
+    return Consumer<TypingProvider>(
+      builder: (context, provider, _) {
+        final allResults = provider.results;
+        final filteredResults = getFilteredAndSortedResults(allResults);
+
+        // final cardColor =
+        //     themeProvider.isDarkMode ? Colors.grey[800] : Colors.white;
+        // final borderColor =
+        //     themeProvider.isDarkMode ? Colors.grey[700] : Colors.grey[200];
+        // final textColor =
+        //     themeProvider.isDarkMode ? Colors.grey[300] : Colors.grey[500];
+        // final iconColor =
+        //     themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[400];
+        final responsivePadding = getResponsivePadding(context);
+
+        return CustomScrollView(
+          physics: const BouncingScrollPhysics(),
+          slivers: [
+            SliverPadding(
+              padding: responsivePadding.copyWith(bottom: 0),
+              sliver: SliverList(
+                delegate: SliverChildListDelegate([
+                  historyHeader(context, 24, 18),
+                  const SizedBox(height: 30),
+                  historyFilterAndSortOptions(context),
+                  const SizedBox(height: 30),
+                  if (filteredResults.isNotEmpty || provider.results.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Showing ${filteredResults.length} result${filteredResults.length == 1 ? '' : 's'}',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color:
+                                  themeProvider.isDarkMode
+                                      ? Colors.grey[400]
+                                      : Colors.grey[600],
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: provider.clearHistory,
+                            child: Text(
+                              'Clear All',
+                              style: TextStyle(
+                                color:
+                                    themeProvider.isDarkMode
+                                        ? Colors.red[300]
+                                        : Colors.red,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                ]),
+              ),
+            ),
+            if (provider.isLoading)
+              // CircularProgressIndicator(color: themeProvider.primaryColor),
+              SliverPadding(
+                padding: responsivePadding.copyWith(top: 0, bottom: 0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    return TypingHistoryShimmerCard(
+                      cardHeight: 140,
+                      progressSize: 70,
+                      subtitleFontSize: 14,
+                    );
+                  }, childCount: 5),
+                ),
+              ),
+            if (!provider.isLoading && filteredResults.isEmpty)
+              SliverPadding(
+                padding: responsivePadding.copyWith(top: 0),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    padding: EdgeInsets.all(0),
+                    decoration: BoxDecoration(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey[900]
+                              : Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color:
+                            themeProvider.isDarkMode
+                                ? Colors.grey[500]!
+                                : Colors.grey[500]!,
+                        width: 0.3,
+                      ),
+                    ),
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                          top: getEmptyStateTopPadding(context),
+                          bottom: getEmptyStateTopPadding(context),
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            CustomHistoryNotFoundWidget(
+                              title:
+                                  allResults.isEmpty
+                                      ? 'No tests completed yet'
+                                      : 'No results match your filters',
+                            ),
+
+                            // Icon(
+                            //   Icons.assignment,
+                            //   size: getResponsiveIconSize(context),
+                            //   color: iconColor,
+                            // ),
+                            // const SizedBox(height: 12),
+                            // Text(
+                            //   allResults.isEmpty
+                            //       ? 'No tests completed yet'
+                            //       : 'No results match your filters',
+                            //   style: TextStyle(
+                            //     fontSize: getResponsiveSubtitleFontSize(
+                            //       context,
+                            //     ),
+                            //     fontWeight: FontWeight.w600,
+                            //     color: textColor,
+                            //   ),
+                            // ),
+                            const SizedBox(height: 6),
+                            Text(
+                              allResults.isEmpty
+                                  ? 'Start your first typing test to see history here'
+                                  : 'Try changing your filter or sort options',
+                              style: GoogleFonts.outfit(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              )
+            else if (!provider.isLoading)
+              SliverPadding(
+                padding: responsivePadding.copyWith(top: 0),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final result = filteredResults[index];
+                    return CustomTypingResultCard(
+                      result: result,
+                      subtitleFontSize: getResponsiveSubtitleFontSize(context),
+                      isDarkMode: themeProvider.isDarkMode,
+                      isHistory: true,
+                      onViewDetails: () {
+                        context.push('/results?from=history', extra: result);
+                      },
+                      indexOfNumbers: '${index + 1}',
+                      onTap: () async {
+                        CustomDialog.showSignOutDialog(
+                          title: "Delete This History?",
+                          content:
+                              "Are you sure you want to delete this history?",
+                          confirmText: "Delete",
+                          context: context,
+                          onConfirm: () async {
+                            await deleteHistoryEntry(result);
+                          },
+                        );
+                      },
+                    );
+                  }, childCount: filteredResults.length),
+                ),
+              ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
 
   @override
   void dispose() {
-    _filterDebounceTimer?.cancel();
+    filterDebounceTimer?.cancel();
     super.dispose();
   }
 }

@@ -1,13 +1,18 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/provider/character_rush_provider.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/widget/char_rush_%20character_widget.dart';
-import 'package:typing_speed_master/widgets/game_widget/game_settings_dialog.dart';
-import 'package:typing_speed_master/widgets/game_widget/game_score_history_dialog.dart';
+import 'package:typing_speed_master/features/games/game_word_master/model/word_master_settings_model.dart';
 import 'package:typing_speed_master/features/games/game_word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import 'package:typing_speed_master/widgets/custom_dialogs.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_setting/game_setting_slider_widget.dart';
+import 'package:typing_speed_master/widgets/game_widget/score_history/game_empty_state_widget.dart';
+import 'package:typing_speed_master/widgets/game_widget/score_history/game_scores_list_widget.dart';
 
 class GameWordMaster extends StatefulWidget {
   const GameWordMaster({super.key});
@@ -16,13 +21,21 @@ class GameWordMaster extends StatefulWidget {
   State<GameWordMaster> createState() => _GameWordMasterState();
 }
 
-class _GameWordMasterState extends State<GameWordMaster> {
+class _GameWordMasterState extends State<GameWordMaster>
+    with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
+  late final Ticker _ticker;
+  Duration _lastTick = Duration.zero;
+
+  bool _showHistory = false;
+  bool _showSettings = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _ticker = createTicker(_onTick)..start();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       focusNode.requestFocus();
       final gameProvider = Provider.of<WordMasterProvider>(
@@ -37,9 +50,49 @@ class _GameWordMasterState extends State<GameWordMaster> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _ticker.dispose();
     focusNode.dispose();
     textController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _restartGame();
+    }
+  }
+
+  void _restartGame() {
+    final gameProvider = Provider.of<WordMasterProvider>(
+      context,
+      listen: false,
+    );
+    gameProvider.endGame();
+    gameProvider.clearTypedWord();
+    setState(() {
+      _showHistory = false;
+      _showSettings = false;
+    });
+    gameProvider.setWordCollectedCallback(() {
+      textController.clear();
+    });
+    focusNode.requestFocus();
+  }
+
+  void _onTick(Duration elapsed) {
+    final delta = _lastTick == Duration.zero ? elapsed : elapsed - _lastTick;
+    _lastTick = elapsed;
+
+    final deltaSeconds = delta.inMicroseconds / 1000000.0;
+
+    if (!mounted) return;
+    final gameProvider = Provider.of<WordMasterProvider>(
+      context,
+      listen: false,
+    );
+    gameProvider.frameUpdate(deltaSeconds);
   }
 
   EdgeInsets getResponsivePadding(BuildContext context) {
@@ -64,6 +117,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: themeProvider.isDarkMode ? Colors.black12 : Colors.white12,
         borderRadius: BorderRadius.circular(12),
@@ -74,8 +128,12 @@ class _GameWordMasterState extends State<GameWordMaster> {
                   : Colors.black.withOpacity(0.05),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        runAlignment: WrapAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
         children: [
           wordMasterStatItem(
             'Score',
@@ -96,7 +154,128 @@ class _GameWordMasterState extends State<GameWordMaster> {
             Colors.blue,
           ),
           wordMasterTimerDropdown(gameProvider, themeProvider, context),
+
+          _buildGameControlButton(
+            icon: Icons.refresh_rounded,
+            label: 'Restart Game',
+            color: Colors.orange,
+            backgroundColor: Colors.orange.withOpacity(0.1),
+            onPressed: () {
+              _restartGame();
+            },
+            themeProvider: themeProvider,
+          ),
+          // _buildGameControlButton(
+          //   icon: Icons.exit_to_app_rounded,
+          //   label: 'Quit Game',
+          //   color: Colors.redAccent,
+          //   backgroundColor: Colors.redAccent.withOpacity(0.1),
+          //   onPressed: () {
+          //     gameProvider.endGame();
+          //     Navigator.of(context).pop();
+          //   },
+          //   themeProvider: themeProvider,
+          // ),
         ],
+      ),
+      // child: Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //   crossAxisAlignment: CrossAxisAlignment.center,
+      //   // mainAxisSize: MainAxisSize.max,
+      //   children: [
+      //     wordMasterStatItem(
+      //       'Score',
+      //       '${gameProvider.score}',
+      //       Icons.emoji_events,
+      //       Colors.amber,
+      //     ),
+      //     wordMasterStatItem(
+      //       'Collected',
+      //       '${gameProvider.wordsCollected}',
+      //       Icons.check_circle,
+      //       Colors.green,
+      //     ),
+      //     wordMasterStatItem(
+      //       'Speed',
+      //       '${gameProvider.currentSpeed.toStringAsFixed(1)}x',
+      //       Icons.speed,
+      //       Colors.blue,
+      //     ),
+      //     wordMasterTimerDropdown(gameProvider, themeProvider, context),
+      //     // VerticalDivider(
+      //     //   color:
+      //     //       themeProvider.isDarkMode
+      //     //           ? Colors.white.withOpacity(0.1)
+      //     //           : Colors.black.withOpacity(0.1),
+      //     //   thickness: 1,
+      //     //   indent: 10,
+      //     //   endIndent: 10,
+      //     // ),
+      //     _buildGameControlButton(
+      //       icon: Icons.refresh_rounded,
+      //       label: 'Restart Game',
+      //       color: Colors.orange,
+      //       backgroundColor: Colors.orange.withOpacity(0.1),
+      //       onPressed: () {
+      //         _restartGame();
+      //       },
+      //       themeProvider: themeProvider,
+      //     ),
+      //     _buildGameControlButton(
+      //       icon: Icons.exit_to_app_rounded,
+      //       label: 'Quit Game',
+      //       color: Colors.redAccent,
+      //       backgroundColor: Colors.redAccent.withOpacity(0.1),
+      //       onPressed: () {
+      //         gameProvider.endGame();
+      //         Navigator.of(context).pop();
+      //       },
+      //       themeProvider: themeProvider,
+      //     ),
+      //   ],
+      // ),
+    );
+  }
+
+  Widget _buildGameControlButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color backgroundColor,
+    required VoidCallback onPressed,
+    required ThemeProvider themeProvider,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(8),
+          // border: Border.all(
+          //   color:
+          //       themeProvider.isDarkMode
+          //           ? Colors.white.withOpacity(0.1)
+          //           : Colors.black.withOpacity(0.05),
+          // ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -161,7 +340,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
                     left: 0,
                     right: 0,
                     child: Center(
-                      child: _buildWrongWordIndicator(themeProvider),
+                      child: wrongWordIndicatorWidget(themeProvider),
                     ),
                   ),
 
@@ -437,7 +616,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
     );
   }
 
-  Widget _buildWrongWordIndicator(ThemeProvider themeProvider) {
+  Widget wrongWordIndicatorWidget(ThemeProvider themeProvider) {
     return AnimatedOpacity(
       duration: const Duration(milliseconds: 300),
       opacity: 1,
@@ -480,19 +659,29 @@ class _GameWordMasterState extends State<GameWordMaster> {
       },
       child: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        child: Padding(
-          padding: getResponsivePadding(context),
-          child: Column(
-            children: [
-              gameDashboardHeader(context),
-              const SizedBox(height: 40),
-              wordMasterGameStats(gameProvider, themeProvider, context),
-              const SizedBox(height: 20),
-              wordMasterGameArea(gameProvider, themeProvider, screenSize),
-              const SizedBox(height: 20),
-              wordMasterInstructions(themeProvider.isDarkMode),
-            ],
-          ),
+        child: Column(
+          children: [
+            Padding(
+              padding: getResponsivePadding(context),
+              child: Column(
+                children: [
+                  gameDashboardHeader(context),
+                  const SizedBox(height: 40),
+                  wordMasterGameStats(gameProvider, themeProvider, context),
+                  const SizedBox(height: 20),
+                  if (_showHistory)
+                    _buildHistoryView(gameProvider, themeProvider)
+                  else if (_showSettings)
+                    _buildSettingsView(gameProvider, themeProvider)
+                  else
+                    wordMasterGameArea(gameProvider, themeProvider, screenSize),
+                  const SizedBox(height: 20),
+                  wordMasterInstructions(themeProvider.isDarkMode),
+                ],
+              ),
+            ),
+            // FooterWidget(themeProvider: themeProvider),
+          ],
         ),
       ),
     );
@@ -506,27 +695,45 @@ class _GameWordMasterState extends State<GameWordMaster> {
   ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
+                ),
+              ),
+            ],
           ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color:
-                themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
+          const SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -566,7 +773,7 @@ class _GameWordMasterState extends State<GameWordMaster> {
         }).toList();
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.purple.withOpacity(0.2),
           borderRadius: BorderRadius.circular(8),
@@ -717,28 +924,26 @@ class _GameWordMasterState extends State<GameWordMaster> {
                   context,
                   listen: false,
                 );
-                final bool wasGameRunning = gameProvider.isGameRunning;
-                final bool wasGamePaused = gameProvider.isGamePaused;
-
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.pauseGame();
-                }
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) =>
-                          const GameScoreHistoryDialog(isWordMaster: true),
-                );
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.resumeGame();
-                }
+                setState(() {
+                  _showHistory = !_showHistory;
+                  _showSettings = false;
+                  if (_showHistory && gameProvider.isGameRunning) {
+                    gameProvider.pauseGame();
+                  } else if (!_showHistory && gameProvider.isGameRunning) {
+                    gameProvider.resumeGame();
+                  }
+                });
               },
               icon: Icon(
-                Icons.leaderboard,
+                _showHistory ? Icons.sports_esports : Icons.leaderboard,
                 color:
-                    themeProvider.isDarkMode ? Colors.white : Colors.grey[600],
+                    _showHistory
+                        ? themeProvider.primaryColor
+                        : (themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[600]),
               ),
-              tooltip: 'Score History',
+              tooltip: _showHistory ? 'Back to Game' : 'Score History',
             ),
             IconButton(
               onPressed: () {
@@ -746,32 +951,351 @@ class _GameWordMasterState extends State<GameWordMaster> {
                   context,
                   listen: false,
                 );
-                final bool wasGameRunning = gameProvider.isGameRunning;
-                final bool wasGamePaused = gameProvider.isGamePaused;
-
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.pauseGame();
-                }
-
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) => const GameSettingsDialog(isWordMaster: true),
-                );
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.resumeGame();
-                }
+                setState(() {
+                  _showSettings = !_showSettings;
+                  _showHistory = false;
+                  if (_showSettings && gameProvider.isGameRunning) {
+                    gameProvider.pauseGame();
+                  } else if (!_showSettings && gameProvider.isGameRunning) {
+                    gameProvider.resumeGame();
+                  }
+                });
               },
               icon: Icon(
-                Icons.settings,
+                _showSettings ? Icons.sports_esports : Icons.settings,
                 color:
-                    themeProvider.isDarkMode ? Colors.white : Colors.grey[600],
+                    _showSettings
+                        ? themeProvider.primaryColor
+                        : (themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[600]),
               ),
-              tooltip: 'Game Settings',
+              tooltip: _showSettings ? 'Back to Game' : 'Game Settings',
             ),
           ],
         ),
       ],
+    );
+  }
+
+  Widget _buildHistoryView(
+    WordMasterProvider gameProvider,
+    ThemeProvider themeProvider,
+  ) {
+    final charRushProvider = Provider.of<CharacterRushProvider>(context);
+
+    return Container(
+      height: 580,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.black38 : Colors.white12,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              themeProvider.isDarkMode
+                  ? Colors.white.withOpacity(0.15)
+                  : Colors.black.withOpacity(0.05),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Score History',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              if (gameProvider.scores.isNotEmpty)
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        CustomDialog.showConfirmationDialog(
+                          context: context,
+                          title: 'Clear History',
+                          content:
+                              'Are you sure you want to clear all score history? This action cannot be undone.',
+                          confirmText: 'Clear',
+                          confirmButtonColor: Colors.red,
+                          isDestructive: true,
+                          onConfirm: () {
+                            gameProvider.clearHistory();
+                          },
+                        );
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        side: const BorderSide(color: Colors.red),
+                      ),
+                      icon: const Icon(Icons.delete_outline, size: 18),
+                      label: const Text('Clear History'),
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _showHistory = false;
+                        });
+                      },
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child:
+                gameProvider.scores.isEmpty
+                    ? GameEmptyStateWidget(isDarkMode: themeProvider.isDarkMode)
+                    : GameScoresListWidget(
+                      charRushProvider: charRushProvider,
+                      wordMasterProvider: gameProvider,
+                      isDarkMode: themeProvider.isDarkMode,
+                      themeProvider: themeProvider,
+                      isWordMaster: true,
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsView(
+    WordMasterProvider gameProvider,
+    ThemeProvider themeProvider,
+  ) {
+    return Container(
+      height: 720,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.black38 : Colors.white12,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              themeProvider.isDarkMode
+                  ? Colors.white.withOpacity(0.15)
+                  : Colors.black.withOpacity(0.05),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Game Settings',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Customize your gaming experience',
+                    style: TextStyle(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _showSettings = false;
+                  });
+                },
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          // Expanded(
+          //   child: SingleChildScrollView(
+          //     physics: const BouncingScrollPhysics(),
+          //     child: Column(
+          //       children: [
+          //         GameSettingsSliderWidget(
+          //           title: 'Initial Speed',
+          //           description: 'Starting speed of falling words',
+          //           value: gameProvider.settings.initialSpeed,
+          //           min: 0.5,
+          //           max: 3.0,
+          //           divisions: 25,
+          //           unit: 'x',
+          //           themeProvider: themeProvider,
+          //           onChanged: (value) {
+          //             gameProvider.updateSettings(
+          //               gameProvider.settings.copyWith(initialSpeed: value),
+          //             );
+          //           },
+          //         ),
+          //         GameSettingsSliderWidget(
+          //           title: 'Speed Increment',
+          //           description: 'How much speed increases every 10 seconds',
+          //           value: gameProvider.settings.speedIncrement,
+          //           min: 0.05,
+          //           max: 0.9,
+          //           divisions: 9,
+          //           unit: 'x',
+          //           themeProvider: themeProvider,
+          //           onChanged: (value) {
+          //             gameProvider.updateSettings(
+          //               gameProvider.settings.copyWith(speedIncrement: value),
+          //             );
+          //           },
+          //         ),
+          //         GameSettingsSliderWidget(
+          //           title: 'Max Words',
+          //           description: 'Maximum words on screen at once',
+          //           value: gameProvider.settings.maxWords.toDouble(),
+          //           min: 3,
+          //           max: 10,
+          //           divisions: 7,
+          //           unit: '',
+          //           isInt: true,
+          //           themeProvider: themeProvider,
+          //           onChanged: (value) {
+          //             gameProvider.updateSettings(
+          //               gameProvider.settings.copyWith(maxWords: value.toInt()),
+          //             );
+          //           },
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ),
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                GameSettingsSliderWidget(
+                  title: 'Initial Speed',
+                  description: 'Starting speed of falling words',
+                  value: gameProvider.settings.initialSpeed,
+                  min: 0.5,
+                  max: 3.0,
+                  divisions: 25,
+                  unit: 'x',
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(initialSpeed: value),
+                    );
+                  },
+                ),
+                GameSettingsSliderWidget(
+                  title: 'Speed Increment',
+                  description: 'How much speed increases every 10 seconds',
+                  value: gameProvider.settings.speedIncrement,
+                  min: 0.05,
+                  max: 0.9,
+                  divisions: 9,
+                  unit: 'x',
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(speedIncrement: value),
+                    );
+                  },
+                ),
+                GameSettingsSliderWidget(
+                  title: 'Max Words',
+                  description: 'Maximum words on screen at once',
+                  value: gameProvider.settings.maxWords.toDouble(),
+                  min: 3,
+                  max: 10,
+                  divisions: 7,
+                  unit: '',
+                  isInt: true,
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(maxWords: value.toInt()),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    CustomDialog.showConfirmationDialog(
+                      context: context,
+                      title: 'Reset Settings',
+                      content:
+                          'Are you sure you want to reset all settings to default values?',
+                      confirmText: 'Reset',
+                      confirmButtonColor: Colors.orange,
+                      onConfirm: () {
+                        gameProvider.updateSettings(
+                          WordMasterSettingsModel(
+                            initialSpeed: 1.0,
+                            speedIncrement: 0.1,
+                            maxWords: 5,
+                            soundEnabled: true,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  icon: const Icon(Icons.restore, size: 18),
+                  label: const Text('Reset Defaults'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    CustomDialog.showSuccessDialog(
+                      context: context,
+                      title: 'Settings Saved',
+                      content: 'Your game settings have been updated.',
+                      onPressed: () {},
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeProvider.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  icon: const Icon(Icons.save, size: 18),
+                  label: const Text('Save Settings'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

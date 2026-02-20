@@ -3,11 +3,12 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:typing_speed_master/models/game_dashboard_card.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+
+import '../provider/game_dashboard_provider.dart';
 
 class GameCardWidget extends StatelessWidget {
   final GameDashboardCard gameCard;
@@ -23,7 +24,7 @@ class GameCardWidget extends StatelessWidget {
     final isMobile = screenWidth <= 768;
 
     return Container(
-      height: isMobile ? 160 : 340,
+      height: isMobile ? 180 : 300,
       decoration: BoxDecoration(
         color: isDarkTheme ? Colors.black12 : Colors.white12,
         borderRadius: BorderRadius.circular(12),
@@ -37,7 +38,9 @@ class GameCardWidget extends StatelessWidget {
       ),
       child: Stack(
         children: [
-          _buildFallingElements(gameCard.type, isMobile, themeProvider),
+          gameCard.isComingSoon == true
+              ? SizedBox.shrink()
+              : fallingElementsWidget(gameCard.type, isMobile, themeProvider),
 
           Padding(
             padding:
@@ -48,8 +51,8 @@ class GameCardWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Expanded(
                       child: Column(
@@ -79,27 +82,77 @@ class GameCardWidget extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      onPressed: gameCard.onTapStarIcon,
+                      onPressed: () {
+                        context.read<GameDashboardProvider>().toggleFavorite(
+                          gameCard.gameId,
+                        );
+                      },
                       icon: Icon(
-                        gameCard.isFavorite
-                            ? FontAwesomeIcons.solidStar
-                            : FontAwesomeIcons.star,
+                        gameCard.isFavorite ? Icons.star : Icons.star_border,
                         size: 18,
                         color: gameCard.isFavorite ? Colors.amber : Colors.grey,
                       ),
                     ),
                   ],
                 ),
+                if (gameCard.isComingSoon == true) ...[
+                  SizedBox(height: 12),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          Colors.orange.shade400,
+                          Colors.deepOrange.shade600,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.deepOrange.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.access_time_filled,
+                          color: Colors.white,
+                          size: 14,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          "Coming Soon",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: isMobile ? 10 : 12,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                ],
 
                 if (isMobile) const Spacer(),
 
                 if (!isMobile) ...[
                   const Spacer(),
-                  _buildTrapezoidGameArea(themeProvider),
+                  trapezoidGameArea(themeProvider, gameCard.isComingSoon),
                 ],
 
                 InkWell(
-                  onTap: onTap,
+                  onTap: gameCard.isComingSoon == true ? () {} : onTap,
                   child: Container(
                     width: double.infinity,
                     height: isMobile ? 44 : 50,
@@ -119,19 +172,32 @@ class GameCardWidget extends StatelessWidget {
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          "Play Now",
+                          gameCard.isComingSoon == true
+                              ? "Stay Tuned"
+                              : "Play Now",
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
-                            color: Colors.white,
+                            color:
+                                gameCard.backgroundColor == Colors.white
+                                    ? Colors.black12
+                                    : Colors.white,
                             fontSize: isMobile ? 14 : 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(width: 8),
                         Icon(
-                          Icons.arrow_forward_rounded,
-                          color: Colors.white,
+                          gameCard.isComingSoon == true
+                              ? Icons.upcoming
+                              : Icons.arrow_forward_rounded,
+                          color:
+                              gameCard.backgroundColor == Colors.white
+                                  ? Colors.black
+                                  : Colors.white,
                           size: isMobile ? 16 : 18,
                         ),
                       ],
@@ -146,7 +212,7 @@ class GameCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildFallingElements(
+  Widget fallingElementsWidget(
     GameType type,
     bool isMobile,
     ThemeProvider themeProvider,
@@ -186,7 +252,7 @@ class GameCardWidget extends StatelessWidget {
                       ? random.nextDouble() * 0.2 + 0.15
                       : random.nextDouble() * 0.3 + 0.1;
 
-              final color = _getRandomColor(random, type);
+              final color = getRandomColor(random, type);
 
               return Positioned(
                 left: left,
@@ -196,8 +262,8 @@ class GameCardWidget extends StatelessWidget {
                     opacity: opacity,
                     child:
                         type == GameType.character
-                            ? _buildCharacterElement(random, color, size)
-                            : _buildWordElement(random, color, size),
+                            ? characterElement(random, color, size)
+                            : wordElement(random, color, size),
                   ),
                 ),
               );
@@ -208,7 +274,7 @@ class GameCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildCharacterElement(Random random, Color color, double size) {
+  Widget characterElement(Random random, Color color, double size) {
     final characters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
     final char = characters[random.nextInt(characters.length)];
 
@@ -233,7 +299,7 @@ class GameCardWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildWordElement(Random random, Color color, double size) {
+  Widget wordElement(Random random, Color color, double size) {
     final words = [
       'TYPING',
       'IMPROVEMENT',
@@ -266,7 +332,7 @@ class GameCardWidget extends StatelessWidget {
     );
   }
 
-  Color _getRandomColor(Random random, GameType type) {
+  Color getRandomColor(Random random, GameType type) {
     final colors =
         type == GameType.character
             ? [
@@ -286,7 +352,7 @@ class GameCardWidget extends StatelessWidget {
     return colors[random.nextInt(colors.length)];
   }
 
-  Widget _buildTrapezoidGameArea(ThemeProvider themeProvider) {
+  Widget trapezoidGameArea(ThemeProvider themeProvider, bool isComingSoonGame) {
     return ClipPath(
       clipper: TrapezoidClipper(),
       child: Container(
@@ -314,7 +380,7 @@ class GameCardWidget extends StatelessWidget {
                       ..setEntry(3, 2, 0.001)
                       ..rotateX(-0.4),
                 child: Text(
-                  gameCard.title,
+                  isComingSoonGame == true ? "Coming Soon" : gameCard.title,
                   style: GoogleFonts.blackOpsOne(
                     fontSize: 34,
                     fontWeight: FontWeight.bold,

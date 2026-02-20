@@ -332,6 +332,8 @@ class ProfileDropdownState extends State<ProfileDropdown> {
     final renderBox = context.findRenderObject() as RenderBox;
     final size = renderBox.size;
     final offset = renderBox.localToGlobal(Offset.zero);
+    // final themeProvider = Provider.of<ThemeProvider>(context, listen: false);
+    // final isDarkTheme = themeProvider.isDarkMode;
 
     overlayEntry = OverlayEntry(
       builder:
@@ -367,6 +369,7 @@ class ProfileDropdownState extends State<ProfileDropdown> {
   Widget _appbarProfileCard() {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final routerProvider = Provider.of<RouterProvider>(context, listen: false);
     bool isDarkTheme = themeProvider.isDarkMode;
 
     return Material(
@@ -494,63 +497,181 @@ class ProfileDropdownState extends State<ProfileDropdown> {
               const SizedBox(height: 16),
             ],
 
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  hideProfileOverlay();
-                  if (authProvider.isLoggedIn) {
-                    CustomDialog.showSignOutDialog(
-                      context: context,
-                      onConfirm: () async {
-                        await authProvider.signOut();
-                        await Future.delayed(const Duration(milliseconds: 500));
-                        if (kIsWeb) {
-                          html.window.location.assign(
-                            html.window.location.href,
-                          );
-                        } else {
-                          Restart.restartApp();
-                        }
+            Column(
+              children: [
+                Row(
+                  children: [
+                    authProvider.isLoggedIn
+                        ? SizedBox.shrink()
+                        : Expanded(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                if (authProvider.isLoggedIn) {
+                                  // Sign Out Logic
+                                } else {
+                                  routerProvider.setAuthViewMode('login');
+                                  widget.onProfileAction();
+                                  hideProfileOverlay();
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    authProvider.isLoggedIn
+                                        ? (isDarkTheme
+                                            ? Colors.red.shade800
+                                            : Colors.red.shade600)
+                                        : Colors.transparent,
 
-                        log("User Sign Out Successful and App Restarted");
-                      },
-                    );
-                  } else {
-                    authProvider.signInWithGoogle();
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  backgroundColor:
+                                foregroundColor: Colors.white,
+                                side: BorderSide(
+                                  color:
+                                      isDarkTheme ? Colors.white : Colors.black,
+                                  width: 0.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                              ),
+
+                              label: Text(
+                                authProvider.isLoggedIn ? 'Sign Out' : 'Login',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w500,
+                                  color:
+                                      isDarkTheme ? Colors.white : Colors.black,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    SizedBox(width: 12),
+                    authProvider.isLoggedIn
+                        ? SizedBox.shrink()
+                        : Expanded(
+                          child: SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                if (authProvider.isLoggedIn) {
+                                  // Sign Out Logic
+                                } else {
+                                  routerProvider.setAuthViewMode('register');
+                                  widget.onProfileAction();
+                                  hideProfileOverlay();
+                                }
+                              },
+                              style: OutlinedButton.styleFrom(
+                                backgroundColor:
+                                    authProvider.isLoggedIn
+                                        ? (isDarkTheme
+                                            ? Colors.red.shade800
+                                            : Colors.red.shade600)
+                                        : Colors.transparent,
+
+                                foregroundColor: Colors.white,
+                                side: BorderSide(
+                                  color:
+                                      isDarkTheme ? Colors.white : Colors.black,
+                                  width: 0.5,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: 16,
+                                ),
+                              ),
+                              label: Text(
+                                authProvider.isLoggedIn
+                                    ? 'Sign Out'
+                                    : 'Register',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color:
+                                      isDarkTheme ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton.icon(
+                    onPressed: () {
+                      hideProfileOverlay();
+                      if (authProvider.isLoggedIn) {
+                        CustomDialog.showSignOutDialog(
+                          context: context,
+                          onConfirm: () async {
+                            await authProvider.signOut();
+                            await Future.delayed(
+                              const Duration(milliseconds: 500),
+                            );
+                            if (kIsWeb) {
+                              html.window.location.assign(
+                                html.window.location.href,
+                              );
+                            } else {
+                              Restart.restartApp();
+                            }
+
+                            log("User Sign Out Successful and App Restarted");
+                          },
+                        );
+                      } else {
+                        authProvider.signInWithGoogle();
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor:
+                          authProvider.isLoggedIn
+                              ? (isDarkTheme
+                                  ? Colors.red.shade800
+                                  : Colors.red.shade600)
+                              : themeProvider.primaryColor,
+                      //  (isDarkTheme
+                      //     ? themeProvider.primaryColor.shade800
+                      //     : themeProvider.primaryColor.shade600),
+                      foregroundColor: Colors.white,
+                      side: BorderSide.none,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
+                    ),
+                    icon: Icon(
                       authProvider.isLoggedIn
-                          ? (isDarkTheme
-                              ? Colors.red.shade800
-                              : Colors.red.shade600)
-                          : (isDarkTheme
-                              ? Colors.green.shade800
-                              : Colors.green.shade600),
-                  foregroundColor: Colors.white,
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 12,
-                    horizontal: 16,
-                  ),
-                ),
-                icon: Icon(
-                  authProvider.isLoggedIn ? Icons.logout : Icons.login,
-                  size: 16,
-                ),
-                label: Text(
-                  authProvider.isLoggedIn ? 'Sign Out' : 'Sign In with Google',
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                          ? Icons.logout
+                          : FontAwesomeIcons.google,
+                      size: 16,
+                    ),
+                    label: Text(
+                      authProvider.isLoggedIn
+                          ? 'Sign Out'
+                          : 'Sign In with Google',
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),

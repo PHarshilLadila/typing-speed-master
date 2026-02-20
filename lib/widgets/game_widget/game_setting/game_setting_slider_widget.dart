@@ -35,11 +35,11 @@ class GameSettingsSliderWidget extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 20),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: themeProvider.isDarkMode ? Colors.grey[800] : Colors.grey[50],
+        color: themeProvider.isDarkMode ? Colors.grey[900] : Colors.grey[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color:
-              themeProvider.isDarkMode ? Colors.grey[700]! : Colors.grey[200]!,
+              themeProvider.isDarkMode ? Colors.grey[800]! : Colors.grey[200]!,
         ),
       ),
       child: Column(

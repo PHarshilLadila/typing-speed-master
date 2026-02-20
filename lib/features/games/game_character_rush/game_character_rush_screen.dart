@@ -2,12 +2,16 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:typing_speed_master/features/games/game_character_rush/model/character_rush_settings_model.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/provider/character_rush_provider.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/widget/char_rush_%20character_widget.dart';
 import 'package:typing_speed_master/features/games/game_character_rush/widget/char_rush_instruction_widget.dart';
-import 'package:typing_speed_master/widgets/game_widget/game_settings_dialog.dart';
-import 'package:typing_speed_master/widgets/game_widget/game_score_history_dialog.dart';
+import 'package:typing_speed_master/features/games/game_word_master/provider/word_master_provider.dart';
 import 'package:typing_speed_master/theme/provider/theme_provider.dart';
+import 'package:typing_speed_master/widgets/custom_dialogs.dart';
+import 'package:typing_speed_master/widgets/game_widget/game_setting/game_setting_slider_widget.dart';
+import 'package:typing_speed_master/widgets/game_widget/score_history/game_empty_state_widget.dart';
+import 'package:typing_speed_master/widgets/game_widget/score_history/game_scores_list_widget.dart';
 
 class GameCharacterRushScreen extends StatefulWidget {
   const GameCharacterRushScreen({super.key});
@@ -17,9 +21,51 @@ class GameCharacterRushScreen extends StatefulWidget {
       _GameCharacterRushScreenState();
 }
 
-class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
+class _GameCharacterRushScreenState extends State<GameCharacterRushScreen>
+    with WidgetsBindingObserver {
   final FocusNode focusNode = FocusNode();
   final TextEditingController textController = TextEditingController();
+
+  bool _showHistory = false;
+  bool _showSettings = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      focusNode.requestFocus();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    focusNode.dispose();
+    textController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _restartGame();
+    }
+  }
+
+  void _restartGame() {
+    final gameProvider = Provider.of<CharacterRushProvider>(
+      context,
+      listen: false,
+    );
+    gameProvider.endGame();
+    textController.clear();
+    setState(() {
+      _showHistory = false;
+      _showSettings = false;
+    });
+    focusNode.requestFocus();
+  }
 
   EdgeInsets getResponsivePadding(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
@@ -81,28 +127,26 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                   context,
                   listen: false,
                 );
-                final bool wasGameRunning = gameProvider.isGameRunning;
-                final bool wasGamePaused = gameProvider.isGamePaused;
-
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.pauseGame();
-                }
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) =>
-                          const GameScoreHistoryDialog(isWordMaster: false),
-                );
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.resumeGame();
-                }
+                setState(() {
+                  _showHistory = !_showHistory;
+                  _showSettings = false;
+                  if (_showHistory && gameProvider.isGameRunning) {
+                    gameProvider.pauseGame();
+                  } else if (!_showHistory && gameProvider.isGameRunning) {
+                    gameProvider.resumeGame();
+                  }
+                });
               },
               icon: Icon(
-                Icons.leaderboard,
+                _showHistory ? Icons.sports_esports : Icons.leaderboard,
                 color:
-                    themeProvider.isDarkMode ? Colors.white : Colors.grey[600],
+                    _showHistory
+                        ? themeProvider.primaryColor
+                        : (themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[600]),
               ),
-              tooltip: 'Score History',
+              tooltip: _showHistory ? 'Back to Game' : 'Score History',
             ),
             IconButton(
               onPressed: () {
@@ -110,29 +154,26 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                   context,
                   listen: false,
                 );
-                final bool wasGameRunning = gameProvider.isGameRunning;
-                final bool wasGamePaused = gameProvider.isGamePaused;
-
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.pauseGame();
-                }
-
-                showDialog(
-                  context: context,
-                  builder:
-                      (context) =>
-                          const GameSettingsDialog(isWordMaster: false),
-                );
-                if (wasGameRunning && !wasGamePaused) {
-                  gameProvider.resumeGame();
-                }
+                setState(() {
+                  _showSettings = !_showSettings;
+                  _showHistory = false;
+                  if (_showSettings && gameProvider.isGameRunning) {
+                    gameProvider.pauseGame();
+                  } else if (!_showSettings && gameProvider.isGameRunning) {
+                    gameProvider.resumeGame();
+                  }
+                });
               },
               icon: Icon(
-                Icons.settings,
+                _showSettings ? Icons.sports_esports : Icons.settings,
                 color:
-                    themeProvider.isDarkMode ? Colors.white : Colors.grey[600],
+                    _showSettings
+                        ? themeProvider.primaryColor
+                        : (themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[600]),
               ),
-              tooltip: 'Game Settings',
+              tooltip: _showSettings ? 'Back to Game' : 'Game Settings',
             ),
           ],
         ),
@@ -147,6 +188,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   ) {
     return Container(
       padding: const EdgeInsets.all(16),
+      width: double.infinity,
       decoration: BoxDecoration(
         color: themeProvider.isDarkMode ? Colors.black12 : Colors.white12,
         borderRadius: BorderRadius.circular(12),
@@ -157,8 +199,12 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                   : Colors.black.withOpacity(0.05),
         ),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      child: Wrap(
+        alignment: WrapAlignment.spaceAround,
+        runAlignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 12,
+        runSpacing: 12,
         children: [
           charRushStatItem(
             'Score',
@@ -179,7 +225,111 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
             Colors.blue,
           ),
           charRushTimerDropdown(gameProvider, themeProvider, context),
+
+          _buildGameControlButton(
+            icon: Icons.refresh_rounded,
+            label: 'Restart Game',
+            color: Colors.orange,
+            backgroundColor: Colors.orange,
+            onPressed: () {
+              _restartGame();
+            },
+            themeProvider: themeProvider,
+          ),
+          // _buildGameControlButton(
+          //   icon: Icons.exit_to_app_rounded,
+          //   label: 'Quit Game',
+          //   color: Colors.redAccent,
+          //   backgroundColor: Colors.redAccent,
+          //   onPressed: () {
+          //     gameProvider.endGame();
+          //     Navigator.of(context).pop();
+          //   },
+          //   themeProvider: themeProvider,
+          // ),
         ],
+      ),
+
+      // child: Row(
+      //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+      //   children: [
+      //     charRushStatItem(
+      //       'Score',
+      //       '${gameProvider.score}',
+      //       Icons.emoji_events,
+      //       Colors.amber,
+      //     ),
+      //     charRushStatItem(
+      //       'Collected',
+      //       '${gameProvider.charactersCollected}',
+      //       Icons.check_circle,
+      //       Colors.green,
+      //     ),
+      //     charRushStatItem(
+      //       'Speed',
+      //       '${gameProvider.currentSpeed.toStringAsFixed(1)}x',
+      //       Icons.speed,
+      //       Colors.blue,
+      //     ),
+      //     charRushTimerDropdown(gameProvider, themeProvider, context),
+
+      //     _buildGameControlButton(
+      //       icon: Icons.refresh_rounded,
+      //       label: 'Restart Game',
+      //       color: Colors.orange,
+      //       backgroundColor: Colors.orange,
+      //       onPressed: () {
+      //         _restartGame();
+      //       },
+      //       themeProvider: themeProvider,
+      //     ),
+      //     _buildGameControlButton(
+      //       icon: Icons.exit_to_app_rounded,
+      //       label: 'Quit Game',
+      //       color: Colors.redAccent,
+      //       backgroundColor: Colors.redAccent,
+      //       onPressed: () {
+      //         gameProvider.endGame();
+      //         Navigator.of(context).pop();
+      //       },
+      //       themeProvider: themeProvider,
+      //     ),
+      //   ],
+      // ),
+    );
+  }
+
+  Widget _buildGameControlButton({
+    required IconData icon,
+    required String label,
+    required Color color,
+    required Color backgroundColor,
+    required VoidCallback onPressed,
+    required ThemeProvider themeProvider,
+  }) {
+    return InkWell(
+      onTap: onPressed,
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: backgroundColor.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: Column(
+          children: [
+            Icon(icon, color: color),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -220,7 +370,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
         }).toList();
       },
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.purple.withOpacity(0.2),
           borderRadius: BorderRadius.circular(8),
@@ -272,27 +422,47 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return Column(
-      children: [
-        Icon(icon, color: color, size: 24),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: themeProvider.isDarkMode ? Colors.white : Colors.grey[800],
-          ),
+    return Expanded(
+      child: Container(
+        width: 100,
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(8),
         ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color:
-                themeProvider.isDarkMode ? Colors.grey[400] : Colors.grey[600],
-          ),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(icon, color: color, size: 24),
+                const SizedBox(width: 8),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color:
+                        themeProvider.isDarkMode
+                            ? Colors.white
+                            : Colors.grey[800],
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 8),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12,
+                color:
+                    themeProvider.isDarkMode
+                        ? Colors.grey[400]
+                        : Colors.grey[600],
+              ),
+            ),
+          ],
         ),
-      ],
+      ),
     );
   }
 
@@ -400,7 +570,7 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
                   decoration: BoxDecoration(
                     color:
                         themeProvider.isDarkMode
-                            ? Colors.grey[800]
+                            ? Colors.grey[900]
                             : Colors.grey[100],
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -513,21 +683,6 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      focusNode.requestFocus();
-    });
-  }
-
-  @override
-  void dispose() {
-    focusNode.dispose();
-    textController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     final gameProvider = Provider.of<CharacterRushProvider>(context);
@@ -544,22 +699,300 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen> {
       child: Scaffold(
         body: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          child: Padding(
-            padding: getResponsivePadding(context),
-            child: Column(
-              children: [
-                gameDashboardHeader(context),
+          child: Column(
+            children: [
+              Padding(
+                padding: getResponsivePadding(context),
+                child: Column(
+                  children: [
+                    gameDashboardHeader(context),
 
-                const SizedBox(height: 40),
-                charRushGameStats(gameProvider, themeProvider, context),
-                const SizedBox(height: 20),
-                charRushGameArea(gameProvider, themeProvider, screenSize),
-                const SizedBox(height: 20),
-                CharRushInstructionWidget(isDarkMode: themeProvider.isDarkMode),
+                    const SizedBox(height: 40),
+                    charRushGameStats(gameProvider, themeProvider, context),
+                    const SizedBox(height: 20),
+                    if (_showHistory)
+                      _buildHistoryView(gameProvider, themeProvider)
+                    else if (_showSettings)
+                      _buildSettingsView(gameProvider, themeProvider)
+                    else
+                      charRushGameArea(gameProvider, themeProvider, screenSize),
+                    const SizedBox(height: 20),
+                    CharRushInstructionWidget(
+                      isDarkMode: themeProvider.isDarkMode,
+                    ),
+                  ],
+                ),
+              ),
+              // FooterWidget(themeProvider: themeProvider),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHistoryView(
+    CharacterRushProvider gameProvider,
+    ThemeProvider themeProvider,
+  ) {
+    final wordMasterProvider = Provider.of<WordMasterProvider>(context);
+
+    return Container(
+      height: 480,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.black38 : Colors.white12,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              themeProvider.isDarkMode
+                  ? Colors.white.withOpacity(0.15)
+                  : Colors.black.withOpacity(0.05),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Score History',
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: themeProvider.isDarkMode ? Colors.white : Colors.black,
+                ),
+              ),
+              Spacer(),
+              if (gameProvider.scores.isNotEmpty)
+                OutlinedButton.icon(
+                  onPressed: () {
+                    CustomDialog.showConfirmationDialog(
+                      context: context,
+                      title: 'Clear History',
+                      content:
+                          'Are you sure you want to clear all score history? This action cannot be undone.',
+                      confirmText: 'Clear',
+                      confirmButtonColor: Colors.red,
+                      isDestructive: true,
+                      onConfirm: () {
+                        gameProvider.clearHistory();
+                      },
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                  ),
+                  icon: const Icon(Icons.delete_outline, size: 18),
+                  label: const Text('Clear History'),
+                ),
+              SizedBox(width: 8),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _showHistory = false;
+                  });
+                },
+                icon: Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child:
+                gameProvider.scores.isEmpty
+                    ? GameEmptyStateWidget(isDarkMode: themeProvider.isDarkMode)
+                    : GameScoresListWidget(
+                      charRushProvider: gameProvider,
+                      wordMasterProvider: wordMasterProvider,
+                      isDarkMode: themeProvider.isDarkMode,
+                      themeProvider: themeProvider,
+                      isWordMaster: false,
+                    ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsView(
+    CharacterRushProvider gameProvider,
+    ThemeProvider themeProvider,
+  ) {
+    return Container(
+      height: 720,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: themeProvider.isDarkMode ? Colors.black38 : Colors.white12,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              themeProvider.isDarkMode
+                  ? Colors.white.withOpacity(0.15)
+                  : Colors.black.withOpacity(0.05),
+          width: 2,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Game Settings',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.white
+                              : Colors.black,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Customize your gaming experience',
+                    style: TextStyle(
+                      color:
+                          themeProvider.isDarkMode
+                              ? Colors.grey[400]
+                              : Colors.grey[600],
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                onPressed: () {
+                  setState(() {
+                    _showSettings = false;
+                  });
+                },
+                icon: Icon(Icons.close),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          Expanded(
+            child: ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                GameSettingsSliderWidget(
+                  title: 'Initial Speed',
+                  description: 'Starting speed of falling characters',
+                  value: gameProvider.settings.initialSpeed,
+                  min: 0.5,
+                  max: 3.0,
+                  divisions: 25,
+                  unit: 'x',
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(initialSpeed: value),
+                    );
+                  },
+                ),
+                GameSettingsSliderWidget(
+                  title: 'Speed Increment',
+                  description: 'How much speed increases every 10 seconds',
+                  value: gameProvider.settings.speedIncrement,
+                  min: 0.05,
+                  max: 0.9,
+                  divisions: 9,
+                  unit: 'x',
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(speedIncrement: value),
+                    );
+                  },
+                ),
+                GameSettingsSliderWidget(
+                  title: 'Max Characters',
+                  description: 'Maximum characters on screen at once',
+                  value: gameProvider.settings.maxCharacters.toDouble(),
+                  min: 3,
+                  max: 10,
+                  divisions: 7,
+                  unit: '',
+                  isInt: true,
+                  themeProvider: themeProvider,
+                  onChanged: (value) {
+                    gameProvider.updateSettings(
+                      gameProvider.settings.copyWith(
+                        maxCharacters: value.toInt(),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ),
-        ),
+
+          const SizedBox(height: 24),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    CustomDialog.showConfirmationDialog(
+                      context: context,
+                      title: 'Reset Settings',
+                      content:
+                          'Are you sure you want to reset all settings to default values?',
+                      confirmText: 'Reset',
+                      confirmButtonColor: Colors.orange,
+                      onConfirm: () {
+                        gameProvider.updateSettings(
+                          CharacterRushSettingsModel(
+                            initialSpeed: 1.0,
+                            speedIncrement: 0.1,
+                            maxCharacters: 5,
+                            soundEnabled: true,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.orange,
+                    side: const BorderSide(color: Colors.orange),
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  icon: const Icon(Icons.restore, size: 18),
+                  label: const Text('Reset Defaults'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    CustomDialog.showSuccessDialog(
+                      context: context,
+                      title: 'Settings Saved',
+                      content: 'Your game settings have been updated.',
+                      onPressed: () {},
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: themeProvider.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 18),
+                  ),
+                  icon: const Icon(Icons.save, size: 18),
+                  label: const Text('Save Settings'),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

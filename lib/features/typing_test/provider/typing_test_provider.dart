@@ -269,6 +269,11 @@ class TypingProvider with ChangeNotifier {
             ? (words / (duration.inSeconds / 60)).round()
             : (words / (_selectedDuration.inSeconds / 60)).round();
 
+    final cpm =
+        _selectedDuration.inSeconds == 0
+            ? (userInput.length / (duration.inSeconds / 60)).round()
+            : (userInput.length / (_selectedDuration.inSeconds / 60)).round();
+
     final incorrectCharPositions = calculateIncorrectCharPositions(
       userInput,
       originalText,
@@ -283,6 +288,7 @@ class TypingProvider with ChangeNotifier {
 
     final result = TypingTestResultModel(
       wpm: wpm,
+      cpm: cpm,
       accuracy: accuracy,
       consistency: consistency,
       correctChars: correctChars,
@@ -804,6 +810,7 @@ class TypingProvider with ChangeNotifier {
       final resultData = {
         'user_id': user.id,
         'wpm': result.wpm,
+        'cpm': result.cpm,
         'accuracy': result.accuracy,
         'consistency': result.consistency,
         'correct_chars': result.correctChars,
@@ -834,6 +841,7 @@ class TypingProvider with ChangeNotifier {
           id: supabaseId,
           userId: user.id,
           wpm: result.wpm,
+          cpm: result.cpm,
           accuracy: result.accuracy,
           consistency: result.consistency,
           correctChars: result.correctChars,
@@ -938,8 +946,12 @@ class TypingProvider with ChangeNotifier {
 
   Future<void> getAllRecentResults() async {
     try {
-      _isLoading = true;
-      notifyListeners();
+      // Only show loading indicator (shimmer) if we don't have any data yet.
+      // If we have data, we'll do a silent background refresh to avoid UI flashing.
+      if (_results.isEmpty) {
+        _isLoading = true;
+        notifyListeners();
+      }
 
       final session = _supabase.auth.currentSession;
       _isUserLoggedIn = session != null;
@@ -974,15 +986,16 @@ class TypingProvider with ChangeNotifier {
     return TypingTestResultModel(
       id: json['id']?.toString(),
       userId: json['user_id']?.toString(),
-      wpm: json['wpm'],
-      accuracy: (json['accuracy'] as num).toDouble(),
-      consistency: (json['consistency'] as num).toDouble(),
-      correctChars: json['correct_chars'],
-      incorrectChars: json['incorrect_chars'],
-      totalChars: json['total_chars'],
-      duration: Duration(seconds: json['duration_in_seconds']),
+      wpm: json['wpm'] ?? 0,
+      cpm: json['cpm'] ?? 0,
+      accuracy: (json['accuracy'] as num? ?? 0).toDouble(),
+      consistency: (json['consistency'] as num? ?? 0).toDouble(),
+      correctChars: json['correct_chars'] ?? 0,
+      incorrectChars: json['incorrect_chars'] ?? 0,
+      totalChars: json['total_chars'] ?? 0,
+      duration: Duration(seconds: json['duration_in_seconds'] ?? 0),
       timestamp: DateTime.parse(json['timestamp']),
-      difficulty: json['difficulty'],
+      difficulty: json['difficulty'] ?? 'Unknown',
       isWordBasedTest: json['is_word_based_test'] ?? false,
       targetWords: json['target_words'],
       incorrectCharPositions: incorrectPositions,

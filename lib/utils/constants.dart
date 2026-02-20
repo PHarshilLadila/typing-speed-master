@@ -34,7 +34,7 @@ class AppConstants {
       "Typing sentences with punctuation commas, periods and dashes adds real world complexity. practice writing as if you are composing code comments or documentation. analyze your code, print logs, and check small details carefully most problems have simple solutions once you slow down and think.",
       "Building software is about problem solving. each bug you fix teaches you something new about logic, patience and structure. it grows with repetition. don't aim for perfection from the start aim for steady progress, and the results will come naturally.",
       "when practicing daily, aim for a mix of sentences and punctuation marks to keep your sessions engaging and productive. Consistency beats speed fast typing without accuracy doesn't help but accurate typing will naturally become faster over time.",
-      "Working with clean text exercises your brain. it’s not only about the words but also about focus, rhythm and flow. Developers often find that writing clean, clear and simple code improves both readability and performance.",
+      "Working with clean text exercises your brain. it's not only about the words but also about focus, rhythm and flow. Developers often find that writing clean, clear and simple code improves both readability and performance.",
       "A simple daily routine of 10 minutes of typing practice will train your hands to respond smoothly to every keystroke. focus on your posture, your breathing, and let your fingers flow naturally.",
     ],
 

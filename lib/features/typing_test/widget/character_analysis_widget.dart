@@ -25,24 +25,12 @@ class CharacterAnalysisWidget extends StatelessWidget {
   }
 
   Widget characterAnalysisSideBySideComparison() {
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: characterAnalysisTextColumn(
-            'Original Text',
-            originalText,
-            false,
-          ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: characterAnalysisTextColumn(
-            'Your Typed Text',
-            userInput,
-            true,
-          ),
-        ),
+        characterAnalysisTextColumn('Original Text', originalText, false),
+        const SizedBox(height: 16),
+        characterAnalysisTextColumn('Your Typed Text', userInput, true),
       ],
     );
   }
@@ -56,11 +44,11 @@ class CharacterAnalysisWidget extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          title,
+          "$title :",
           style: TextStyle(
             fontWeight: FontWeight.w600,
             color: isDarkMode ? Colors.grey[300] : Colors.grey[700],
-            fontSize: 14,
+            fontSize: 16,
           ),
         ),
         const SizedBox(height: 12),

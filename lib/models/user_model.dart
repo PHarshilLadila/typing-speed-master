@@ -13,6 +13,9 @@ class UserModel {
   final int totalWords;
   final double averageWpm;
   final double averageAccuracy;
+  final String? username;
+  final String? mobileNumber;
+  final String? userBio;
 
   UserModel({
     required this.id,
@@ -29,6 +32,9 @@ class UserModel {
     this.totalWords = 0,
     this.averageWpm = 0,
     this.averageAccuracy = 0,
+    this.username,
+    this.mobileNumber,
+    this.userBio,
   });
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
@@ -56,6 +62,9 @@ class UserModel {
       totalWords: json['total_words'] ?? 0,
       averageWpm: (json['average_wpm'] ?? 0).toDouble(),
       averageAccuracy: (json['average_accuracy'] ?? 0).toDouble(),
+      username: json['username'],
+      mobileNumber: json['mobile_number'],
+      userBio: json['user_bio'],
     );
   }
 
@@ -75,6 +84,9 @@ class UserModel {
       'total_words': totalWords,
       'average_wpm': averageWpm,
       'average_accuracy': averageAccuracy,
+      'username': username,
+      'mobile_number': mobileNumber,
+      'user_bio': userBio,
     };
   }
 
@@ -93,6 +105,9 @@ class UserModel {
     int? totalWords,
     double? averageWpm,
     double? averageAccuracy,
+    String? username,
+    String? mobileNumber,
+    String? userBio,
   }) {
     return UserModel(
       id: id ?? this.id,
@@ -109,6 +124,9 @@ class UserModel {
       totalWords: totalWords ?? this.totalWords,
       averageWpm: averageWpm ?? this.averageWpm,
       averageAccuracy: averageAccuracy ?? this.averageAccuracy,
+      username: username ?? this.username,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      userBio: userBio ?? this.userBio,
     );
   }
 }

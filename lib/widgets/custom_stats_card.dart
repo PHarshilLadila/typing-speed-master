@@ -11,6 +11,9 @@ class CustomStatsCard extends StatefulWidget {
   final bool isDarkMode;
   final double width;
   final bool isProfile;
+  final bool isExtraButton;
+  final void Function()? onTapExtraWidget;
+  final String extraWidgetToolTip;
 
   const CustomStatsCard({
     super.key,
@@ -22,6 +25,9 @@ class CustomStatsCard extends StatefulWidget {
     required this.isDarkMode,
     this.width = double.infinity,
     this.isProfile = false,
+    this.isExtraButton = false,
+    this.onTapExtraWidget,
+    this.extraWidgetToolTip = '',
   });
 
   @override
@@ -128,7 +134,7 @@ class _CustomStatsCardState extends State<CustomStatsCard>
                       fontWeight: FontWeight.w500,
                       color: titleColor,
                     ),
-                    maxLines: 3,
+                    maxLines: 4,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
@@ -136,28 +142,50 @@ class _CustomStatsCardState extends State<CustomStatsCard>
             ),
             const SizedBox(height: 16),
             Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.value,
-                  style: TextStyle(
-                    fontSize: widget.isProfile ? 20 : 28,
-                    fontWeight: FontWeight.bold,
-                    color: valueColor,
+                RichText(
+                  textAlign: TextAlign.start,
+                  text: TextSpan(
+                    children: [
+                      TextSpan(
+                        text: widget.value,
+                        style: TextStyle(
+                          fontSize: widget.isProfile ? 20 : 28,
+                          fontWeight: FontWeight.bold,
+                          color: valueColor,
+                        ),
+                      ),
+                      const TextSpan(text: ' '), // spacing
+                      WidgetSpan(
+                        alignment: PlaceholderAlignment.baseline,
+                        baseline: TextBaseline.alphabetic,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 4),
+                          child: Text(
+                            widget.unit,
+                            maxLines: 3,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                              color: unitColor,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(width: 4),
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 4),
-                  child: Text(
-                    widget.unit,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: unitColor,
+                if (widget.isExtraButton == true)
+                  Tooltip(
+                    message: widget.extraWidgetToolTip,
+                    triggerMode: TooltipTriggerMode.longPress,
+                    child: GestureDetector(
+                      onTap: widget.onTapExtraWidget ?? () {},
+                      child: Icon(Icons.autorenew),
                     ),
                   ),
-                ),
               ],
             ),
           ],

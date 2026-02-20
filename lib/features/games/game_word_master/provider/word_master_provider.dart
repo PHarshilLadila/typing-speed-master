@@ -25,6 +25,7 @@ class WordMasterProvider with ChangeNotifier {
   int _selectedGameTime = 60;
   Timer? _wordSpawnerTimer;
   Timer? _positionUpdateTimer;
+  double _spawnAccumulator = 0.0;
   List<String> _activeWords = [];
   List<Offset> _wordPositions = [];
   DateTime? _gameStartTime;
@@ -216,7 +217,6 @@ class WordMasterProvider with ChangeNotifier {
     _gameStartTime = DateTime.now();
     _lastUpdateTime = DateTime.now();
     _startGameTimer();
-    _startWordSpawner();
     _startPositionUpdates();
     notifyListeners();
   }
@@ -236,7 +236,6 @@ class WordMasterProvider with ChangeNotifier {
       _isGamePaused = false;
       _lastUpdateTime = DateTime.now();
       _startGameTimer();
-      _startWordSpawner();
       _startPositionUpdates();
       notifyListeners();
     }
@@ -249,6 +248,7 @@ class WordMasterProvider with ChangeNotifier {
     _gameDuration = 0;
     _activeWords.clear();
     _wordPositions.clear();
+    _spawnAccumulator = 0.0;
     _gameTimer?.cancel();
     _wordSpawnerTimer?.cancel();
     _positionUpdateTimer?.cancel();
@@ -284,31 +284,56 @@ class WordMasterProvider with ChangeNotifier {
   }
 
   void _startWordSpawner() {
-    final spawnInterval = Duration(
-      milliseconds: (2500 / _currentSpeed).round(),
-    );
-
-    _wordSpawnerTimer = Timer.periodic(spawnInterval, (timer) {
-      if (_isGameRunning &&
-          !_isGamePaused &&
-          _activeWords.length < _settings.maxWords) {
-        _spawnWord();
-      } else if (!_isGameRunning) {
-        timer.cancel();
-      }
-    });
+    // Spawning is handled inside the position update loop to ensure
+    // frame-aligned, smooth spawning even when speed changes.
+    _wordSpawnerTimer?.cancel();
   }
 
   void _startPositionUpdates() {
-    _positionUpdateTimer = Timer.periodic(const Duration(milliseconds: 16), (
-      timer,
-    ) {
-      if (_isGameRunning && !_isGamePaused) {
-        _updateWordPositions();
-      } else {
-        timer.cancel();
+    // Position updates are driven externally via frameUpdate(deltaSeconds)
+    // from a Ticker to keep them aligned with Flutter frames.
+    _positionUpdateTimer?.cancel();
+  }
+
+  /// Called every frame (deltaTime in seconds) from a Ticker/AnimationController.
+  void frameUpdate(double deltaTime) {
+    if (!_isGameRunning || _isGamePaused) return;
+
+    // Handle spawning here so it's aligned with frame updates and
+    // responds smoothly to speed changes.
+    final double spawnInterval =
+        2.5 / (_currentSpeed > 0 ? _currentSpeed : 1.0);
+    _spawnAccumulator += deltaTime;
+    while (_spawnAccumulator >= spawnInterval) {
+      if (_activeWords.length < _settings.maxWords) {
+        _spawnWord();
       }
-    });
+      _spawnAccumulator -= spawnInterval;
+    }
+
+    final List<int> wordsToRemove = [];
+    bool needsNotify = false;
+
+    for (int i = 0; i < _wordPositions.length; i++) {
+      final speedFactor = _currentSpeed * 0.12 * deltaTime;
+      final newY = _wordPositions[i].dy + speedFactor;
+
+      if (newY > 1.2) {
+        wordsToRemove.add(i);
+      } else {
+        _wordPositions[i] = Offset(_wordPositions[i].dx, newY);
+        needsNotify = true;
+      }
+    }
+
+    for (int i = wordsToRemove.length - 1; i >= 0; i--) {
+      final index = wordsToRemove[i];
+      _activeWords.removeAt(index);
+      _wordPositions.removeAt(index);
+      needsNotify = true;
+    }
+
+    if (needsNotify) notifyListeners();
   }
 
   void _spawnWord() {
@@ -351,11 +376,25 @@ class WordMasterProvider with ChangeNotifier {
 
     _lastUpdateTime = now;
 
+    // Handle spawning here so it's aligned with frame updates and
+    // responds smoothly to speed changes.
+    final double spawnInterval =
+        2.5 / (_currentSpeed > 0 ? _currentSpeed : 1.0);
+    _spawnAccumulator += deltaTime;
+    while (_spawnAccumulator >= spawnInterval) {
+      if (_isGameRunning &&
+          !_isGamePaused &&
+          _activeWords.length < _settings.maxWords) {
+        _spawnWord();
+      }
+      _spawnAccumulator -= spawnInterval;
+    }
+
     final List<int> wordsToRemove = [];
     bool needsNotify = false;
 
     for (int i = 0; i < _wordPositions.length; i++) {
-      final speedFactor = _currentSpeed * 0.1 * deltaTime;
+      final speedFactor = _currentSpeed * 0.12 * deltaTime;
       final newY = _wordPositions[i].dy + speedFactor;
 
       if (newY > 1.2) {

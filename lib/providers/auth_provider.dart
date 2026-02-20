@@ -125,6 +125,142 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  Future<void> signInWithEmailOrUsername(String input, String password) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      _isSignOut = false;
+      notifyListeners();
+
+      String email = input;
+      if (!input.contains('@')) {
+        // Assume username, lookup email
+        final response =
+            await _supabase
+                .from('profiles')
+                .select('email')
+                .eq('username', input)
+                .maybeSingle();
+
+        if (response != null && response['email'] != null) {
+          email = response['email'];
+        } else {
+          throw const AuthException('User not found');
+        }
+      }
+
+      await _supabase.auth.signInWithPassword(email: email, password: password);
+    } on AuthException catch (e) {
+      _error = e.message;
+      debugPrint('AuthException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      _error = 'An error occurred during sign in: $e';
+      debugPrint('Sign in error: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> signUpWithEmail({
+    required String email,
+    required String password,
+    required String fullName,
+    required String username,
+    required String mobile,
+    required String bio,
+    String? avatarUrl,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      _isSignOut = false;
+      notifyListeners();
+
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('🔐 Starting user registration process');
+      debugPrint('═══════════════════════════════════════════════════');
+
+      debugPrint('🔄 Starting user registration...');
+      debugPrint('  - Email: $email');
+      debugPrint('  - Full Name: $fullName');
+      debugPrint('  - Username: $username');
+      debugPrint('  - Mobile: $mobile');
+      debugPrint('  - Bio: $bio');
+
+      final res = await _supabase.auth.signUp(
+        email: email,
+        password: password,
+        data: {
+          'full_name': fullName,
+          'username': username,
+          'mobile_number': mobile,
+          'user_bio': bio,
+          if (avatarUrl != null) 'avatar_url': avatarUrl,
+        },
+      );
+
+      debugPrint(
+        '✅ Supabase signUp completed. Session: ${res.session != null}, User: ${res.user != null}',
+      );
+      debugPrint(
+        '✅ Supabase signUp completed. res -> ${res.user} res -> ${res.session}',
+      );
+
+      // If session exists (no email verification or auto-login), populate profile immediately
+      if (res.session != null && res.user != null) {
+        debugPrint('🔄 Creating profile with metadata...');
+        await _updateProfileFromMetadata(
+          res.user!,
+          metadata: {
+            'full_name': fullName,
+            'username': username,
+            'mobile_number': mobile,
+            'user_bio': bio,
+            if (avatarUrl != null) 'avatar_url': avatarUrl,
+          },
+        );
+        debugPrint('✅ Profile created successfully');
+      }
+
+      if (res.user != null && res.session == null) {
+        // Email verification required
+      }
+    } on AuthException catch (e) {
+      _error = e.message;
+      debugPrint('AuthException: ${e.message}');
+      rethrow;
+    } catch (e) {
+      _error = 'An error occurred during sign up: $e';
+      debugPrint('Sign up error: $e');
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> resetPassword(String email) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      await _supabase.auth.resetPasswordForEmail(email);
+    } on AuthException catch (e) {
+      _error = e.message;
+      rethrow;
+    } catch (e) {
+      _error = 'Failed to send password reset email: $e';
+      rethrow;
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> signOut() async {
     final SharedPreferences preference = await SharedPreferences.getInstance();
     try {
@@ -164,9 +300,15 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> updateProfile({String? fullName, String? avatarUrl}) async {
+  Future<void> updateProfile({
+    String? fullName,
+    String? avatarUrl,
+    String? bio,
+    String? mobile,
+    String? username,
+  }) async {
     try {
-      if (_isSignOut) return;
+      if (_isSignOut || _user == null) return;
 
       _isLoading = true;
       notifyListeners();
@@ -175,6 +317,9 @@ class AuthProvider with ChangeNotifier {
         'updated_at': DateTime.now().toIso8601String(),
         if (fullName != null) 'full_name': fullName,
         if (avatarUrl != null) 'avatar_url': avatarUrl,
+        if (bio != null) 'user_bio': bio,
+        if (mobile != null) 'mobile_number': mobile,
+        if (username != null) 'username': username,
       };
 
       await _supabase.from('profiles').update(updates).eq('id', _user!.id);
@@ -182,6 +327,9 @@ class AuthProvider with ChangeNotifier {
       _user = _user!.copyWith(
         fullName: fullName ?? _user!.fullName,
         avatarUrl: avatarUrl ?? _user!.avatarUrl,
+        username: username ?? _user!.username,
+        mobileNumber: mobile ?? _user!.mobileNumber,
+        userBio: bio ?? _user!.userBio,
       );
       _error = null;
 
@@ -189,6 +337,7 @@ class AuthProvider with ChangeNotifier {
     } catch (e) {
       _error = 'Failed to update profile: $e';
       debugPrint('Update profile error: $e');
+      rethrow;
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -345,44 +494,79 @@ class AuthProvider with ChangeNotifier {
     final now = DateTime.now();
     if (_lastProfileFetchTime != null &&
         now.difference(_lastProfileFetchTime!) < _profileFetchDebounceTime) {
-      debugPrint('Skipping profile fetch - too soon after last fetch');
+      debugPrint('⏭️ Skipping profile fetch - too soon after last fetch');
       return;
     }
 
     _lastProfileFetchTime = now;
 
     try {
-      if (_isSignOut) return;
-
-      debugPrint('Fetching profile for user: $userId');
-
-      final response =
-          await _supabase
-              .from('profiles')
-              .select()
-              .eq('id', userId)
-              .maybeSingle();
-
-      if (response != null) {
-        _user = UserModel.fromJson(response);
-        debugPrint(
-          'Profile fetched successfully: ${_user?.email}, Level: ${_user?.level}, Streak: ${_user?.currentStreak}',
-        );
-      } else {
-        debugPrint('No profile found, creating new one...');
-        await _createUserProfile(userId);
+      if (_isSignOut) {
+        debugPrint('⚠️ fetchUserProfile: User is signing out, aborting');
+        return;
       }
-      _error = null;
-    } catch (e) {
-      debugPrint('Error fetching profile: $e');
+
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('🔍 Fetching profile for user: $userId');
+      debugPrint('═══════════════════════════════════════════════════');
+
+      try {
+        final response =
+            await _supabase
+                .from('profiles')
+                .select()
+                .eq('id', userId)
+                .maybeSingle();
+
+        if (response != null) {
+          debugPrint('✅ Profile fetched from database:');
+          debugPrint('   Response data: $response');
+
+          _user = UserModel.fromJson(response);
+
+          debugPrint('✅ Profile parsed successfully:');
+          debugPrint('   Email: ${_user?.email}');
+          debugPrint('   Username: ${_user?.username}');
+          debugPrint('   Mobile: ${_user?.mobileNumber}');
+          debugPrint('   Bio: ${_user?.userBio}');
+          debugPrint('   Level: ${_user?.level}');
+          debugPrint('   Streak: ${_user?.currentStreak}');
+        } else {
+          debugPrint('⚠️ No profile found in database');
+          debugPrint('   Creating new profile for user: $userId');
+          await _createUserProfile(userId);
+        }
+        _error = null;
+      } catch (fetchError) {
+        debugPrint('❌ Error during profile fetch query:');
+        debugPrint('   Error: $fetchError');
+
+        if (fetchError is PostgrestException) {
+          debugPrint('   PostgrestException details:');
+          debugPrint('   - Code: ${fetchError.code}');
+          debugPrint('   - Message: ${fetchError.message}');
+          debugPrint('   - Details: ${fetchError.details}');
+          debugPrint('   - Hint: ${fetchError.hint}');
+        }
+
+        rethrow;
+      }
+    } catch (e, stackTrace) {
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('❌ FATAL ERROR in fetchUserProfile');
+      debugPrint('   Error: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      debugPrint('═══════════════════════════════════════════════════');
 
       if (e is PostgrestException && e.code == '23505') {
-        debugPrint('Profile already exists, fetching again...');
+        debugPrint('   Duplicate key detected, fetching existing profile...');
         await _fetchExistingProfile(userId);
       } else if (e is PostgrestException) {
         _error = 'Database error: ${e.message}';
+        debugPrint('   Setting error: $_error');
       } else {
         _error = 'Failed to fetch user profile: $e';
+        debugPrint('   Setting error: $_error');
       }
     }
     notifyListeners();
@@ -400,78 +584,149 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<void> _createUserProfile(String userId) async {
+  Future<void> _createUserProfile(
+    String userId, {
+    Map<String, dynamic>? metadata,
+  }) async {
     try {
-      if (_isSignOut) return;
+      if (_isSignOut) {
+        debugPrint('⚠️ _createUserProfile: Skipping - user is signing out');
+        return;
+      }
 
       final user = _supabase.auth.currentUser;
-      if (user != null) {
-        debugPrint('Creating profile for user: ${user.email}');
-
-        final existingProfile =
-            await _supabase
-                .from('profiles')
-                .select()
-                .eq('id', userId)
-                .maybeSingle();
-
-        if (existingProfile != null) {
-          debugPrint(
-            'Profile already exists (race condition), using existing profile',
-          );
-          _user = UserModel.fromJson(existingProfile);
-          return;
-        }
-
-        final userMetadata = user.userMetadata ?? {};
-        final appMetadata = user.appMetadata;
-
-        String? fullName =
-            userMetadata['full_name'] ??
-            userMetadata['name'] ??
-            appMetadata['full_name'] ??
-            appMetadata['name'];
-
-        String? avatarUrl =
-            userMetadata['avatar_url'] ??
-            userMetadata['picture'] ??
-            appMetadata['avatar_url'] ??
-            appMetadata['picture'];
-
-        final email = user.email ?? 'unknown@email.com';
-        final defaultName = email.split('@').first;
-
-        final newProfile = {
-          'id': userId,
-          'email': email,
-          'full_name': fullName ?? defaultName,
-          'avatar_url': avatarUrl,
-          'level': 'Beginner',
-          'current_streak': 0,
-          'longest_streak': 0,
-          'total_tests': 0,
-          'total_words': 0,
-          'average_wpm': 0,
-          'average_accuracy': 0,
-          'created_at': DateTime.now().toIso8601String(),
-          'updated_at': DateTime.now().toIso8601String(),
-        };
-
-        await _supabase.from('profiles').insert(newProfile);
-        _user = UserModel.fromJson(newProfile);
-        _error = null;
-
-        debugPrint('Profile created successfully for: ${_user?.email}');
+      if (user == null) {
+        debugPrint('❌ _createUserProfile: No current user found');
+        return;
       }
-    } catch (e) {
-      debugPrint('Error creating profile: $e');
+
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('🔧 Starting profile creation for user: ${user.email}');
+      debugPrint('   User ID: $userId');
+      debugPrint('═══════════════════════════════════════════════════');
+
+      debugPrint('📦 Received metadata parameter: $metadata');
+      debugPrint('📦 User.userMetadata from Supabase: ${user.userMetadata}');
+      debugPrint('📦 User.appMetadata from Supabase: ${user.appMetadata}');
+
+      // Build profile starting from metadata
+
+      // Merge metadata
+      final userMetadata = metadata ?? user.userMetadata ?? {};
+      final appMetadata = user.appMetadata;
+
+      debugPrint('📋 Merged userMetadata: $userMetadata');
+      debugPrint('📋 App metadata: $appMetadata');
+
+      // Extract fields
+      String? fullName =
+          userMetadata['full_name'] ??
+          userMetadata['name'] ??
+          appMetadata['full_name'] ??
+          appMetadata['name'];
+
+      String? avatarUrl =
+          userMetadata['avatar_url'] ??
+          userMetadata['picture'] ??
+          appMetadata['avatar_url'] ??
+          appMetadata['picture'];
+
+      final email = user.email ?? 'unknown@email.com';
+      final defaultName = email.split('@').first;
+
+      debugPrint('📝 Extracted field values:');
+      debugPrint('   - full_name: $fullName (default: $defaultName)');
+      debugPrint('   - avatar_url: $avatarUrl');
+      debugPrint('   - username: ${userMetadata['username']}');
+      debugPrint('   - mobile_number: ${userMetadata['mobile_number']}');
+      debugPrint('   - user_bio: ${userMetadata['user_bio']}');
+
+      // Build profile object
+      final newProfile = {
+        'id': userId,
+        'email': email,
+        'full_name': fullName ?? defaultName,
+        'avatar_url': avatarUrl,
+        'level': 'Beginner',
+        'current_streak': 0,
+        'longest_streak': 0,
+        'total_tests': 0,
+        'total_words': 0,
+        'average_wpm': 0,
+        'average_accuracy': 0,
+        'created_at': DateTime.now().toIso8601String(),
+        'updated_at': DateTime.now().toIso8601String(),
+        'last_activity_date': DateTime.now().toIso8601String(),
+        'username': userMetadata['username'],
+        'mobile_number': userMetadata['mobile_number'],
+        'user_bio': userMetadata['user_bio'],
+      };
+
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('💾 FINAL PROFILE OBJECT TO INSERT:');
+      debugPrint(newProfile.toString());
+      debugPrint('═══════════════════════════════════════════════════');
+
+      // Attempt to insert profile
+      debugPrint('🚀 Attempting to upsert profile to database...');
+      try {
+        await _supabase.from('profiles').upsert(newProfile);
+
+        debugPrint('✅ Upsert successful!');
+
+        _user = UserModel.fromJson(newProfile);
+
+        debugPrint('═══════════════════════════════════════════════════');
+        debugPrint('✅ PROFILE CREATION COMPLETED SUCCESSFULLY');
+        debugPrint('   Email: ${_user?.email}');
+        debugPrint('   Username: ${_user?.username}');
+        debugPrint('   Mobile: ${_user?.mobileNumber}');
+        debugPrint('   Bio: ${_user?.userBio}');
+        debugPrint(
+          '   Avatar: ${_user?.avatarUrl != null ? "Set" : "Not set"}',
+        );
+        debugPrint('═══════════════════════════════════════════════════');
+      } catch (insertError) {
+        debugPrint('❌ ERROR during upsert operation:');
+        debugPrint('   Error: $insertError');
+
+        if (insertError is PostgrestException) {
+          debugPrint('   PostgrestException details:');
+          debugPrint('   - Code: ${insertError.code}');
+          debugPrint('   - Message: ${insertError.message}');
+          debugPrint('   - Details: ${insertError.details}');
+          debugPrint('   - Hint: ${insertError.hint}');
+        }
+        rethrow;
+      }
+    } catch (e, stackTrace) {
+      debugPrint('═══════════════════════════════════════════════════');
+      debugPrint('❌ FATAL ERROR in _createUserProfile');
+      debugPrint('   Error: $e');
+      debugPrint('   Stack trace: $stackTrace');
+      debugPrint('═══════════════════════════════════════════════════');
 
       if (e is PostgrestException && e.code == '23505') {
-        debugPrint('Profile already exists, fetching instead...');
+        debugPrint('   Duplicate key error - profile may already exist');
+        debugPrint('   Attempting to fetch existing profile...');
         await _fetchExistingProfile(userId);
       } else {
         _error = 'Failed to create user profile: $e';
+        debugPrint('   Setting error state: $_error');
       }
+    }
+  }
+
+  Future<void> _updateProfileFromMetadata(
+    User user, {
+    Map<String, dynamic>? metadata,
+  }) async {
+    try {
+      if (_isSignOut) return;
+      await _createUserProfile(user.id, metadata: metadata);
+      debugPrint(" ==> metadata from _updateProfileFromMetadata -> $metadata");
+    } catch (e) {
+      debugPrint('Error updating profile from metadata: $e');
     }
   }
 }
