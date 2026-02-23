@@ -422,46 +422,44 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen>
   ) {
     final themeProvider = Provider.of<ThemeProvider>(context);
 
-    return Expanded(
-      child: Container(
-        width: 100,
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-        decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Column(
-          children: [
-            Row(
-              children: [
-                Icon(icon, color: color, size: 24),
-                const SizedBox(width: 8),
-                Text(
-                  value,
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color:
-                        themeProvider.isDarkMode
-                            ? Colors.white
-                            : Colors.grey[800],
-                  ),
+    return Container(
+      width: 100,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 24),
+              const SizedBox(width: 8),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color:
+                      themeProvider.isDarkMode
+                          ? Colors.white
+                          : Colors.grey[800],
                 ),
-              ],
-            ),
-            SizedBox(height: 8),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color:
-                    themeProvider.isDarkMode
-                        ? Colors.grey[400]
-                        : Colors.grey[600],
               ),
+            ],
+          ),
+          SizedBox(height: 8),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color:
+                  themeProvider.isDarkMode
+                      ? Colors.grey[400]
+                      : Colors.grey[600],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
