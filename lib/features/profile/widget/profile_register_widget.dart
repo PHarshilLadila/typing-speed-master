@@ -13,6 +13,7 @@ import 'package:typing_speed_master/theme/provider/theme_provider.dart';
 import 'package:typing_speed_master/widgets/custom_textformfield.dart';
 import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/router_provider.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileRegisterWidget extends StatefulWidget {
   const ProfileRegisterWidget({super.key});
@@ -207,6 +208,8 @@ class _ProfileRegisterWidgetState extends State<ProfileRegisterWidget> {
             backgroundColor: Theme.of(context).primaryColor,
           ),
         );
+        Provider.of<RouterProvider>(context, listen: false).setSelectedIndex(0);
+        context.go('/');
       } catch (e) {
         if (!mounted) return;
         ScaffoldMessenger.of(context).showSnackBar(

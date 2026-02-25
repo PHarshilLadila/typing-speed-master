@@ -252,7 +252,7 @@ class GameScoreItem extends StatelessWidget {
             ? wordMasterScore!.timestamps
             : charRushScore!.timestamps;
 
-    final collectedLabel = isWordMasterScore ? "words" : "characters";
+    final collectedLabel = isWordMasterScore ? "Words" : "Characters";
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -352,7 +352,7 @@ class GameScoreItem extends StatelessWidget {
                     gamesScoreBadge(score, isDarkMode),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 12),
 
                 // Stats row
                 Wrap(
@@ -360,51 +360,101 @@ class GameScoreItem extends StatelessWidget {
                   runSpacing: 4,
                   children: [
                     // Collected count
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.check_circle,
-                          size: 14,
-                          color: Colors.green.withOpacity(0.7),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.green.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: Colors.green.withOpacity(0.3),
+                          width: 0.5,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "$collected $collectedLabel",
-                          style: TextStyle(
-                            color:
-                                isDarkMode
-                                    ? Colors.white.withOpacity(0.6)
-                                    : Colors.black.withOpacity(0.5),
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.check_circle,
+                            size: 18,
+                            color: Colors.green.withOpacity(0.7),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Collected $collectedLabel",
+                                style: TextStyle(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "$collected",
+                                style: TextStyle(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
 
                     // Duration
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.timer_outlined,
-                          size: 14,
-                          color: Colors.blue.withOpacity(0.7),
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: Colors.blue.withOpacity(0.06),
+                        borderRadius: BorderRadius.circular(6),
+                        border: Border.all(
+                          color: Colors.blue.withOpacity(0.3),
+                          width: 0.5,
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          "${gameDuration}s",
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color:
-                                isDarkMode
-                                    ? Colors.white.withOpacity(0.6)
-                                    : Colors.black.withOpacity(0.5),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.timer_outlined,
+                            size: 18,
+                            color: Colors.blue.withOpacity(0.7),
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                "Game Duration  ",
+                                style: TextStyle(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                "${gameDuration}s",
+                                style: TextStyle(
+                                  color:
+                                      isDarkMode ? Colors.white : Colors.black,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -531,7 +581,15 @@ class GameScoreItem extends StatelessWidget {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
   }
 
+  // String gameTimeFormate(DateTime date) {
+  //   return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  // }
   String gameTimeFormate(DateTime date) {
-    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+    int hour = date.hour;
+    String period = hour >= 12 ? 'PM' : 'AM';
+    // Convert 0-23 to 1-12 range
+    int displayHour = hour % 12 == 0 ? 12 : hour % 12;
+
+    return '${displayHour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')} $period';
   }
 }

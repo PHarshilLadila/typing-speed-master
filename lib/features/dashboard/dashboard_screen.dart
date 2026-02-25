@@ -550,66 +550,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
-  /*
-
-
-  Bar and Line Graph:
-
-  The given bar graph accurately indicates the information about the population of selected countries of the world.
-
-  The x-axis represents different countries like India, China, USA, Brazil, and Russia, while the y-axis indicates the population in millions.
-
-  It is clearly seen from the graph that China records the highest population, which is around 1440 million,
-  followed by India, which is about 1410 million. The lowest population is recorded for Russia, which is approximately 146 million.
-
-  After analyzing this picture, it can be concluded that the picture provides crucial information about the population distribution among major countries of the world.
-
-  --------
-
-  Pie chart:
-
-  The given pie chart provides details about how a student spends time in a day.
-
-  The elements of the pie chart are Sleeping, Studying, Playing, and Other activities.
-
-  It is clearly seen from the chart that Sleeping occupies the majority area, which is about 40%,
-  followed by Studying, which is around 30%, and the minority area is covered by Playing, which is about 15%.
-
-  In conclusion, the picture provides vital information about a student’s daily routine and time management.
-
-  --------
-
-  Process (Easy Example: Making Tea)
-
-  The given process accurately indicates the information about the preparation of tea.
-
-  There are several stages in this process like boiling water, adding tea leaves, adding milk and sugar, and serving tea. 
-  
-  It is clearly seen from the process
-  that the first stage indicates the information about boiling water, followed by adding tea leaves, which is further transformed into tea by adding milk and sugar. 
-
-  The second last stage of the process is straining the tea, which finally leads to serving hot tea.
-
-  After analyzing this picture, it can be concluded that the picture provides crucial information about the step-by-step method of preparing tea.
-
-  --------
-
-  Random Image (Easy Example: Classroom Survey Data):
-
-  The provided picture shows information about a classroom survey of students’ favorite subjects.
-
-  It also provides information in different categories which are Mathematics, Science, English, and Sports.
-
-  There are also different elements and numbers like number of students choosing each subject.
-
-  There are also different colors in this image such as blue, green, red, and yellow.
-
-  There are different numbers, variations, and trends shown in the picture; some subjects have the highest number of students while the others are the lowest.
-  
-  Overall, this image is very informative and easy to explain about students’ subject preferences in a classroom.
-
---------
-  */
 
   Widget recentTypingResults(BuildContext context, double subtitleFontSize) {
     final provider = Provider.of<TypingProvider>(context);

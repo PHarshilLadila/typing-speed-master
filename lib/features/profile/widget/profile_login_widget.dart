@@ -7,6 +7,7 @@ import 'package:typing_speed_master/providers/auth_provider.dart';
 import 'package:typing_speed_master/providers/router_provider.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:typing_speed_master/widgets/custom_textformfield.dart';
+import 'package:go_router/go_router.dart';
 
 class ProfileLoginWidget extends StatefulWidget {
   const ProfileLoginWidget({super.key});
@@ -37,6 +38,9 @@ class _ProfileLoginWidgetState extends State<ProfileLoginWidget> {
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
+        if (!mounted) return;
+        Provider.of<RouterProvider>(context, listen: false).setSelectedIndex(0);
+        context.go('/');
       } catch (e) {
         Fluttertoast.showToast(
           msg: e.toString().replaceAll('AuthException: ', ''),

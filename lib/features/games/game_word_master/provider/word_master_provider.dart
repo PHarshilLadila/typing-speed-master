@@ -6,11 +6,13 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:typing_speed_master/features/games/game_word_master/model/word_master_model.dart';
 import 'package:typing_speed_master/features/games/game_word_master/model/word_master_settings_model.dart';
 import 'package:typing_speed_master/utils/constants.dart';
 
 class WordMasterProvider with ChangeNotifier {
+  final SupabaseClient _supabase = Supabase.instance.client;
   static const String _scoresKey = 'word_master_game_scores';
   static const String _settingsKey = 'word_master_game_settings';
 
@@ -60,10 +62,23 @@ class WordMasterProvider with ChangeNotifier {
   List<WordMasterModel> get scores => _scores;
   String get currentTypedWord => _currentTypedWord;
   bool get isWrongWord => _isWrongWord;
+  bool get isLoadingHistory => _isLoadingHistory;
+
+  bool _isLoadingHistory = false;
 
   WordMasterProvider() {
     _loadSettings();
     _loadScores();
+    _setupAuthListener();
+  }
+
+  void _setupAuthListener() {
+    _supabase.auth.onAuthStateChange.listen((data) {
+      if (data.event == AuthChangeEvent.signedIn ||
+          data.event == AuthChangeEvent.signedOut) {
+        _loadScores();
+      }
+    });
   }
 
   Future<void> _loadSettings() async {
@@ -83,15 +98,42 @@ class WordMasterProvider with ChangeNotifier {
   }
 
   Future<void> _loadScores() async {
-    final prefs = await SharedPreferences.getInstance();
-    final scoresJson = prefs.getStringList(_scoresKey);
+    _isLoadingHistory = true;
+    notifyListeners();
+    try {
+      final user = _supabase.auth.currentUser;
+      if (user != null) {
+        final response = await _supabase
+            .from('game_word_master')
+            .select()
+            .eq('user_id', user.id)
+            .order('timestamp', ascending: false);
 
-    if (scoresJson != null) {
-      _scores =
-          scoresJson
-              .map((json) => WordMasterModel.fromJson(jsonDecode(json)))
-              .toList();
+        _scores =
+            response.map((data) {
+              return WordMasterModel(
+                score: data['score'],
+                wordCollected: data['words_collected'],
+                gameDuration: data['game_duration'],
+                timestamps: DateTime.parse(data['timestamp']),
+              );
+            }).toList();
+      } else {
+        final prefs = await SharedPreferences.getInstance();
+        final scoresJson = prefs.getStringList(_scoresKey);
+
+        if (scoresJson != null) {
+          _scores =
+              scoresJson
+                  .map((json) => WordMasterModel.fromJson(jsonDecode(json)))
+                  .toList();
+        }
+      }
       _scores.sort((a, b) => b.score.compareTo(a.score));
+    } catch (e) {
+      debugPrint('Error loading word master history: $e');
+    } finally {
+      _isLoadingHistory = false;
       notifyListeners();
     }
   }
@@ -99,13 +141,29 @@ class WordMasterProvider with ChangeNotifier {
   Future<void> _saveScore(WordMasterModel score) async {
     _scores.add(score);
     _scores.sort((a, b) => b.score.compareTo(a.score));
-    if (_scores.length > 10) {
-      _scores = _scores.sublist(0, 10);
+
+    final user = _supabase.auth.currentUser;
+    if (user != null) {
+      try {
+        await _supabase.from('game_word_master').insert({
+          'user_id': user.id,
+          'score': score.score,
+          'words_collected': score.wordCollected,
+          'game_duration': score.gameDuration,
+          'timestamp': score.timestamps.toIso8601String(),
+        });
+      } catch (e) {
+        debugPrint('Error saving word master score to Supabase: $e');
+      }
+    }
+
+    if (_scores.length > 20) {
+      _scores = _scores.sublist(0, 20);
     }
 
     final prefs = await SharedPreferences.getInstance();
     final scoresJson =
-        _scores.map((score) => json.encode(score.toJson())).toList();
+        _scores.map((scoreObj) => json.encode(scoreObj.toJson())).toList();
     await prefs.setStringList(_scoresKey, scoresJson);
     notifyListeners();
   }
@@ -454,3 +512,31 @@ class WordMasterProvider with ChangeNotifier {
     super.dispose();
   }
 }
+
+/*
+-- Word Master ગેમના ડેટા સ્ટોર કરવા માટેનું ટેબલ
+CREATE TABLE IF NOT EXISTS game_word_master (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    score INTEGER NOT NULL,
+    words_collected INTEGER NOT NULL,
+    game_duration INTEGER NOT NULL,
+    timestamp TIMESTAMPTZ DEFAULT NOW(),
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- RLS (Row Level Security) સેટિંગ્સ
+ALTER TABLE game_word_master ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can insert their own game data" 
+ON game_word_master FOR INSERT 
+WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can view their own game data" 
+ON game_word_master FOR SELECT 
+USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete their own game data"
+ON game_word_master FOR DELETE
+USING (auth.uid() = user_id);
+*/
