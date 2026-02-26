@@ -849,8 +849,9 @@ class _GameCharacterRushScreenState extends State<GameCharacterRushScreen>
       totalScore += s.score;
       totalCollected += s.charactersCollected;
       if (s.score > maxScore) maxScore = s.score;
-      if (s.charactersCollected > maxCollected)
+      if (s.charactersCollected > maxCollected) {
         maxCollected = s.charactersCollected;
+      }
       totalDuration += s.gameDuration;
     }
 
