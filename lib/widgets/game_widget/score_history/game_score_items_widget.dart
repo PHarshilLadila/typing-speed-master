@@ -253,6 +253,8 @@ class GameScoreItem extends StatelessWidget {
             : charRushScore!.timestamps;
 
     final collectedLabel = isWordMasterScore ? "Words" : "Characters";
+    bool isMobile = screenWidth < 768;
+    bool isTablet = screenWidth >= 768 && screenWidth < 1024;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -336,9 +338,11 @@ class GameScoreItem extends StatelessWidget {
                         'Score: $score',
                         style: TextStyle(
                           fontSize:
-                              screenWidth * 0.016 > 20
+                              isMobile
                                   ? 20
-                                  : screenWidth * 0.016,
+                                  : isTablet
+                                  ? 20
+                                  : 20,
                           fontWeight: FontWeight.w600,
                           color:
                               isDarkMode
