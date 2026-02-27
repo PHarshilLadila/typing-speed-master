@@ -13,6 +13,15 @@ import 'package:typing_speed_master/features/games/game_word_reflex/widgets/word
 import 'package:typing_speed_master/widgets/custom_history_not_found_widget.dart';
 import 'package:fl_chart/fl_chart.dart';
 
+enum WordReflexSortOption {
+  timeLatest,
+  timeOldest,
+  scoreHigh,
+  scoreLow,
+  accuracyHigh,
+  accuracyLow,
+}
+
 class GameWordReflexHistoryView extends StatefulWidget {
   const GameWordReflexHistoryView({super.key});
 
@@ -23,7 +32,7 @@ class GameWordReflexHistoryView extends StatefulWidget {
 
 class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
     with TickerProviderStateMixin {
-  String resultFilter = 'All'; // All, Recent, High Score
+  WordReflexSortOption _currentSort = WordReflexSortOption.timeLatest;
   bool _isPerformanceExpanded = true; // Initially expanded (visible)
   bool _showCharts = false; // For chart animations
 
@@ -43,16 +52,34 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
     final themeProvider = Provider.of<ThemeProvider>(context);
     final provider = Provider.of<WordReflexProvider>(context);
     final isDark = themeProvider.isDarkMode;
-    // final isMobile = MediaQuery.of(context).size.width < 768;
 
     List<dynamic> history = List.from(provider.history);
 
-    // Apply Filter
-    if (resultFilter == 'High Score') {
-      history.sort((a, b) => b.score.compareTo(a.score));
-    } else if (resultFilter == 'Recent') {
-      history.sort((a, b) => b.timestamp.compareTo(a.timestamp));
-    }
+    // Apply Sorting
+    history.sort((a, b) {
+      switch (_currentSort) {
+        case WordReflexSortOption.timeLatest:
+          return b.timestamp.compareTo(a.timestamp);
+        case WordReflexSortOption.timeOldest:
+          return a.timestamp.compareTo(b.timestamp);
+        case WordReflexSortOption.scoreHigh:
+          return b.score.compareTo(a.score);
+        case WordReflexSortOption.scoreLow:
+          return a.score.compareTo(b.score);
+        case WordReflexSortOption.accuracyHigh:
+          final accA =
+              (a.totalRounds > 0) ? (a.correctAnswers / a.totalRounds) : 0.0;
+          final accB =
+              (b.totalRounds > 0) ? (b.correctAnswers / b.totalRounds) : 0.0;
+          return accB.compareTo(accA);
+        case WordReflexSortOption.accuracyLow:
+          final accA =
+              (a.totalRounds > 0) ? (a.correctAnswers / a.totalRounds) : 0.0;
+          final accB =
+              (b.totalRounds > 0) ? (b.correctAnswers / b.totalRounds) : 0.0;
+          return accA.compareTo(accB);
+      }
+    });
 
     return Container(
       decoration: BoxDecoration(
@@ -90,13 +117,54 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
                     ),
 
                     if (isMobile) const SizedBox(height: 12),
-
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        wRFXGameHistoryFilterDropdown(isDark, themeProvider),
-                        isMobile ? const Spacer() : const SizedBox(width: 8),
+                        InkWell(
+                          onTap: () {
+                            setState(() {
+                              _isPerformanceExpanded = !_isPerformanceExpanded;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 2,
+                              horizontal: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: isDark ? Colors.grey[850] : Colors.white,
+                              borderRadius: const BorderRadius.all(
+                                Radius.circular(4),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 1),
+                                ),
+                              ],
+                            ),
+                            child: TweenAnimationBuilder<double>(
+                              duration: const Duration(milliseconds: 1500),
+                              tween: Tween(begin: 0.0, end: 1.0),
+                              curve: Curves.easeInOut,
+                              builder: (context, value, child) {
+                                return Transform.translate(
+                                  offset: Offset(0, 3 * sin(value.toDouble())),
+                                  child: Icon(
+                                    _isPerformanceExpanded
+                                        ? Icons.keyboard_arrow_down
+                                        : Icons.keyboard_arrow_up,
+                                    color: themeProvider.primaryColor,
+                                    size: 28,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                        SizedBox(width: 8),
                         InkWell(
                           borderRadius: BorderRadius.circular(20),
                           onTap: () => provider.resetToSetup(),
@@ -126,48 +194,7 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
             ),
           ),
           const Divider(height: 1),
-          Align(
-            alignment: Alignment.centerRight,
-            child: InkWell(
-              onTap: () {
-                setState(() {
-                  _isPerformanceExpanded = !_isPerformanceExpanded;
-                });
-              },
-              child: Container(
-                margin: EdgeInsets.only(right: 12, top: 12),
-                padding: EdgeInsets.symmetric(vertical: 2, horizontal: 16),
-                decoration: BoxDecoration(
-                  color: isDark ? Colors.grey[850] : Colors.white,
-                  borderRadius: BorderRadius.all(Radius.circular(4)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 1),
-                    ),
-                  ],
-                ),
-                child: TweenAnimationBuilder<double>(
-                  duration: const Duration(milliseconds: 1500),
-                  tween: Tween(begin: 0.0, end: 1.0),
-                  curve: Curves.easeInOut,
-                  builder: (context, value, child) {
-                    return Transform.translate(
-                      offset: Offset(0, 3 * sin(value.toDouble())),
-                      child: Icon(
-                        _isPerformanceExpanded
-                            ? Icons.keyboard_arrow_down
-                            : Icons.keyboard_arrow_up,
-                        color: themeProvider.primaryColor,
-                        size: 28,
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+
           SizedBox(height: 12),
 
           provider.isLoadingHistory
@@ -224,7 +251,10 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
                   ),
 
                   // const Divider(height: 1),
-
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: _buildSortDropdown(isDark, themeProvider),
+                  ),
                   // Game History List with Wave Arrow Button
                   ListView.builder(
                     shrinkWrap: true,
@@ -1160,42 +1190,100 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
     );
   }
 
-  Widget wRFXGameHistoryFilterDropdown(
-    bool isDark,
-    ThemeProvider themeProvider,
-  ) {
+  String _getSortLabel(WordReflexSortOption option) {
+    switch (option) {
+      case WordReflexSortOption.timeLatest:
+        return 'Time: Latest';
+      case WordReflexSortOption.timeOldest:
+        return 'Time: Oldest';
+      case WordReflexSortOption.scoreHigh:
+        return 'Score: High-Low';
+      case WordReflexSortOption.scoreLow:
+        return 'Score: Low-High';
+      case WordReflexSortOption.accuracyHigh:
+        return 'Accuracy: High';
+      case WordReflexSortOption.accuracyLow:
+        return 'Accuracy: Low';
+    }
+  }
+
+  Widget _buildSortDropdown(bool isDark, ThemeProvider themeProvider) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+      margin: EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: isDark ? Colors.grey[800] : Colors.grey[100],
-        borderRadius: BorderRadius.circular(8),
+        color: isDark ? Colors.white10 : Colors.black.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: resultFilter,
-          icon: Icon(
-            Icons.filter_list,
-            size: 18,
-            color: isDark ? Colors.grey[400] : Colors.grey[600],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+        children: [
+          Row(
+            children: [
+              Icon(
+                Icons.sort_rounded,
+                size: 18,
+                color: isDark ? Colors.white70 : Colors.black54,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                'Sort By:',
+                style: GoogleFonts.outfit(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                  color: isDark ? Colors.white70 : Colors.black54,
+                ),
+              ),
+            ],
           ),
-          dropdownColor: isDark ? Colors.grey[800] : Colors.white,
-          style: GoogleFonts.outfit(
-            color: isDark ? Colors.white : Colors.black,
-            fontSize: 14,
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            decoration: BoxDecoration(
+              color:
+                  isDark
+                      ? Colors.grey[900]
+                      : Colors.grey[100], // Background color
+              border: Border.all(
+                color:
+                    isDark
+                        ? Colors.grey[700]!
+                        : Colors.grey[300]!, // Border color
+                width: 1,
+              ),
+              borderRadius: BorderRadius.circular(8), // Border radius 8
+            ),
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<WordReflexSortOption>(
+                value: _currentSort,
+                icon: Icon(
+                  Icons.filter_list,
+                  size: 18,
+                  color: isDark ? Colors.grey[400] : Colors.grey[600],
+                ),
+                dropdownColor: isDark ? Colors.grey[800] : Colors.white,
+                style: GoogleFonts.outfit(
+                  color: isDark ? Colors.white : Colors.black,
+                  fontSize: 14,
+                ),
+                items:
+                    WordReflexSortOption.values.map((
+                      WordReflexSortOption option,
+                    ) {
+                      return DropdownMenuItem<WordReflexSortOption>(
+                        value: option,
+                        child: Text(_getSortLabel(option)),
+                      );
+                    }).toList(),
+                onChanged: (newValue) {
+                  if (newValue != null) {
+                    setState(() => _currentSort = newValue);
+                  }
+                },
+              ),
+            ),
           ),
-          items:
-              ['All', 'Recent', 'High Score'].map((String value) {
-                return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
-                );
-              }).toList(),
-          onChanged: (newValue) {
-            if (newValue != null) {
-              setState(() => resultFilter = newValue);
-            }
-          },
-        ),
+        ],
       ),
     );
   }
@@ -1274,6 +1362,60 @@ class GameWordReflexHistoryViewState extends State<GameWordReflexHistoryView>
             trailing: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
+                IconButton(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder:
+                          (context) => AlertDialog(
+                            backgroundColor:
+                                isDark ? Colors.grey[900] : Colors.white,
+                            title: Text(
+                              'Delete Record',
+                              style: GoogleFonts.outfit(
+                                fontWeight: FontWeight.bold,
+                                color: isDark ? Colors.white : Colors.black,
+                              ),
+                            ),
+                            content: Text(
+                              'Are you sure you want to delete this game record?',
+                              style: GoogleFonts.outfit(
+                                color: isDark ? Colors.white70 : Colors.black87,
+                              ),
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(
+                                  'Cancel',
+                                  style: GoogleFonts.outfit(color: Colors.grey),
+                                ),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  Provider.of<WordReflexProvider>(
+                                    context,
+                                    listen: false,
+                                  ).deleteGame(game);
+                                  Navigator.pop(context);
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Record deleted'),
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  'Delete',
+                                  style: GoogleFonts.outfit(color: Colors.red),
+                                ),
+                              ),
+                            ],
+                          ),
+                    );
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.redAccent),
+                ),
                 IconButton(
                   onPressed: () {
                     WordReflexShareDialog.show(context, game, themeProvider);

@@ -129,7 +129,7 @@ class WordMasterProvider with ChangeNotifier {
                   .toList();
         }
       }
-      _scores.sort((a, b) => b.score.compareTo(a.score));
+      _scores.sort((a, b) => b.timestamps.compareTo(a.timestamps));
     } catch (e) {
       debugPrint('Error loading word master history: $e');
     } finally {
@@ -140,7 +140,7 @@ class WordMasterProvider with ChangeNotifier {
 
   Future<void> _saveScore(WordMasterModel score) async {
     _scores.add(score);
-    _scores.sort((a, b) => b.score.compareTo(a.score));
+    _scores.sort((a, b) => b.timestamps.compareTo(a.timestamps));
 
     final user = _supabase.auth.currentUser;
     if (user != null) {
@@ -503,6 +503,31 @@ class WordMasterProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteScore(WordMasterModel score) async {
+    final user = _supabase.auth.currentUser;
+
+    if (user != null) {
+      try {
+        await _supabase
+            .from('game_word_master')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('timestamp', score.timestamps.toIso8601String());
+      } catch (e) {
+        debugPrint('Error deleting word master score from Supabase: $e');
+      }
+    }
+
+    _scores.removeWhere((s) => s.timestamps.isAtSameMomentAs(score.timestamps));
+
+    final prefs = await SharedPreferences.getInstance();
+    final scoresJson =
+        _scores.map((scoreObj) => json.encode(scoreObj.toJson())).toList();
+    await prefs.setStringList(_scoresKey, scoresJson);
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _wrongWordTimer?.cancel();
@@ -512,31 +537,3 @@ class WordMasterProvider with ChangeNotifier {
     super.dispose();
   }
 }
-
-/*
--- Word Master ગેમના ડેટા સ્ટોર કરવા માટેનું ટેબલ
-CREATE TABLE IF NOT EXISTS game_word_master (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    score INTEGER NOT NULL,
-    words_collected INTEGER NOT NULL,
-    game_duration INTEGER NOT NULL,
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- RLS (Row Level Security) સેટિંગ્સ
-ALTER TABLE game_word_master ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Users can insert their own game data" 
-ON game_word_master FOR INSERT 
-WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Users can view their own game data" 
-ON game_word_master FOR SELECT 
-USING (auth.uid() = user_id);
-
-CREATE POLICY "Users can delete their own game data"
-ON game_word_master FOR DELETE
-USING (auth.uid() = user_id);
-*/

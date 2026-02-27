@@ -1415,7 +1415,7 @@ class _GameWordMasterState extends State<GameWordMaster>
               ),
               const SizedBox(height: 8),
               Text(
-                'Performance over last ${last10Scores.length} games',
+                'Performance over last ${last10Scores.length} games (Recent)',
                 style: TextStyle(
                   fontSize: 12,
                   color: isDark ? Colors.grey[500] : Colors.grey[600],

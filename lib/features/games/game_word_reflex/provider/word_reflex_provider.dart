@@ -407,6 +407,34 @@ class WordReflexProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteGame(WordReflexResult result) async {
+    final user = _supabase.auth.currentUser;
+
+    if (user != null) {
+      try {
+        await _supabase
+            .from('game_word_reflex')
+            .delete()
+            .eq('user_id', user.id)
+            .eq('timestamp', result.timestamp.toIso8601String());
+      } catch (e) {
+        debugPrint('Error deleting from Supabase: $e');
+      }
+    }
+
+    _history.removeWhere(
+      (item) => item.timestamp.isAtSameMomentAs(result.timestamp),
+    );
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(
+      _scoresKey,
+      _history.map((item) => json.encode(item.toJson())).toList(),
+    );
+
+    notifyListeners();
+  }
+
   @override
   void dispose() {
     _gameTimer?.cancel();
@@ -414,40 +442,3 @@ class WordReflexProvider with ChangeNotifier {
     super.dispose();
   }
 }
- /*
--- Word Reflex ગેમના ડેટા સ્ટોર કરવા માટેનું ટેબલ
-CREATE TABLE IF NOT EXISTS game_word_reflex (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    score INTEGER NOT NULL,
-    correct_answers INTEGER NOT NULL,
-    wrong_answers INTEGER NOT NULL,
-    streak INTEGER NOT NULL,
-    timeouts INTEGER NOT NULL,
-    total_rounds INTEGER NOT NULL,
-    game_duration INTEGER NOT NULL,
-    accuracy NUMERIC NOT NULL,
-    round_results JSONB NOT NULL,
-    timestamp TIMESTAMPTZ DEFAULT NOW(),
-    created_at TIMESTAMPTZ DEFAULT NOW()
-);
-
--- RLS (Row Level Security) સેટિંગ્સ - જેથી યુઝર ફક્ત પોતાના જ ડેટા જોઈ અને સેવ કરી શકે
-ALTER TABLE game_word_reflex ENABLE ROW LEVEL SECURITY;
-
--- પોલિસી: ડેટા ઇન્સર્ટ કરવા માટે
-CREATE POLICY "Users can insert their own game data" 
-ON game_word_reflex FOR INSERT 
-WITH CHECK (auth.uid() = user_id);
-
--- પોલિસી: ફક્ત પોતાના ડેટા જોવા માટે
-CREATE POLICY "Users can view their own game data" 
-ON game_word_reflex FOR SELECT 
-USING (auth.uid() = user_id);
-
--- પોલિસી: પોતાનો ડેટા ડિલીટ કરવા માટે
-CREATE POLICY "Users can delete their own game data"
-ON game_word_reflex FOR DELETE
-USING (auth.uid() = user_id);
-
- */
